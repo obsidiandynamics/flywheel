@@ -1,0 +1,121 @@
+plugins {
+  id 'com.jfrog.bintray' version '1.7.3'
+}
+apply plugin: 'maven-publish'
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'com.jfrog.bintray'
+
+def packageVersion = {
+  def versionFile = sourceSets.main.resources.srcDirs[0].path + '/' + project.name + '.version'
+  def version = new BufferedReader(new FileReader(versionFile)).readLine().trim()
+  return version
+}()
+
+group = 'au.com.williamhill.flywheel'
+version = packageVersion
+
+def packageName = 'flywheel'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile 'org.slf4j:slf4j-api:1.7.6'
+  compile 'com.obsidiandynamics.indigo:indigo:0.9.1'
+  
+  testCompile 'org.awaitility:awaitility:3.0.0'
+  testCompile 'junit:junit:4.12'
+  testCompile 'org.apache.commons:commons-math3:3.2'
+  testCompile 'org.awaitility:awaitility:3.0.0'
+  testCompile 'org.mockito:mockito-core:1.9.5'
+}
+
+jacoco {
+  toolVersion = "0.7.9"
+}
+
+jacocoTestReport {
+  dependsOn test
+  reports {
+    xml.enabled false
+    html.enabled true
+  }
+}
+
+def envKey = 'BINTRAY_KEY'
+
+task bintrayCredentialsCheck {
+  doLast {
+    if (System.getenv(envKey) == null) {
+      throw new GradleException("No Bintray key specified; set with 'export ${envKey}=<key>'")
+    }
+  }
+}
+
+bintray {
+  user = 'ekoutanov'
+  key = System.getenv(envKey)
+  publications = ['mavenJava']
+  pkg {
+    repo = 'flywheel'
+    name = packageName
+    userOrg = 'william-hill-community'
+    desc = 'A simple, fast, WebSocket-based IoT message broker'
+    websiteUrl = 'https://github.com/william-hill-community/flywheel'
+    licenses = ['BSD New']
+    vcsUrl = 'https://github.com/william-hill-community/flywheel.git'
+    publicDownloadNumbers = true
+    githubRepo = 'william-hill-community/flywheel'
+    override = true
+    publish = false
+    version {
+      name = packageVersion
+      desc = 'A simple, fast, WebSocket-based IoT message broker'
+      released  = new Date()
+      vcsTag = packageVersion
+    }
+  }
+}
+
+// invoke this task when ready to publish to Bintray
+bintrayUpload {
+  dependsOn bintrayCredentialsCheck
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  baseName packageName
+  classifier = 'javadoc'
+  from "$buildDir/docs/javadoc"
+}
+ 
+task sourcesJar(type: Jar) {
+  baseName packageName
+  from sourceSets.main.allSource
+  classifier = 'sources'
+}
+ 
+artifacts {
+  archives jar
+  archives javadocJar
+  archives sourcesJar
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      groupId group
+      artifactId packageName
+      version packageVersion
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+  repositories {
+    maven {
+      url "${project(':').projectDir}/../repo"
+    }
+  }
+}
