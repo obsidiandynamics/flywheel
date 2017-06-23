@@ -23,8 +23,9 @@ repositories {
 
 dependencies {
   compile 'org.slf4j:slf4j-api:1.7.6'
-  compile 'com.obsidiandynamics.indigo:indigo:0.9.1'
+  compile 'com.obsidiandynamics.indigo:indigo-core:0.9.1'
   
+  testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.1'
   testCompile 'org.awaitility:awaitility:3.0.0'
   testCompile 'junit:junit:4.12'
   testCompile 'org.apache.commons:commons-math3:3.2'
