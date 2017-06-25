@@ -15,7 +15,7 @@ def packageVersion = {
 group = 'au.com.williamhill.flywheel'
 version = packageVersion
 
-def packageName = 'flywheel'
+def packageName = 'flywheel-core'
 
 repositories {
   jcenter()
