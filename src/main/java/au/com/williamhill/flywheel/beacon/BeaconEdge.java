@@ -4,12 +4,16 @@ import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
 
 import java.util.*;
 
+import org.slf4j.*;
+
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.socketx.*;
 
-public final class BeaconServer extends Thread implements TopicListener {
+public final class BeaconEdge extends Thread implements TopicListener {
+  private static final Logger LOG = LoggerFactory.getLogger(BeaconEdge.class);
+  
   private static final Properties PROPS = new Properties(System.getProperties());
   private static final int PORT = getOrSet(PROPS, "flywheel.beacon.port", Integer::valueOf, 8080);
   private static final String CONTEXT_PATH = getOrSet(PROPS, "flywheel.beacon.contextPath", String::valueOf, "/beacon");
@@ -17,10 +21,10 @@ public final class BeaconServer extends Thread implements TopicListener {
   
   private final EdgeNode edge;
   
-  private BeaconServer() throws Exception {
+  public BeaconEdge() throws Exception {
     super("BeaconServer");
     filter("flywheel.beacon", PROPS).entrySet().stream()
-    .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(System.out::println);
+    .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG::info);
     
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig().withContextPath(CONTEXT_PATH).withPort(PORT))
@@ -31,27 +35,27 @@ public final class BeaconServer extends Thread implements TopicListener {
   
   @Override
   public void onOpen(EdgeNexus nexus) {
-    System.out.format("%s: opened\n", nexus);
+    LOG.info("{}: opened", nexus);
   }
 
   @Override
   public void onClose(EdgeNexus nexus) {
-    System.out.format("%s: closed\n", nexus);
+    LOG.info("{}: closed", nexus);
   }
 
   @Override
   public void onBind(EdgeNexus nexus, BindFrame bind, BindResponseFrame bindRes) {
-    System.out.format("%s: bind %s -> %s\n", nexus, bind, bindRes);
+    LOG.info("{}: bind {} -> {}", nexus, bind, bindRes);
   }
 
   @Override
   public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
-    System.out.format("%s: publish %s\n", nexus, pub);
+    LOG.info("{}: publish {}", nexus, pub);
   }
 
   @Override
   public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
-    System.out.format("%s: publish %s\n", nexus, pub);
+    LOG.info("{}: publish {}", nexus, pub);
   }
   
   @Override
@@ -70,9 +74,5 @@ public final class BeaconServer extends Thread implements TopicListener {
         break;
       }
     }
-  }
-  
-  public static void main(String[] args) throws Exception {
-    new BeaconServer();
   }
 }

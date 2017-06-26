@@ -1,1 +1,4 @@
 rootProject.name = 'flywheel'
+
+include 'flywheel-standalone'
+project(':flywheel-standalone').projectDir = new File(settingsDir, 'standalone')

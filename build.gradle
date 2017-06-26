@@ -156,9 +156,3 @@ task remoteRigBench(type: JavaExec) {
   jvmArgs = Arrays.asList perfJvmArgs.split(' ')
   main = 'au.com.williamhill.flywheel.rig.RemoteRigBenchmark'
 }
-
-task beaconServer(type: JavaExec) {
-  systemProperties = System.properties
-  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
-  main = 'au.com.williamhill.flywheel.beacon.BeaconServer'
-}

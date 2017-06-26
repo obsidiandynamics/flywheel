@@ -1,0 +1,34 @@
+apply plugin: 'java'
+
+group = project(':').group
+version = project(':').version
+
+def packageName = 'flywheel-standalone'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile project(':')
+  
+  testCompile 'junit:junit:4.12'
+}
+
+jar {
+  from sourceSets.main.output
+  from { // bundle all dependencies
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    configurations.testCompile.collect { it.isDirectory() ? it : zipTree(it) }
+  }   
+  baseName packageName + '-full'
+}
+
+def perfJvmArgs = '-server -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking -Xms1G -Xmx4G -Xss1M -XX:+UseParallelGC'
+
+task beaconEdge(type: JavaExec) {
+  systemProperties = System.properties
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  main = 'au.com.williamhill.flywheel.beacon.RunBeaconEdge'
+}
