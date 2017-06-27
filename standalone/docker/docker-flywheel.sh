@@ -8,5 +8,8 @@ if [ "$1" == "--cmd" ]; then
     sh -c "$*"
   fi
 else
-  java -cp flywheel-standalone-full-*jar au.com.williamhill.flywheel.beacon.RunBeaconEdge $@
+  java -Dlog4j.configuration=file:ext/conf/log4j.properties \
+       -cp flywheel-standalone-full-*jar \
+       au.com.williamhill.flywheel.beacon.RunBeaconEdge \
+       $@
 fi

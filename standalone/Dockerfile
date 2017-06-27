@@ -1,7 +1,10 @@
 FROM openjdk:8u131-jdk-alpine
-ADD docker/docker-flywheel.sh .
-ADD build/libs/flywheel-standalone-full-*jar .
+LABEL maintainer "Emil Koutanov <ekoutanov@gmail.com>"
+
+COPY build/libs/flywheel-standalone-full-*jar .
+COPY docker/docker-flywheel.sh .
 RUN chmod +x docker-flywheel.sh
 
+VOLUME /ext
 EXPOSE 8080
 ENTRYPOINT ["/docker-flywheel.sh"]
