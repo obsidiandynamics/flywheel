@@ -1,0 +1,11 @@
+name: platform-flywheel
+type: service
+maxMemory: 512
+segment: internal
+tcpPorts:
+  - 8080
+environment:
+healthCheck:
+  endpoint: /health
+  timeoutSeconds: 1
+  intervalSeconds: 30
