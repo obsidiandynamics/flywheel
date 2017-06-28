@@ -9,7 +9,7 @@ public final class FlywheelVersion {
   private FlywheelVersion() {}
   
   public static String get() throws IOException {
-    return get("flywheel.version");
+    return get("flywheel.version") + "_" + get("flywheel.build");
   }
   
   static String get(String versionFile) throws IOException {

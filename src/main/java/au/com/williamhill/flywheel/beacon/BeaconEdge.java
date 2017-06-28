@@ -6,6 +6,8 @@ import java.util.*;
 
 import org.slf4j.*;
 
+import com.obsidiandynamics.indigo.util.*;
+
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
@@ -25,6 +27,9 @@ public final class BeaconEdge extends Thread implements TopicListener {
     super("BeaconServer");
     filter("flywheel.beacon", PROPS).entrySet().stream()
     .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG::info);
+    
+    LOG.info("Flywheel version: {}", FlywheelVersion.get());
+    LOG.info("Indigo version:   {}", IndigoVersion.get());
     
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig().withContextPath(CONTEXT_PATH).withPort(PORT))

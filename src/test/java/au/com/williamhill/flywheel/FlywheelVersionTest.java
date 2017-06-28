@@ -9,7 +9,9 @@ import org.junit.*;
 public final class FlywheelVersionTest {
   @Test
   public void testValid() throws IOException {
-    assertNotNull(FlywheelVersion.get());
+    final String version = FlywheelVersion.get();
+    assertNotNull(version);
+    assertTrue(version.contains("_"));
   }
   
   @Test(expected=IOException.class)
