@@ -431,12 +431,20 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     
     assertEquals(expectedReceive, totalReceived(clients));
 
-    if (c.log.stages) c.log.out.format("s: awaiting client.sent\n");
     if (c.echo) {
+      if (c.log.stages) c.log.out.format("s: awaiting client.sent (echo mode was enabled)\n");
       Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> totalSent(clients) >= expectedReceive);
       assertEquals(expectedReceive, totalSent(clients));
     } else {
       assertEquals(0, totalSent(clients));
+    }
+
+    if (c.echo) {
+      if (c.log.stages) c.log.out.format("s: awaiting server.received (echo mode was enabled)\n");
+      Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.received.get() == expectedReceive);
+      assertEquals(expectedReceive, server.received.get());
+    } else {
+      assertEquals(0, server.received.get());
     }
     
     final Summary summary = new Summary();
@@ -460,14 +468,6 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     if (c.log.stages) c.log.out.format("s: awaiting client.closed\n");
     Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> totalClosed(clients) == c.m);
     assertEquals(c.m, totalClosed(clients));
-
-    if (c.echo) {
-      if (c.log.stages) c.log.out.format("s: awaiting server.received\n");
-      Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.received.get() == expectedReceive);
-      assertEquals(expectedReceive, server.received.get());
-    } else {
-      assertEquals(0, server.received.get());
-    }
 
     server.close();
     return summary;
