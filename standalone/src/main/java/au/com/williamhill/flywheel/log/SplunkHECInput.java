@@ -1,6 +1,5 @@
 package au.com.williamhill.flywheel.log;
 
-import java.io.*;
 import java.net.*;
 import java.security.cert.*;
 import java.util.*;
@@ -21,7 +20,6 @@ import org.apache.http.impl.nio.reactor.*;
 import org.apache.http.nio.conn.*;
 import org.apache.http.nio.conn.ssl.*;
 import org.apache.http.nio.reactor.*;
-import org.apache.http.util.*;
 
 /**
  * Common HEC logic shared by all appenders/handlers
@@ -40,19 +38,10 @@ public final class SplunkHECInput extends SplunkInput {
   private CloseableHttpAsyncClient httpClient;
   private URI uri;
 
-  private static final X509HostnameVerifier HOSTNAME_VERIFIER = new X509HostnameVerifier() {
+  private static final HostnameVerifier HOSTNAME_VERIFIER = new HostnameVerifier() {
     public boolean verify(String s, SSLSession sslSession) {
       return true;
     }
-
-    @Override
-    public void verify(String host, SSLSocket ssl) throws IOException {}
-
-    @Override
-    public void verify(String host, X509Certificate cert) throws SSLException {}
-
-    @Override
-    public void verify(String host, String[] cns, String[] subjectAlts) throws SSLException {}
   };
 
   public SplunkHECInput(HECTransportConfig config) throws Exception {
@@ -66,8 +55,6 @@ public final class SplunkHECInput extends SplunkInput {
         .register("http", NoopIOSessionStrategy.INSTANCE)
         .register("https",
                   new SSLIOSessionStrategy(getSSLContext(),
-                                           split(System.getProperty("https.protocols")),
-                                           split(System.getProperty("https.cipherSuites")),
                                            HOSTNAME_VERIFIER)).build();
 
     ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
@@ -89,13 +76,6 @@ public final class SplunkHECInput extends SplunkInput {
     if (config.isBatchMode()) {
       new BatchBufferActivityCheckerThread().start();
     }
-  }
-
-  private static String[] split(final String s) {
-    if (TextUtils.isBlank(s)) {
-      return null;
-    }
-    return s.split(" *, *");
   }
 
   class BatchBufferActivityCheckerThread extends Thread {
@@ -137,6 +117,7 @@ public final class SplunkHECInput extends SplunkInput {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private SSLContext getSSLContext() {
     TrustStrategy acceptingTrustStrategy = new TrustStrategy() {
       @Override
