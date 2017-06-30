@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+group = project(':').group
+version = project(':').version
+
+def packageName = 'flywheel-backplane-kafka'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile project(':')
+  compile 'org.apache.kafka:kafka-clients:0.11.0.0'
+  
+  testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
+}
