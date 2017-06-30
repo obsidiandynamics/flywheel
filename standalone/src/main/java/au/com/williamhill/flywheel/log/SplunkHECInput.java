@@ -1,15 +1,16 @@
 package au.com.williamhill.flywheel.log;
 
+import java.io.*;
 import java.net.*;
 import java.security.cert.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import javax.net.ssl.*;
 
 import org.apache.http.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.*;
+import org.apache.http.concurrent.*;
 import org.apache.http.config.*;
 import org.apache.http.conn.routing.*;
 import org.apache.http.conn.ssl.*;
@@ -20,6 +21,7 @@ import org.apache.http.impl.nio.reactor.*;
 import org.apache.http.nio.conn.*;
 import org.apache.http.nio.conn.ssl.*;
 import org.apache.http.nio.reactor.*;
+import org.apache.http.util.*;
 
 /**
  * Common HEC logic shared by all appenders/handlers
@@ -101,7 +103,7 @@ public final class SplunkHECInput extends SplunkInput {
 
           Thread.sleep(1000);
         } catch (Exception e) {
-          // something went wrong , put message on the queue for retry
+          // something went wrong, put message on the queue for retry
           enqueue(currentMessage);
           try {
             closeStream();
@@ -154,8 +156,8 @@ public final class SplunkHECInput extends SplunkInput {
     }
   }
 
-  private String wrapMessageInQuotes(String message) {
-    return "\"" + message + "\"";
+  private String escapeAndQuote(String message) {
+    return "\"" + message.replace("\"", "\\\"") + "\"";
   }
 
   /**
@@ -166,15 +168,12 @@ public final class SplunkHECInput extends SplunkInput {
   public void streamEvent(String message) {
     String currentMessage = "";
     try {
+      final String escaped = escapeAndQuote(message);
 
-      if (!(message.startsWith("{") && message.endsWith("}"))
-          && !(message.startsWith("\"") && message.endsWith("\"")))
-        message = wrapMessageInQuotes(message);
-
-      // could use a JSON Object , but the JSON is so trivial , just
+      // could use a JSON Object, but the JSON is so trivial, just
       // building it with a StringBuffer
-      StringBuffer json = new StringBuffer();
-      json.append("{\"").append("event\":").append(message).append(",\"")
+      final StringBuilder json = new StringBuilder();
+      json.append("{\"").append("event\":").append(escaped).append(",\"")
       .append("index\":\"").append(config.getIndex())
       .append("\",\"").append("source\":\"")
       .append(config.getSource()).append("\",\"")
@@ -203,9 +202,8 @@ public final class SplunkHECInput extends SplunkInput {
         currentMessage = messageOffQueue;
         hecPost(currentMessage);
       }
-
     } catch (Exception e) {
-      // something went wrong , put message on the queue for retry
+      // something went wrong, put message on the queue for retry
       enqueue(currentMessage);
       try {
         closeStream();
@@ -234,18 +232,31 @@ public final class SplunkHECInput extends SplunkInput {
     return sb.toString();
   }
 
-  private void hecPost(String currentMessage) throws Exception {
+  private void hecPost(String payload) throws Exception {
     final HttpPost post = new HttpPost(uri);
     post.addHeader("Authorization", "Splunk " + config.getToken());
 
-    StringEntity requestEntity = new StringEntity(currentMessage,
-                                                  ContentType.create("application/json", "UTF-8"));
-
+    final StringEntity requestEntity = new StringEntity(payload, ContentType.APPLICATION_JSON);
     post.setEntity(requestEntity);
-    Future<HttpResponse> future = httpClient.execute(post, null);
-    future.get();
-    // HttpResponse response = future.get();  // replace above line with these three
-    // System.out.println(response.getStatusLine());
-    // System.out.println(EntityUtils.toString(response.getEntity()));
+    httpClient.execute(post, new FutureCallback<HttpResponse>() {
+      @Override public void completed(HttpResponse response) {
+        if (response.getStatusLine().getStatusCode() >= 300) {
+          System.err.println("Splunk: error sending request '" + payload + "'");
+          System.err.println(response.getStatusLine());
+          try {
+            System.err.println(EntityUtils.toString(response.getEntity()));
+          } catch (Exception e) {
+            e.printStackTrace(System.err);
+          }
+        }
+      }
+
+      @Override public void failed(Exception ex) {
+        System.err.println("Splunk: error sending request '" + payload + "'");
+        ex.printStackTrace(System.err);
+      }
+
+      @Override public void cancelled() {}
+    });
   }
 }

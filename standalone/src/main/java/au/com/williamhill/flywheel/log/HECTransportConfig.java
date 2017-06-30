@@ -17,13 +17,12 @@ public final class HECTransportConfig {
   private static final int GB = MB * 1024;
 
   private boolean batchMode = false;
-  private long maxBatchSizeBytes = 1 * MB; // 1MB
-  private long maxBatchSizeEvents = 100; // 100 events
-  private long maxInactiveTimeBeforeBatchFlush = 5000;// 5 secs
+  private long maxBatchSizeBytes = 1 * MB;
+  private long maxBatchSizeEvents = 100;
+  private long maxInactiveTimeBeforeBatchFlush = 5000;
 
   public HECTransportConfig() {
   }
-
 
   public String getToken() {
     return token;

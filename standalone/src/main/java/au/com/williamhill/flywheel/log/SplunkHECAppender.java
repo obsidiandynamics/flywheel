@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.log;
 
+import java.util.*;
+
 import org.apache.log4j.*;
 import org.apache.log4j.spi.*;
 
@@ -10,13 +12,12 @@ import org.apache.log4j.spi.*;
  * 
  */
 public class SplunkHECAppender extends AppenderSkeleton {
-
   // connection settings
   private HECTransportConfig config = new HECTransportConfig();
 
   // queuing settings
   private String maxQueueSize;
-  private boolean dropEventsOnQueueFull;
+  private boolean dropEventsOnQueueFull = true;
 
   private SplunkHECInput shi;
 
@@ -33,7 +34,6 @@ public class SplunkHECAppender extends AppenderSkeleton {
    *            the layout to apply to the log event
    */
   public SplunkHECAppender(Layout layout) {
-
     this.layout = layout;
   }
 
@@ -42,17 +42,17 @@ public class SplunkHECAppender extends AppenderSkeleton {
    */
   @Override
   protected void append(LoggingEvent event) {
-
     try {
       if (shi == null) {
         shi = new SplunkHECInput(config);
-        shi.setMaxQueueSize(maxQueueSize);
+        if (maxQueueSize != null) shi.setMaxQueueSize(maxQueueSize);
         shi.setDropEventsOnQueueFull(dropEventsOnQueueFull);
       }
     } catch (Exception e) {
       errorHandler
-          .error("Couldn't establish connection for SplunkHECAppender named \""
-              + this.name + "\".");
+          .error("Couldn't establish connection for SplunkHECAppender named '"
+              + this.name + "': " + Arrays.asList(e.getStackTrace()));
+      e.printStackTrace(System.err);
       return;
     }
 
@@ -73,7 +73,6 @@ public class SplunkHECAppender extends AppenderSkeleton {
     }
 
     shi.streamEvent(formatted);
-
   }
 
   /**
@@ -81,7 +80,6 @@ public class SplunkHECAppender extends AppenderSkeleton {
    */
   @Override
   synchronized public void close() {
-
     closed = true;
     if (shi != null) {
       try {
@@ -92,7 +90,6 @@ public class SplunkHECAppender extends AppenderSkeleton {
         shi = null;
       }
     }
-
   }
 
   @Override
@@ -192,8 +189,7 @@ public class SplunkHECAppender extends AppenderSkeleton {
     return config.getMaxInactiveTimeBeforeBatchFlush();
   }
 
-  public void setMaxInactiveTimeBeforeBatchFlush(
-      long maxInactiveTimeBeforeBatchFlush) {
+  public void setMaxInactiveTimeBeforeBatchFlush(long maxInactiveTimeBeforeBatchFlush) {
     config.setMaxInactiveTimeBeforeBatchFlush(maxInactiveTimeBeforeBatchFlush);
   }
 

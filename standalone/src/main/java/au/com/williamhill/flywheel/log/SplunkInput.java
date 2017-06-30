@@ -11,7 +11,6 @@ import java.util.List;
  * 
  */
 public abstract class SplunkInput {
-
   // data size multipliers
   private static final int KB = 1024;
   private static final int MB = KB * 1024;
@@ -35,7 +34,6 @@ public abstract class SplunkInput {
    * @param event
    */
   protected void enqueue(String event) {
-
     long eventSize = event.getBytes().length;
 
     if (queueHasCapacity(eventSize)) {
@@ -45,10 +43,8 @@ public abstract class SplunkInput {
       queue.clear();
       queue.add(event);
       currentQueueSizeInBytes = eventSize;
-
     } else {
-      // bummer , queue is full up
-
+      // bummer, queue is full
     }
   }
 
@@ -59,7 +55,6 @@ public abstract class SplunkInput {
    * @return
    */
   private boolean queueHasCapacity(long eventSize) {
-
     return (currentQueueSizeInBytes + eventSize) <= maxQueueSize;
   }
 
@@ -69,7 +64,7 @@ public abstract class SplunkInput {
    * @return
    */
   protected boolean queueContainsEvents() {
-    return !queue.isEmpty();
+    return ! queue.isEmpty();
   }
 
   /**
@@ -79,9 +74,8 @@ public abstract class SplunkInput {
    * @return
    */
   protected String dequeue() {
-
     if (queueContainsEvents()) {
-      String event = queue.remove(0);
+      final String event = queue.remove(0);
       currentQueueSizeInBytes -= event.getBytes().length;
       if (currentQueueSizeInBytes < 0) {
         currentQueueSizeInBytes = 0;
@@ -93,13 +87,12 @@ public abstract class SplunkInput {
 
   /**
    * Set the queue size from the configured property String value. If parsing
-   * fails , the default of 500KB will be used.
+   * fails, the default will be used.
    * 
    * @param rawProperty
    *            in format [<integer>|<integer>[KB|MB|GB]]
    */
   public void setMaxQueueSize(String rawProperty) {
-
     int multiplier;
     int factor;
 
@@ -113,8 +106,7 @@ public abstract class SplunkInput {
       return;
     }
     try {
-      factor = Integer.parseInt(rawProperty.substring(0,
-          rawProperty.length() - 2));
+      factor = Integer.parseInt(rawProperty.substring(0, rawProperty.length() - 2));
     } catch (NumberFormatException e) {
       return;
     }
