@@ -46,4 +46,9 @@ public final class BinaryUtils {
     }
     return bytes;
   }
+  
+  public static ByteBuffer toByteBuffer(int ... ints) {
+    final byte[] bytes = toByteArray(ints);
+    return ByteBuffer.wrap(bytes);
+  }
 }

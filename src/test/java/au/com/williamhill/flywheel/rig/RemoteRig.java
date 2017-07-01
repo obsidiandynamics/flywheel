@@ -209,7 +209,8 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   }
   
   public boolean await() throws InterruptedException {
-    return Await.perpetual(() -> node.getNexuses().isEmpty());
+    Await.perpetual(() -> node.getNexuses().isEmpty());
+    return true;
   }
 
   @Override

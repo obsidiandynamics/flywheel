@@ -122,6 +122,11 @@ bintrayUpload {
   dependsOn bintrayCredentialsCheck
 }
 
+jar {
+  baseName packageName
+  finalizedBy jacocoTestReport
+}
+
 task javadocJar(type: Jar, dependsOn: javadoc) {
   baseName packageName
   classifier = 'javadoc'

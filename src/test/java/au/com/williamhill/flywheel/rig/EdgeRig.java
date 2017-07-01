@@ -185,7 +185,8 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   }
   
   public boolean await() throws InterruptedException {
-    return Await.perpetual(() -> state == State.STOPPED && node.getNexuses().isEmpty());
+    Await.perpetual(() -> state == State.STOPPED && node.getNexuses().isEmpty());
+    return true;
   }
   
   @Override

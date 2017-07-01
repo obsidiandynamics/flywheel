@@ -8,12 +8,12 @@ public final class Await {
   
   private Await() {}
   
-  public static boolean perpetual(BooleanSupplier test) throws InterruptedException {
-    return bounded(Integer.MAX_VALUE, DEF_INTERVAL, test);
+  public static void perpetual(BooleanSupplier test) throws InterruptedException {
+    bounded(Integer.MAX_VALUE, DEF_INTERVAL, test);
   }
   
-  public static boolean perpetual(int intervalMillis, BooleanSupplier test) throws InterruptedException {
-    return bounded(Integer.MAX_VALUE, intervalMillis, test);
+  public static void perpetual(int intervalMillis, BooleanSupplier test) throws InterruptedException {
+    bounded(Integer.MAX_VALUE, intervalMillis, test);
   }
   
   public static void boundedTimeout(int waitMillis, BooleanSupplier test) throws InterruptedException, TimeoutException {
