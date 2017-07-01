@@ -66,8 +66,7 @@ final class WebSocketServerInitializer extends ChannelInitializer<SocketChannel>
         manager.createEndpoint(ctx);
       }
       
-      @Override
-      protected void decode(ChannelHandlerContext ctx, WebSocketFrame frame, List<Object> out) throws Exception {
+      @Override protected void decode(ChannelHandlerContext ctx, WebSocketFrame frame, List<Object> out) throws Exception {
         super.decode(ctx, frame, out);
         if (frame instanceof CloseWebSocketFrame) {
           final NettyEndpoint endpoint = manager.remove(ctx.channel());
@@ -101,13 +100,12 @@ final class WebSocketServerInitializer extends ChannelInitializer<SocketChannel>
       
       private ByteBuffer toByteBuffer(ByteBuf buf) {
         final ByteBuffer data = ByteBuffer.allocate(buf.readableBytes());
-        buf.readBytes(buf);
+        buf.readBytes(data);
         data.flip();
         return data;
       }
       
-      @Override
-      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+      @Override public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         super.exceptionCaught(ctx, cause);
         final NettyEndpoint endpoint = manager.get(ctx.channel());
         if (endpoint != null) {
