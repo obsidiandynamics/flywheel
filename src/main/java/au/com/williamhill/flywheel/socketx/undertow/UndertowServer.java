@@ -35,8 +35,8 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
         .setClassLoader(UndertowServer.class.getClassLoader())
         .setDeploymentName("servlet").setContextPath("");
     for (XMappedServlet servlet : config.servlets) {
-      final ServletInfo info = Servlets.servlet(servlet.getServletName(), servlet.getServletClass())
-          .addMapping(servlet.getServletMapping());
+      final ServletInfo info = Servlets.servlet(servlet.getName(), servlet.getServletClass())
+          .addMapping(servlet.getPath());
       servletBuilder.addServlet(info);
     }
     final DeploymentManager servletManager = Servlets.defaultContainer().addDeployment(servletBuilder);

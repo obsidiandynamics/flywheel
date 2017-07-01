@@ -31,8 +31,8 @@ public final class JettyServer implements XServer<JettyEndpoint> {
     
     final ServletContextHandler svContext = new ServletContextHandler(null, "/");
     for (XMappedServlet servlet : config.servlets) {
-      final ServletHolder holder = new ServletHolder(servlet.getServletName(), servlet.getServletClass());
-      svContext.getServletHandler().addServletWithMapping(holder, servlet.getServletMapping());
+      final ServletHolder holder = new ServletHolder(servlet.getName(), servlet.getServletClass());
+      svContext.getServletHandler().addServletWithMapping(holder, servlet.getPath());
     }
     handlers.addHandler(svContext);
     server.start();
