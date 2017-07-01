@@ -37,7 +37,7 @@ public final class Wire {
                                     .registerSubtype(BasicAuth.class, BasicAuth.JSON_TYPE_NAME)
                                     .registerSubtype(BearerAuth.class, BearerAuth.JSON_TYPE_NAME));
     if (prettyPrinting) builder.setPrettyPrinting();
-    gson = builder.create();
+    gson = builder.disableHtmlEscaping().create();
   }
 
   public String encode(TextEncodedFrame frame) {
