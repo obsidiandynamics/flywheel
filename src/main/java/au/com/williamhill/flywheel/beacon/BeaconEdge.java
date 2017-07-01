@@ -11,6 +11,7 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.health.*;
 import au.com.williamhill.flywheel.socketx.*;
 
 public final class BeaconEdge extends Thread implements TopicListener {
@@ -32,7 +33,10 @@ public final class BeaconEdge extends Thread implements TopicListener {
     LOG.info("Indigo version:   {}", IndigoVersion.get());
     
     edge = EdgeNode.builder()
-        .withServerConfig(new XServerConfig().withContextPath(CONTEXT_PATH).withPort(PORT))
+        .withServerConfig(new XServerConfig()
+                          .withContextPath(CONTEXT_PATH)
+                          .withPort(PORT)
+                          .withServlets(new XMappedServlet("/health/*", HealthServlet.class)))
         .build();
     edge.addTopicListener(this);
     start();

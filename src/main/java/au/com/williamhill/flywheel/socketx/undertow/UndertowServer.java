@@ -1,10 +1,5 @@
 package au.com.williamhill.flywheel.socketx.undertow;
 
-import java.io.*;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
-
 import org.xnio.*;
 
 import au.com.williamhill.flywheel.socketx.*;
@@ -18,22 +13,13 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
   private final UndertowEndpointManager manager;
   private final XnioWorker worker;
   private final XEndpointScanner<UndertowEndpoint> scanner;
-  
-  public static class WrapperServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-      response.getWriter().write("Cruizin'");
-    }
-  }
-  
   private UndertowServer(XServerConfig config,
                          XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
     final int ioThreads = Runtime.getRuntime().availableProcessors();
     final int coreWorkerThreads = 100;
     final int maxWorkerThreads = coreWorkerThreads * 100;
-    
+
     worker = Xnio.getInstance().createWorker(OptionMap.builder()
                                              .set(Options.WORKER_IO_THREADS, ioThreads)
                                              .set(Options.THREAD_DAEMON, true)
@@ -41,21 +27,25 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
                                              .set(Options.WORKER_TASK_MAX_THREADS, maxWorkerThreads)
                                              .set(Options.TCP_NODELAY, true)
                                              .getMap());
-    
+
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
     manager = new UndertowEndpointManager(scanner, config.idleTimeoutMillis, config.endpointConfig, listener);
-    
+
     final DeploymentInfo servletBuilder = Servlets.deployment()
         .setClassLoader(UndertowServer.class.getClassLoader())
-        .setDeploymentName("servlet").setContextPath("")
-        .addServlets(Servlets.servlet(WrapperServlet.class).addMapping("/health/*"));
+        .setDeploymentName("servlet").setContextPath("");
+    for (XMappedServlet servlet : config.servlets) {
+      final ServletInfo info = Servlets.servlet(servlet.getServletName(), servlet.getServletClass())
+          .addMapping(servlet.getServletMapping());
+      servletBuilder.addServlet(info);
+    }
     final DeploymentManager servletManager = Servlets.defaultContainer().addDeployment(servletBuilder);
     servletManager.deploy();
-    
+
     final PathHandler handler = Handlers.path()
-    .addPrefixPath("/", servletManager.start())
-    .addPrefixPath(config.contextPath, Handlers.websocket(manager));
-    
+        .addPrefixPath("/", servletManager.start())
+        .addPrefixPath(config.contextPath, Handlers.websocket(manager));
+
     server = Undertow.builder()
         .setWorker(worker)
         .addHttpListener(config.port, "0.0.0.0")
@@ -63,7 +53,7 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
         .build();
     server.start();
   }
-  
+
   @Override
   public void close() throws Exception {
     scanner.close();
@@ -76,14 +66,14 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
   public UndertowEndpointManager getEndpointManager() {
     return manager;
   }
-  
+
   public static final class Factory implements XServerFactory<UndertowEndpoint> {
     @Override public XServer<UndertowEndpoint> create(XServerConfig config,
                                                       XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
       return new UndertowServer(config, listener);
     }
   }
-  
+
   public static XServerFactory<UndertowEndpoint> factory() {
     return new Factory();
   }

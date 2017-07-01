@@ -166,7 +166,8 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
 
   @Override
   public InetSocketAddress getRemoteAddress() {
-    return getRemote().getInetSocketAddress();
+    final RemoteEndpoint remote = getRemote();
+    return remote != null ? remote.getInetSocketAddress() : null;
   }
 
   @Override

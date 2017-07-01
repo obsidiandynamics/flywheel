@@ -11,6 +11,8 @@ public class XServerConfig {
   
   public int scanIntervalMillis = 1_000;
   
+  public XMappedServlet[] servlets = new XMappedServlet[0];
+  
   public XEndpointConfig endpointConfig = new XEndpointConfig();
   
   public XServerConfig withPort(int port) {
@@ -35,6 +37,11 @@ public class XServerConfig {
   
   public XServerConfig withScanInterval(int scanIntervalMillis) {
     this.scanIntervalMillis = scanIntervalMillis;
+    return this;
+  }
+  
+  public XServerConfig withServlets(XMappedServlet ... servlets) {
+    this.servlets = servlets;
     return this;
   }
 

@@ -16,6 +16,10 @@ public final class NettyServer implements XServer<NettyEndpoint> {
   private final Channel channel;
   
   private NettyServer(XServerConfig config, XEndpointListener<? super NettyEndpoint> listener) throws InterruptedException {
+    if (config.servlets.length != 0) {
+      throw new UnsupportedOperationException("Servlets are not supported");
+    }
+    
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
     manager = new NettyEndpointManager(scanner, config.endpointConfig, listener);
     bossGroup = new NioEventLoopGroup(1);
