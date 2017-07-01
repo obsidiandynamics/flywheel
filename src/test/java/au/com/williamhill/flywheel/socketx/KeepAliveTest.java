@@ -35,7 +35,7 @@ public final class KeepAliveTest extends BaseClientServerTest {
                              XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
     for (int cycle = 0; cycle < cycles; cycle++) {
       testKeepAlive(serverFactory, clientFactory);
-      cleanup();
+      dispose();
     }
   }
 

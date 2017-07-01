@@ -25,7 +25,7 @@ import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class NodeCommsTest {
-  private static final int PREFERRED_PORT = 6667;
+  private static final int PREFERRED_PORT = 8080;
   
   private Wire wire;
 

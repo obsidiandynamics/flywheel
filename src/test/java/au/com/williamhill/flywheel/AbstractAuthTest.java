@@ -21,7 +21,7 @@ import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public abstract class AbstractAuthTest {
-  private static final int PREFERRED_PORT = 6667;
+  private static final int PREFERRED_PORT = 8080;
   private static final boolean SUPPRESS_LOGGING = true;
   
   private Wire wire;

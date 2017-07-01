@@ -1,7 +1,7 @@
 package au.com.williamhill.flywheel.socketx;
 
 public class XServerConfig {
-  public int port = 6667;
+  public int port = 8080;
   
   public String contextPath = "/";
   

@@ -23,7 +23,7 @@ import au.com.williamhill.flywheel.socketx.undertow.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
-  private static final int PREFERRED_PORT = 6667;
+  private static final int PREFERRED_PORT = 8080;
   private static final int BACKLOG_HWM = 1_000_000;
   private static final int BYTES = 16;
   private static final int IDLE_TIMEOUT = 0;

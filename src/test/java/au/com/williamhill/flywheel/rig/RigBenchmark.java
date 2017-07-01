@@ -18,7 +18,7 @@ import au.com.williamhill.flywheel.util.*;
 
 public final class RigBenchmark implements TestSupport {
   private static final String HOST = "localhost";
-  private static final int PREFERRED_PORT = 6667;
+  private static final int PREFERRED_PORT = 8080;
   
   abstract static class Config implements Spec {
     static {
