@@ -13,13 +13,20 @@ public abstract class BaseClientServerTest implements TestSupport {
   protected XServer<? extends XEndpoint> server;
 
   protected XClient<? extends XEndpoint> client;
+  
+  @Before
+  public final void setup() throws Exception {
+    init();
+  }
 
   @After
-  public void teardown() throws Exception {
-    cleanup();
+  public final void teardown() throws Exception {
+    dispose();
   }
   
-  protected final void cleanup() throws Exception {
+  protected void init() throws Exception {}
+  
+  protected void dispose() throws Exception {
     if (server != null) server.close();
     if (client != null) client.close();
     
@@ -29,7 +36,7 @@ public abstract class BaseClientServerTest implements TestSupport {
 
   protected static XServerConfig getDefaultServerConfig() {
     return new XServerConfig() {{
-      port = SocketTestSupport.getAvailablePort(6667);
+      port = SocketTestSupport.getAvailablePort(8080);
     }};
   }
 

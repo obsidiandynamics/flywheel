@@ -63,6 +63,7 @@ dependencies {
   compile 'io.netty:netty-all:4.1.11.Final'
   
   testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
+  testCompile 'org.apache.httpcomponents:httpclient:4.5.3'
 }
 
 jacoco {
