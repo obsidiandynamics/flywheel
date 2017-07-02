@@ -25,4 +25,10 @@ public class XClientConfig {
     this.endpointConfig = endpointConfig;
     return this;
   }
+
+  @Override
+  public String toString() {
+    return "XClientConfig [idleTimeoutMillis=" + idleTimeoutMillis + ", scanIntervalMillis=" + scanIntervalMillis
+           + ", endpointConfig=" + endpointConfig + "]";
+  }
 }

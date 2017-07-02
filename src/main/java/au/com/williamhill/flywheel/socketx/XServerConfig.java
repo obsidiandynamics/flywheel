@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.socketx;
 
+import java.util.*;
+
 public class XServerConfig {
   public int port = 8080;
   
@@ -48,5 +50,12 @@ public class XServerConfig {
   public XServerConfig withEndpointConfig(XEndpointConfig endpointConfig) {
     this.endpointConfig = endpointConfig;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return "XServerConfig [port=" + port + ", contextPath=" + contextPath + ", idleTimeoutMillis=" + idleTimeoutMillis
+           + ", pingIntervalMillis=" + pingIntervalMillis + ", scanIntervalMillis=" + scanIntervalMillis + ", servlets="
+           + Arrays.toString(servlets) + ", endpointConfig=" + endpointConfig + "]";
   }
 }

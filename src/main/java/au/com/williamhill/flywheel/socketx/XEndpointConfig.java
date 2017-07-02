@@ -7,4 +7,9 @@ public class XEndpointConfig {
     this.highWaterMark = highWaterMark;
     return this;
   }
+
+  @Override
+  public String toString() {
+    return "XEndpointConfig [highWaterMark=" + highWaterMark + "]";
+  }
 }
