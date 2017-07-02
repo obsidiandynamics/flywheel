@@ -46,11 +46,11 @@ final class DefaultServerHarness extends ServerHarness implements TestSupport {
         ping.set(false);
       }
 
-      @Override public void onPing(ByteBuffer data) {
+      @Override public void onPing(XEndpoint endpoint, ByteBuffer data) {
         log("s: ping\n");
       }
 
-      @Override public void onPong(ByteBuffer data) {
+      @Override public void onPong(XEndpoint endpoint, ByteBuffer data) {
         log("s: pong\n");
       }
     };

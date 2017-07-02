@@ -61,8 +61,8 @@ public final class KeepAliveTest extends BaseClientServerTest {
     });
     
     await().dontCatchUncaughtExceptions().atMost(10, SECONDS).untilAsserted(() -> {
-      Mockito.verify(clientListener, Mockito.atLeastOnce()).onPing(Mocks.anyNotNull());
-      Mockito.verify(serverListener, Mockito.atLeastOnce()).onPong(Mocks.anyNotNull());
+      Mockito.verify(clientListener, Mockito.atLeastOnce()).onPing(Mocks.anyNotNull(), Mocks.anyNotNull());
+      Mockito.verify(serverListener, Mockito.atLeastOnce()).onPong(Mocks.anyNotNull(), Mocks.anyNotNull());
     });
   }
 }

@@ -132,12 +132,12 @@ public final class NettyEndpoint implements XEndpoint {
   }
   
   void onPing(ByteBuffer data) {
-    manager.getListener().onPing(data);
+    manager.getListener().onPing(this, data);
     touchLastActivityTime();
   }
   
   void onPong(ByteBuffer data) {
-    manager.getListener().onPong(data);
+    manager.getListener().onPong(this, data);
     touchLastActivityTime();
   }
   

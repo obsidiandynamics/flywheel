@@ -9,9 +9,9 @@ public interface XEndpointListener<E extends XEndpoint> {
   
   void onBinary(E endpoint, ByteBuffer message);
   
-  void onPing(ByteBuffer data);
+  void onPing(E endpoint, ByteBuffer data);
   
-  void onPong(ByteBuffer data);
+  void onPong(E endpoint, ByteBuffer data);
   
   void onDisconnect(E endpoint, int statusCode, String reason);
   

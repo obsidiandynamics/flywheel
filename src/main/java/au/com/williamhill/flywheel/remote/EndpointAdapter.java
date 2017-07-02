@@ -93,8 +93,8 @@ final class EndpointAdapter<E extends XEndpoint> implements XEndpointListener<E>
   }
 
   @Override
-  public void onPing(ByteBuffer data) {}
+  public void onPing(E endpoint, ByteBuffer data) {}
 
   @Override
-  public void onPong(ByteBuffer data) {}
+  public void onPong(E endpoint, ByteBuffer data) {}
 }

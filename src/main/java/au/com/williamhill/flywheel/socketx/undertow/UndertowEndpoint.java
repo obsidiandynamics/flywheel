@@ -49,7 +49,7 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
     super.onFullPingMessage(channel, message);
     touchLastActivityTime();
     final ByteBuffer buf = WebSockets.mergeBuffers(message.getData().getResource());
-    manager.getListener().onPing(buf);
+    manager.getListener().onPing(this, buf);
   }
 
   @Override
@@ -57,7 +57,7 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
     super.onFullPongMessage(channel, message);
     touchLastActivityTime();
     final ByteBuffer buf = WebSockets.mergeBuffers(message.getData().getResource());
-    manager.getListener().onPong(buf);
+    manager.getListener().onPong(this, buf);
   }
   
   @Override

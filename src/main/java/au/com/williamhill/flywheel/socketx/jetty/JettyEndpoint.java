@@ -191,13 +191,13 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
 
   @Override
   public void onWebSocketPing(ByteBuffer payload) {
-    manager.getListener().onPing(payload);
+    manager.getListener().onPing(this, payload);
     touchLastActivityTime();
   }
 
   @Override
   public void onWebSocketPong(ByteBuffer payload) {
-    manager.getListener().onPong(payload);
+    manager.getListener().onPong(this, payload);
     touchLastActivityTime();
   }
 }

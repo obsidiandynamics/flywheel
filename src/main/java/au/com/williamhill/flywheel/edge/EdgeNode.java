@@ -111,9 +111,9 @@ public final class EdgeNode implements AutoCloseable {
         if (loggingEnabled) LOG.warn(String.format("Unexpected error on endpoint %s", endpoint), cause);
       }
 
-      @Override public void onPing(ByteBuffer data) {}
+      @Override public void onPing(E endpoint, ByteBuffer data) {}
 
-      @Override public void onPong(ByteBuffer data) {}
+      @Override public void onPong(E endpoint, ByteBuffer data) {}
     });
   }
   

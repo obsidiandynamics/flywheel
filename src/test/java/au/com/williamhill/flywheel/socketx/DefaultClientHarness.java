@@ -48,11 +48,11 @@ public final class DefaultClientHarness extends ClientHarness implements TestSup
         closed.set(true);
       }
 
-      @Override public void onPing(ByteBuffer data) {
+      @Override public void onPing(XEndpoint endpoint, ByteBuffer data) {
         log("c: ping\n");
       }
 
-      @Override public void onPong(ByteBuffer data) {
+      @Override public void onPong(XEndpoint endpoint, ByteBuffer data) {
         log("c: pong\n");
       }
     };

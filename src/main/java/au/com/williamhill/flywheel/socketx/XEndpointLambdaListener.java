@@ -16,11 +16,11 @@ public class XEndpointLambdaListener<E extends XEndpoint> implements XEndpointLi
   }
   
   @FunctionalInterface public interface OnPing<E extends XEndpoint> {
-    void onPing(ByteBuffer data);
+    void onPing(E endpoint, ByteBuffer data);
   }
   
   @FunctionalInterface public interface OnPong<E extends XEndpoint> {
-    void onPong(ByteBuffer data);
+    void onPong(E endpoint, ByteBuffer data);
   }
   
   @FunctionalInterface public interface OnDisconnect<E extends XEndpoint> {
@@ -67,13 +67,13 @@ public class XEndpointLambdaListener<E extends XEndpoint> implements XEndpointLi
   }
 
   @Override
-  public void onPing(ByteBuffer data) {
-    if (onPing != null) onPing.onPing(data);
+  public void onPing(E endpoint, ByteBuffer data) {
+    if (onPing != null) onPing.onPing(endpoint, data);
   }
 
   @Override
-  public void onPong(ByteBuffer data) {
-    if (onPong != null) onPong.onPong(data);
+  public void onPong(E endpoint, ByteBuffer data) {
+    if (onPong != null) onPong.onPong(endpoint, data);
   }
 
   @Override
