@@ -5,11 +5,11 @@ import java.util.*;
 import org.apache.log4j.*;
 import org.apache.log4j.spi.*;
 
+
 /**
- * Log4j Appender for sending events to Splunk via HEC Endpoint
- * 
- * @author Damien Dallimore damien@dtdsoftware.com
- * 
+ *  Log4j Appender for sending events to Splunk via HEC Endpoint.<p/>
+ *  
+ *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
  */
 public class SplunkHECAppender extends AppenderSkeleton {
   // connection settings
@@ -20,25 +20,17 @@ public class SplunkHECAppender extends AppenderSkeleton {
   private boolean dropEventsOnQueueFull = true;
 
   private SplunkHECInput shi;
+  
+  public SplunkHECAppender() {}
 
-  /**
-   * Constructor
-   */
-  public SplunkHECAppender() {
-  }
-
-  /**
-   * Constructor
-   * 
-   * @param layout
-   *            the layout to apply to the log event
-   */
   public SplunkHECAppender(Layout layout) {
     this.layout = layout;
   }
 
   /**
-   * Log the message
+   *  Log the message.
+   *  
+   *  @param event The log event.
    */
   @Override
   protected void append(LoggingEvent event) {
@@ -76,7 +68,7 @@ public class SplunkHECAppender extends AppenderSkeleton {
   }
 
   /**
-   * Clean up resources
+   *  Clean up resources.
    */
   @Override
   synchronized public void close() {
