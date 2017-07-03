@@ -87,7 +87,7 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
       getRemote().sendString(payload, wrapCallback(callback));
       touchLastActivityTime();
     } else if (callback != null) {
-      callback.onSkip(this);;
+      callback.onSkip(this);
     }
   }
   
@@ -98,7 +98,7 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
       getRemote().sendBytes(payload, wrapCallback(callback));
       touchLastActivityTime();
     } else if (callback != null) {
-      callback.onSkip(this);;
+      callback.onSkip(this);
     }
   }
   

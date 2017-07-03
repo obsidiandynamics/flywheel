@@ -51,7 +51,7 @@ public final class NettyEndpoint implements XEndpoint {
       f.addListener(wrapCallback(callback));
       touchLastActivityTime();
     } else if (callback != null) {
-      callback.onSkip(this);;
+      callback.onSkip(this);
     }
   }
   
@@ -63,7 +63,7 @@ public final class NettyEndpoint implements XEndpoint {
       f.addListener(wrapCallback(callback));
       touchLastActivityTime();
     } else if (callback != null) {
-      callback.onSkip(this);;
+      callback.onSkip(this);
     }
   }
   
