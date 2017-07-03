@@ -18,7 +18,7 @@ import junit.framework.*;
 
 public final class ConnectDisconnectTest extends BaseClientServerTest {
   private static final int CYCLES = 2;
-  private static final int CONNECTIONS = 10;
+  private static final int CONNECTIONS = 5;
   private static final int PROGRESS_INTERVAL = 10;
   private static final int MAX_PORT_USE_COUNT = 10_000;
 
@@ -80,8 +80,13 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
 
     // disconnect all endpoints and await closure
     for (XEndpoint endpoint : endpoints) {
-      if (clean) endpoint.close();
-      else endpoint.terminate();
+      if (clean) {
+        endpoint.close();
+        endpoint.close(); // second close() should do no harm, and shouldn't call the handler a second time
+      } else {
+        endpoint.terminate();
+        endpoint.terminate(); // second terminate() should do no harm, and shouldn't call the handler a second time
+      }
     }
     for (XEndpoint endpoint : endpoints) {
       endpoint.awaitClose(Integer.MAX_VALUE);
