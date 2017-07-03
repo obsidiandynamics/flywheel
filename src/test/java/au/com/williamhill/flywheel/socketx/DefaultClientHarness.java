@@ -68,6 +68,10 @@ public final class DefaultClientHarness extends ClientHarness implements TestSup
         System.err.println("client write error");
         throwable.printStackTrace();
       }
+
+      @Override public void onSkip(XEndpoint endpoint) {
+        log("c: skipped sending\n");
+      }
     };
   }
   

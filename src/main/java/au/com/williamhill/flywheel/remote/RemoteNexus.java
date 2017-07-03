@@ -55,11 +55,11 @@ public final class RemoteNexus implements AutoCloseable {
     return future;
   }
   
-  public CompletableFuture<Void> publish(PublishTextFrame pub) {
+  public CompletableFuture<SendOutcome> publish(PublishTextFrame pub) {
     return SendHelper.send(pub, endpoint, node.getWire());
   }
   
-  public CompletableFuture<Void> publish(PublishBinaryFrame pub) {
+  public CompletableFuture<SendOutcome> publish(PublishBinaryFrame pub) {
     return SendHelper.send(pub, endpoint, node.getWire());
   }
   

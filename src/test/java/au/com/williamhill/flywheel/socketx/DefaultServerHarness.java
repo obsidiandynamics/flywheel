@@ -65,6 +65,10 @@ final class DefaultServerHarness extends ServerHarness implements TestSupport {
         System.err.println("server write error");
         cause.printStackTrace();
       }
+
+      @Override public void onSkip(XEndpoint endpoint) {
+        log("s: skipped sending\n");
+      }
     };
     server = factory.create(config, serverListener);
   }

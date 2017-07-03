@@ -95,6 +95,8 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
       backlog.incrementAndGet();
       WebSockets.sendText(payload, channel, wrapCallback(callback));
       touchLastActivityTime();
+    } else if (callback != null) {
+      callback.onSkip(this);;
     }
   }
   
@@ -104,6 +106,8 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
       backlog.incrementAndGet();
       WebSockets.sendBinary(payload, channel, wrapCallback(callback));
       touchLastActivityTime();
+    } else if (callback != null) {
+      callback.onSkip(this);;
     }
   }
   

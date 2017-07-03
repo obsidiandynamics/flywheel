@@ -50,6 +50,8 @@ public final class NettyEndpoint implements XEndpoint {
       final ChannelFuture f = handlerContext.channel().writeAndFlush(new BinaryWebSocketFrame(buf));
       f.addListener(wrapCallback(callback));
       touchLastActivityTime();
+    } else if (callback != null) {
+      callback.onSkip(this);;
     }
   }
   
@@ -60,6 +62,8 @@ public final class NettyEndpoint implements XEndpoint {
       final ChannelFuture f = handlerContext.channel().writeAndFlush(new TextWebSocketFrame(payload));
       f.addListener(wrapCallback(callback));
       touchLastActivityTime();
+    } else if (callback != null) {
+      callback.onSkip(this);;
     }
   }
   

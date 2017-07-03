@@ -1,7 +1,6 @@
 package au.com.williamhill.flywheel.edge;
 
 import java.util.concurrent.*;
-import java.util.function.*;
 
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.frame.*;
@@ -22,27 +21,23 @@ public final class EdgeNexus implements AutoCloseable {
     return session;
   }
 
-  public CompletableFuture<Void> sendAuto(Frame frame) {
+  public CompletableFuture<SendOutcome> sendAuto(Frame frame) {
     return SendHelper.sendAuto(frame, peer.getEndpoint(), node.getWire());
   }
   
-  public void sendAuto(Frame frame, Consumer<Throwable> callback) {
-    SendHelper.sendAuto(frame, peer.getEndpoint(), node.getWire(), callback);
-  }
-  
-  public CompletableFuture<Void> send(TextEncodedFrame frame) {
+  public CompletableFuture<SendOutcome> send(TextEncodedFrame frame) {
     return SendHelper.send(frame, peer.getEndpoint(), node.getWire());
   }
   
-  public void send(TextEncodedFrame frame, Consumer<Throwable> callback) {
+  public void send(TextEncodedFrame frame, SendCallback callback) {
     SendHelper.send(frame, peer.getEndpoint(), node.getWire(), callback);
   }
   
-  public CompletableFuture<Void> send(BinaryEncodedFrame frame) {
+  public CompletableFuture<SendOutcome> send(BinaryEncodedFrame frame) {
     return SendHelper.send(frame, peer.getEndpoint(), node.getWire());
   }
   
-  public void send(BinaryEncodedFrame frame, Consumer<Throwable> callback) {
+  public void send(BinaryEncodedFrame frame, SendCallback callback) {
     SendHelper.send(frame, peer.getEndpoint(), node.getWire(), callback);
   }
   

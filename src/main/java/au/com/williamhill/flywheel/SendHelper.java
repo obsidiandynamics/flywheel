@@ -2,7 +2,6 @@ package au.com.williamhill.flywheel;
 
 import java.nio.*;
 import java.util.concurrent.*;
-import java.util.function.*;
 
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.socketx.*;
@@ -10,7 +9,7 @@ import au.com.williamhill.flywheel.socketx.*;
 public final class SendHelper {
   private SendHelper() {}
 
-  public static CompletableFuture<Void> sendAuto(Frame frame, XEndpoint endpoint, Wire wire) {
+  public static CompletableFuture<SendOutcome> sendAuto(Frame frame, XEndpoint endpoint, Wire wire) {
     if (frame instanceof TextFrame) {
       return send((TextFrame) frame, endpoint, wire);
     } else {
@@ -18,7 +17,7 @@ public final class SendHelper {
     }
   }
   
-  public static void sendAuto(Frame frame, XEndpoint endpoint, Wire wire, Consumer<Throwable> callback) {
+  public static void sendAuto(Frame frame, XEndpoint endpoint, Wire wire, SendCallback callback) {
     if (frame instanceof TextFrame) {
       send((TextFrame) frame, endpoint, wire, callback);
     } else {
@@ -26,51 +25,59 @@ public final class SendHelper {
     }
   }
 
-  public static CompletableFuture<Void> send(TextEncodedFrame frame, XEndpoint endpoint, Wire wire) {
-    final CompletableFuture<Void> f = new CompletableFuture<>();
+  public static CompletableFuture<SendOutcome> send(TextEncodedFrame frame, XEndpoint endpoint, Wire wire) {
+    final CompletableFuture<SendOutcome> f = new CompletableFuture<>();
     final String encoded = wire.encode(frame);
     endpoint.send(encoded, wrapFuture(f));
     return f;
   }
   
-  public static void send(TextEncodedFrame frame, XEndpoint endpoint, Wire wire, Consumer<Throwable> callback) {
+  public static void send(TextEncodedFrame frame, XEndpoint endpoint, Wire wire, SendCallback callback) {
     final String encoded = wire.encode(frame);
     endpoint.send(encoded, wrapCallback(callback));
   }
 
-  public static CompletableFuture<Void> send(BinaryEncodedFrame frame, XEndpoint endpoint, Wire wire) {
-    final CompletableFuture<Void> f = new CompletableFuture<>();
+  public static CompletableFuture<SendOutcome> send(BinaryEncodedFrame frame, XEndpoint endpoint, Wire wire) {
+    final CompletableFuture<SendOutcome> f = new CompletableFuture<>();
     final ByteBuffer encoded = wire.encode(frame);
     endpoint.send(encoded, wrapFuture(f));
     return f;
   }
   
-  public static void send(BinaryEncodedFrame frame, XEndpoint endpoint, Wire wire, Consumer<Throwable> callback) {
+  public static void send(BinaryEncodedFrame frame, XEndpoint endpoint, Wire wire, SendCallback callback) {
     final ByteBuffer encoded = wire.encode(frame);
     endpoint.send(encoded, wrapCallback(callback));
   }
   
-  private static XSendCallback wrapFuture(CompletableFuture<Void> f) {
+  private static XSendCallback wrapFuture(CompletableFuture<SendOutcome> f) {
     return new XSendCallback() {
       @Override public void onComplete(XEndpoint endpoint) {
-        f.complete(null);
+        f.complete(SendOutcome.SENT);
       }
 
       @Override public void onError(XEndpoint endpoint, Throwable cause) {
         f.completeExceptionally(cause);
       }
+
+      @Override public void onSkip(XEndpoint endpoint) {
+        f.complete(SendOutcome.ERROR);
+      }
     };
   }
   
-  private static XSendCallback wrapCallback(Consumer<Throwable> callback) {
+  private static XSendCallback wrapCallback(SendCallback callback) {
     if (callback != null) {
       return new XSendCallback() {
         @Override public void onComplete(XEndpoint endpoint) {
-          callback.accept(null);
+          callback.onCallback(SendOutcome.SENT, null);
         }
   
         @Override public void onError(XEndpoint endpoint, Throwable cause) {
-          callback.accept(cause);
+          callback.onCallback(SendOutcome.ERROR, null);
+        }
+
+        @Override public void onSkip(XEndpoint endpoint) {
+          callback.onCallback(SendOutcome.SKIPPED, null);
         }
       };
     } else {

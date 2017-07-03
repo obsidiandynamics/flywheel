@@ -86,6 +86,8 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
       backlog.incrementAndGet();
       getRemote().sendString(payload, wrapCallback(callback));
       touchLastActivityTime();
+    } else if (callback != null) {
+      callback.onSkip(this);;
     }
   }
   
@@ -95,6 +97,8 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
       backlog.incrementAndGet();
       getRemote().sendBytes(payload, wrapCallback(callback));
       touchLastActivityTime();
+    } else if (callback != null) {
+      callback.onSkip(this);;
     }
   }
   
