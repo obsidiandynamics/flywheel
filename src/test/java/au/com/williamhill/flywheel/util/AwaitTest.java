@@ -20,7 +20,7 @@ public final class AwaitTest {
     final boolean r = Await.bounded(20, () -> false);
     assertFalse(r);
     final long elapsed = System.currentTimeMillis() - start;
-    assertTrue("Elapsed " + elapsed, elapsed > 20);
+    assertTrue("Elapsed " + elapsed, elapsed >= 20);
   }
   
   @Test

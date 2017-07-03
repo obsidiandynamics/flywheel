@@ -1,10 +1,14 @@
 package au.com.williamhill.flywheel.log;
 
+/**
+ *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
+ */
 public final class HECTransportConfig {
   private String token;
   private String host = "localhost";
   private int port = 8088;
   private boolean https = false;
+  private String path = "/services/collector";
   private int poolsize = 1;
 
   private String index = "main";
@@ -20,9 +24,6 @@ public final class HECTransportConfig {
   private long maxBatchSizeBytes = 1 * MB;
   private long maxBatchSizeEvents = 100;
   private long maxInactiveTimeBeforeBatchFlush = 5000;
-
-  public HECTransportConfig() {
-  }
 
   public String getToken() {
     return token;
@@ -54,6 +55,14 @@ public final class HECTransportConfig {
 
   public void setHttps(boolean https) {
     this.https = https;
+  }
+  
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
   }
 
   public int getPoolsize() {
@@ -105,14 +114,12 @@ public final class HECTransportConfig {
   }
 
   /**
-   * Set the bacth size from the configured property String value. If parsing
-   * fails , the default of 500KB will be used.
+   *  Set the batch size from the configured property String value. If parsing
+   *  fails , the default of 500KB will be used.
    * 
-   * @param rawProperty
-   *            in format [<integer>|<integer>[KB|MB|GB]]
+   *  @param rawProperty In format [<integer>|<integer>[KB|MB|GB]].
    */
   public void setMaxBatchSizeBytes(String rawProperty) {
-
     int multiplier;
     int factor;
 
@@ -126,13 +133,11 @@ public final class HECTransportConfig {
       return;
     }
     try {
-      factor = Integer.parseInt(rawProperty.substring(0,
-                                                      rawProperty.length() - 2));
+      factor = Integer.parseInt(rawProperty.substring(0, rawProperty.length() - 2));
     } catch (NumberFormatException e) {
       return;
     }
     setMaxBatchSizeBytes(factor * multiplier);
-
   }
 
   public long getMaxBatchSizeEvents() {

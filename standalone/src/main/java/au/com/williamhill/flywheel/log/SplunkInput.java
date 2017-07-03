@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Common base class for all Splunk Input types. Currently just has shared logic
- * for queuing up events.
- * 
- * @author Damien Dallimore damien@dtdsoftware.com
- * 
+ *  Common base class for all Splunk Input types. Currently just has shared logic
+ *  for queuing up events. <p/>
+ *  
+ *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
  */
 public abstract class SplunkInput {
   // data size multipliers
@@ -16,22 +15,21 @@ public abstract class SplunkInput {
   private static final int MB = KB * 1024;
   private static final int GB = MB * 1024;
 
-  // default to 500K
   private long maxQueueSize = 500 * KB;
-  // default. If true,queue will get emptied when it fills up to accommodate
-  // new data.
+  
+  // If true, queue will get emptied when it fills up to accommodate new data.
   private boolean dropEventsOnQueueFull = false;
 
-  // Using this collection structure to implement the FIFO queue
+  // Using this collection structure to implement the FIFO queue.
   private List<String> queue = new ArrayList<String>();
 
   private long currentQueueSizeInBytes = 0;
 
   /**
-   * Add an event to the tail of the FIFO queue subject to there being
-   * capacity
+   *  Add an event to the tail of the FIFO queue subject to there being
+   *  capacity
    * 
-   * @param event
+   *  @param event The event to enqueue.
    */
   protected void enqueue(String event) {
     long eventSize = event.getBytes().length;
@@ -49,29 +47,29 @@ public abstract class SplunkInput {
   }
 
   /**
-   * True if the queue has capacity for adding an event of the given size
+   *  True if the queue has capacity for adding an event of the given size.
    * 
-   * @param eventSize
-   * @return
+   *  @param eventSize
+   *  @return
    */
   private boolean queueHasCapacity(long eventSize) {
     return (currentQueueSizeInBytes + eventSize) <= maxQueueSize;
   }
 
   /**
-   * True if there are pending events in the queue
+   *  True if there are pending events in the queue.
    * 
-   * @return
+   *  @return
    */
   protected boolean queueContainsEvents() {
     return ! queue.isEmpty();
   }
 
   /**
-   * Remove an event from the head of the FIFO queue or null if there are no
-   * items in the queue
+   *  Remove an event from the head of the FIFO queue or null if there are no
+   *  items in the queue.
    * 
-   * @return
+   *  @return
    */
   protected String dequeue() {
     if (queueContainsEvents()) {
@@ -86,11 +84,10 @@ public abstract class SplunkInput {
   }
 
   /**
-   * Set the queue size from the configured property String value. If parsing
-   * fails, the default will be used.
+   *  Set the queue size from the configured property String value. If parsing
+   *  fails, the default will be used.
    * 
-   * @param rawProperty
-   *            in format [<integer>|<integer>[KB|MB|GB]]
+   *  @param rawProperty In format [<integer>|<integer>[KB|MB|GB]]
    */
   public void setMaxQueueSize(String rawProperty) {
     int multiplier;
@@ -119,9 +116,9 @@ public abstract class SplunkInput {
   }
 
   /**
-   * Max queue size in bytes
+   *  Max queue size in bytes.
    * 
-   * @param maxQueueSize
+   *  @param maxQueueSize
    */
   public void setMaxQueueSize(long maxQueueSize) {
     this.maxQueueSize = maxQueueSize;
@@ -132,12 +129,11 @@ public abstract class SplunkInput {
   }
 
   /**
-   * If true,queue will get emptied when it fills up to accommodate new data.
+   *  If true,queue will get emptied when it fills up to accommodate new data.
    * 
-   * @param dropEventsOnQueueFull
+   *  @param dropEventsOnQueueFull
    */
   public void setDropEventsOnQueueFull(boolean dropEventsOnQueueFull) {
     this.dropEventsOnQueueFull = dropEventsOnQueueFull;
   }
-
 }
