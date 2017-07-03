@@ -64,7 +64,7 @@ public class SplunkHECAppender extends AppenderSkeleton {
       formatted += stackTrace.toString();
     }
 
-    shi.streamEvent(formatted);
+    shi.streamEvent(formatted, event.getTimeStamp());
   }
 
   /**

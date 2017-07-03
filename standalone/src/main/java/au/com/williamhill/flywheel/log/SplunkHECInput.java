@@ -161,8 +161,9 @@ public final class SplunkHECInput extends SplunkInput {
    *  Send an event via stream.
    * 
    *  @param message The message to send.
+   *  @param timestamp The time of the original event.
    */
-  public void streamEvent(String message) {
+  public void streamEvent(String message, long timestamp) {
     String currentMessage = "";
     try {
       final String escaped = escapeAndQuote(message);
@@ -170,7 +171,7 @@ public final class SplunkHECInput extends SplunkInput {
       // hand-building of JSON for speed
       final StringBuilder json = new StringBuilder();
       json.append("{\"")
-      .append("time\":").append(System.currentTimeMillis()).append(",\"")
+      .append("time\":").append(timestamp).append(",\"")
       .append("event\":").append(escaped).append(",\"")
       .append("index\":\"").append(config.getIndex())
       .append("\",\"").append("source\":\"")
