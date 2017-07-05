@@ -76,7 +76,6 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     await().dontCatchUncaughtExceptions().atMost(1, SECONDS).untilAsserted(() -> {
       Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
       Mockito.verify(clientListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
-      throw new AssertionError();
     });
 
     // disconnect all endpoints and await closure
