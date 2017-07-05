@@ -56,7 +56,7 @@ public final class HighWaterMarkTest extends BaseClientServerTest {
         });
     openClientEndpoint(serverConfig.port, clientListener);
     
-    Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
+    Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
     .until(() -> ! server.getEndpointManager().getEndpoints().isEmpty());
 
     final int messages = highWaterMark * 100;

@@ -92,7 +92,7 @@ public final class NodeCommsTest {
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(10, SECONDS).untilAsserted(() -> {
+    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
       verify(interchange).onClose(anyNotNull());
       verify(handler).onClose(anyNotNull());
     });
@@ -144,7 +144,7 @@ public final class NodeCommsTest {
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(10, SECONDS).untilAsserted(() -> {
+    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
       verify(interchange).onClose(anyNotNull());
       verify(handler).onClose(anyNotNull());
     });

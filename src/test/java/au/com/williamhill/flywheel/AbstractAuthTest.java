@@ -80,7 +80,7 @@ public abstract class AbstractAuthTest {
   
   protected void awaitReceived() {
     Awaitility.await().dontCatchUncaughtExceptions()
-    .atMost(10, TimeUnit.SECONDS).until(() -> errors != null || text != null || binary != null);
+    .atMost(60, TimeUnit.SECONDS).until(() -> errors != null || text != null || binary != null);
   }
   
   protected void setupEdgeNode(AuthChain pubAuthChain, AuthChain subAuthChain) throws Exception {

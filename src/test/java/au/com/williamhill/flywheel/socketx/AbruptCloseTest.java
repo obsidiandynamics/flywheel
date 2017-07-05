@@ -56,13 +56,13 @@ public final class AbruptCloseTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     final XEndpoint endpoint = openClientEndpoint(serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(10, SECONDS).untilAsserted(() -> {
+    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
       Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
       Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
     });
     
     endpoint.terminate();
-    await().dontCatchUncaughtExceptions().atMost(10, SECONDS).untilAsserted(() -> {
+    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
       Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
       Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
     });
@@ -82,11 +82,11 @@ public final class AbruptCloseTest extends BaseClientServerTest {
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(serverConfig.port, clientListener);
     
-    await().dontCatchUncaughtExceptions().atMost(10, SECONDS).until(this::hasServerEndpoint);
+    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).until(this::hasServerEndpoint);
     
     final XEndpoint endpoint = getServerEndpoint();
     endpoint.terminate();
-    await().dontCatchUncaughtExceptions().atMost(10, SECONDS).untilAsserted(() -> {
+    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
       Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
       Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
     });

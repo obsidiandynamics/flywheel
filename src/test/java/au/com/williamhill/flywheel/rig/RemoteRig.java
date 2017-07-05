@@ -200,7 +200,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     
     lastRemoteTransmitTime.set(System.nanoTime());
     nexus.publish(new PublishTextFrame(outTopic, new Sync(lastRemoteTransmitTime.get()).marshal(subframeGson)));
-    Awaitility.await().atMost(10, TimeUnit.SECONDS).untilTrue(syncComplete);
+    Awaitility.await().atMost(60, TimeUnit.SECONDS).untilTrue(syncComplete);
     
     final long timeDiff = timeDeltas.stream().collect(Collectors.averagingLong(l -> l)).longValue();
     if (config.log.stages) config.log.out.format("r: calibration complete; time delta: %,d ns (%s ahead)\n", 

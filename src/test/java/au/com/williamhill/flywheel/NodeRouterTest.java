@@ -89,13 +89,13 @@ public final class NodeRouterTest {
     
     edge.publish(topic, payload); // a single subscriber at this point
     
-    given().ignoreException(AssertionError.class).await().atMost(10, SECONDS).untilAsserted(() -> {
+    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
       verify(handler).onText(anyNotNull(), eq("a/b/c"), eq(payload));
     });
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(10, SECONDS).untilAsserted(() -> {
+    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
       verify(handler).onClose(anyNotNull());
     });
     
@@ -133,13 +133,13 @@ public final class NodeRouterTest {
     
     remoteNexus.publish(new PublishTextFrame(topic, payload)); // itself is a subscriber
     
-    given().ignoreException(AssertionError.class).await().atMost(10, SECONDS).untilAsserted(() -> {
+    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
       verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
     });
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(10, SECONDS).untilAsserted(() -> {
+    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
       verify(handler).onClose(anyNotNull());
     });
     
