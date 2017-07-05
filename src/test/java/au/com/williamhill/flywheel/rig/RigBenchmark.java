@@ -73,7 +73,7 @@ public final class RigBenchmark implements TestSupport {
         summary = stages = LOG;
         verbose = false;
       }};
-      return times(20);//TODO
+      return times(2);
     }
 
     @Override
@@ -97,12 +97,12 @@ public final class RigBenchmark implements TestSupport {
   @Test
   public void testBinarySmallSingleton() throws Exception {
     new Config() {{
-      pulses = 1000; //TODO
+      pulses = 10;
       pulseDurationMillis = 1;
       syncFrames = 10;
-      topicSpec = TopicLibrary.singleton(100);//TODO
+      topicSpec = TopicLibrary.singleton(10);
       text = false;
-      bytes = 1600; //TODO
+      bytes = 16;
     }}.applyDefaults().test();
   }
 
