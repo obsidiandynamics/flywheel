@@ -40,10 +40,12 @@ public abstract class BackplaneTest {
     for (EdgeNode edge : edges) {
       edge.close();
     }
+    edges.clear();
     
     for (RemoteNode remote : remotes) {
       remote.close();
     }
+    remotes.clear();
   }
   
   protected final EdgeNode createEdgeNode(int port, Backplane backplane) throws Exception {
@@ -108,7 +110,26 @@ public abstract class BackplaneTest {
     }
   }
 
-  protected final void testCrossCluster(int edgeNodes, int subscribersPerNode, int messages, int expectedMessages) throws Exception {
+  protected final void testCrossCluster(int cycles,
+                                        boolean binary,
+                                        int edgeNodes, 
+                                        int subscribersPerNode, 
+                                        int messages, 
+                                        int expectedMessages) throws Exception {
+    for (int i = 0; i < cycles; i++) {
+      try {
+        testCrossCluster(binary, edgeNodes, subscribersPerNode, messages, expectedMessages);
+      } finally {
+        cleanup();
+      }
+    }
+  }
+
+  private void testCrossCluster(boolean binary,
+                                int edgeNodes, 
+                                int subscribersPerNode, 
+                                int messages, 
+                                int expectedMessages) throws Exception {
     final Backplane backplane = getBackplane();
     final RemoteNode remote = createRemoteNode();
     final List<RetainingSubscriber> subscribers = new ArrayList<>(edgeNodes * subscribersPerNode);
@@ -140,20 +161,27 @@ public abstract class BackplaneTest {
         }
         
         for (int i = 0; i < messages; i++) {
-          nexus.publish(new PublishTextFrame(TOPIC, new TestMessage(port, i).toString()));
+          final TestMessage message = new TestMessage(port, i);
+          if (binary) {
+            nexus.publish(new PublishBinaryFrame(TOPIC, ByteBuffer.wrap(message.toString().getBytes())));
+          } else {
+            nexus.publish(new PublishTextFrame(TOPIC, message.toString()));
+          }
         }
       }
     }).run();
     
     assertFalse(error.get());
 
-    Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
-    .until(() -> subscribers.stream().filter(s -> s.received.size() < expectedMessages).count() == 0);
-    
-    for (RetainingSubscriber sub : subscribers) {
-      assertEquals(expectedMessages, sub.received.size());
-      
-      //TODO assert message order
+    try {
+      Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
+      .until(() -> subscribers.stream().filter(s -> s.received.size() < expectedMessages).count() == 0);
+    } finally {
+      for (RetainingSubscriber sub : subscribers) {
+        assertEquals(expectedMessages, sub.received.size());
+        
+        //TODO assert message order
+      }
     }
   }
 }
