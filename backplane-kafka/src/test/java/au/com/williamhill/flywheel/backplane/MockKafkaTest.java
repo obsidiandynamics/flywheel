@@ -82,7 +82,7 @@ public final class MockKafkaTest {
     }
     
     try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
+      Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
       .until(() -> consumers.stream().filter(c -> c.received.size() < messages).count() == 0);
     } finally {
       for (TestConsumer<Integer, Integer> consumer : consumers) {
