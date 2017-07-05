@@ -10,6 +10,8 @@ import org.eclipse.jetty.websocket.client.*;
 import au.com.williamhill.flywheel.socketx.*;
 
 public final class JettyClient implements XClient<JettyEndpoint> {
+  private final XClientConfig config;
+  
   private final HttpClient httpClient;
   
   private final WebSocketClient client;
@@ -17,6 +19,7 @@ public final class JettyClient implements XClient<JettyEndpoint> {
   private final XEndpointScanner<JettyEndpoint> scanner;
   
   private JettyClient(XClientConfig config, HttpClient httpClient) throws Exception {
+    this.config = config;
     this.httpClient = httpClient;
     client = new WebSocketClient(httpClient);
     client.setMaxIdleTimeout(config.idleTimeoutMillis);
@@ -41,6 +44,11 @@ public final class JettyClient implements XClient<JettyEndpoint> {
   @Override
   public Collection<JettyEndpoint> getEndpoints() {
     return scanner.getEndpoints();
+  }
+  
+  @Override
+  public XClientConfig getConfig() {
+    return config;
   }
   
   public static HttpClient createDefaultHttpClient() throws Exception {

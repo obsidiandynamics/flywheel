@@ -53,6 +53,11 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
     return scanner.getEndpoints();
   }
   
+  @Override
+  public XClientConfig getConfig() {
+    return config;
+  }
+  
   public static final class Factory implements XClientFactory<UndertowEndpoint> {
     @Override public XClient<UndertowEndpoint> create(XClientConfig config) throws Exception {
       return new UndertowClient(config, createDefaultXnioWorker(), 1024);

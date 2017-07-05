@@ -8,12 +8,14 @@ import org.eclipse.jetty.util.thread.*;
 import au.com.williamhill.flywheel.socketx.*;
 
 public final class JettyServer implements XServer<JettyEndpoint> {
+  private final XServerConfig config;
   private final JettyEndpointManager manager;
   private final Server server;
   private final XEndpointScanner<JettyEndpoint> scanner;
   
   private JettyServer(XServerConfig config,
                       XEndpointListener<? super JettyEndpoint> listener) throws Exception {
+    this.config = config;
     server = new Server(new QueuedThreadPool(100));
     final ServerConnector connector = new ServerConnector(server);
     connector.setPort(config.port);
@@ -47,6 +49,11 @@ public final class JettyServer implements XServer<JettyEndpoint> {
   @Override
   public XEndpointManager<JettyEndpoint> getEndpointManager() {
     return manager;
+  }
+  
+  @Override
+  public XServerConfig getConfig() {
+    return config;
   }
   
   public static XServerFactory<JettyEndpoint> factory() {

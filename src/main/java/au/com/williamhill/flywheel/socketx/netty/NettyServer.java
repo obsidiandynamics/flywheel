@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.*;
 import io.netty.handler.logging.*;
 
 public final class NettyServer implements XServer<NettyEndpoint> {
+  private final XServerConfig config;
   private final NettyEndpointManager manager;
   private final EventLoopGroup bossGroup;
   private final EventLoopGroup workerGroup;
@@ -17,8 +18,9 @@ public final class NettyServer implements XServer<NettyEndpoint> {
   
   private NettyServer(XServerConfig config, XEndpointListener<? super NettyEndpoint> listener) throws InterruptedException {
     if (config.servlets.length != 0) {
-      throw new UnsupportedOperationException("Servlets are not supported");
+      throw new UnsupportedOperationException("Servlets are not supported by " + NettyServer.class.getSimpleName());
     }
+    this.config = config;
     
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
     manager = new NettyEndpointManager(scanner, config.endpointConfig, listener);
@@ -46,6 +48,11 @@ public final class NettyServer implements XServer<NettyEndpoint> {
   @Override
   public NettyEndpointManager getEndpointManager() {
     return manager;
+  }
+  
+  @Override
+  public XServerConfig getConfig() {
+    return config;
   }
   
   public static XServerFactory<NettyEndpoint> factory() {

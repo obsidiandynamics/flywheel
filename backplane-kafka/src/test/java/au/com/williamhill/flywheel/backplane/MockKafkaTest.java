@@ -81,14 +81,8 @@ public final class MockKafkaTest {
       consumers.add(new TestConsumer<>(kafka, consumers.size()));
     }
     
-    Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS).until(() -> {
-      for (TestConsumer<?, ?> consumer : consumers) {
-        if (consumer.received.size() < messages) {
-          return false;
-        }
-      }
-      return true;
-    });
+    Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
+    .until(() -> consumers.stream().filter(c -> c.received.size() < messages).count() == 0);
     
     assertTrue("history.size=" + producer.history().size(), producer.history().size() <= maxHistory);
     

@@ -61,7 +61,7 @@ public final class BindFrame extends IdFrame implements TextEncodedFrame {
     return subscribe != null ? subscribe : new String[0];
   }
   
-  public BindFrame withSubscribe(String[] subscribe) {
+  public BindFrame withSubscribe(String ... subscribe) {
     this.subscribe = subscribe;
     return this;
   }
@@ -70,7 +70,7 @@ public final class BindFrame extends IdFrame implements TextEncodedFrame {
     return unsubscribe != null ? unsubscribe : new String[0];
   }
   
-  public BindFrame withUnsubscribe(String[] unsubscribe) {
+  public BindFrame withUnsubscribe(String ... unsubscribe) {
     this.unsubscribe = unsubscribe;
     return this;
   }

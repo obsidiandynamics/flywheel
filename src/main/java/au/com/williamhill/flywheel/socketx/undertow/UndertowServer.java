@@ -9,6 +9,7 @@ import io.undertow.servlet.*;
 import io.undertow.servlet.api.*;
 
 public final class UndertowServer implements XServer<UndertowEndpoint> {
+  private final XServerConfig config;
   private final Undertow server;
   private final UndertowEndpointManager manager;
   private final XnioWorker worker;
@@ -16,6 +17,7 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
 
   private UndertowServer(XServerConfig config,
                          XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
+    this.config = config;
     final int ioThreads = Runtime.getRuntime().availableProcessors();
     final int coreWorkerThreads = 100;
     final int maxWorkerThreads = coreWorkerThreads * 100;
@@ -65,6 +67,11 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
   @Override
   public UndertowEndpointManager getEndpointManager() {
     return manager;
+  }
+  
+  @Override
+  public XServerConfig getConfig() {
+    return config;
   }
 
   public static final class Factory implements XServerFactory<UndertowEndpoint> {

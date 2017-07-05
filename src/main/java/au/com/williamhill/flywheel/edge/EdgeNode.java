@@ -9,9 +9,9 @@ import org.slf4j.*;
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
+import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Error;
-import au.com.williamhill.flywheel.frame.Wire.*;
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
@@ -31,6 +31,8 @@ public final class EdgeNode implements AutoCloseable {
   
   private final AuthChain subAuthChain;
   
+  private final Backplane backplane;
+  
   private final List<EdgeNexus> nexuses = new CopyOnWriteArrayList<>();
   
   private final List<TopicListener> topicListeners = new ArrayList<>();
@@ -38,17 +40,19 @@ public final class EdgeNode implements AutoCloseable {
   private boolean loggingEnabled = true;
 
   public <E extends XEndpoint> EdgeNode(XServerFactory<E> serverFactory,
-                                         XServerConfig config,
-                                         Wire wire,
-                                         Interchange interchange,
-                                         AuthChain pubAuthChain,
-                                         AuthChain subAuthChain) throws Exception {
+                                        XServerConfig config,
+                                        Wire wire,
+                                        Interchange interchange,
+                                        AuthChain pubAuthChain,
+                                        AuthChain subAuthChain,
+                                        Backplane backplane) throws Exception {
     pubAuthChain.validate();
     subAuthChain.validate();
     this.wire = wire;
     this.interchange = interchange;
     this.pubAuthChain = pubAuthChain;
     this.subAuthChain = subAuthChain;
+    this.backplane = backplane;
     server = serverFactory.create(config, new XEndpointListener<E>() {
       @Override public void onConnect(E endpoint) {
         handleOpen(endpoint);
@@ -115,6 +119,12 @@ public final class EdgeNode implements AutoCloseable {
 
       @Override public void onPong(E endpoint, ByteBuffer data) {}
     });
+    
+    backplane.attach(this);
+  }
+  
+  public XServer<?> getServer() {
+    return server;
   }
   
   private void handleBind(EdgeNexus nexus, BindFrame bind) {
@@ -317,62 +327,9 @@ public final class EdgeNode implements AutoCloseable {
 
   @Override
   public void close() throws Exception {
+    backplane.close();
     server.close();
     interchange.close();
-  }
-  
-  public static final class EdgeNodeBuilder {
-    private XServerFactory<?> serverFactory;
-    private XServerConfig serverConfig = new XServerConfig();
-    private Wire wire = new Wire(false, LocationHint.EDGE);
-    private Interchange interchange;
-    private AuthChain pubAuthChain = AuthChain.createPubDefault();
-    private AuthChain subAuthChain = AuthChain.createSubDefault();
-    
-    private void init() throws Exception {
-      if (serverFactory == null) {
-        serverFactory = (XServerFactory<?>) Class.forName("au.com.williamhill.flywheel.socketx.undertow.UndertowServer$Factory").newInstance();
-      }
-      
-      if (interchange == null) {
-        interchange = new RoutingInterchange();
-      }
-    }
-    
-    public EdgeNodeBuilder withServerFactory(XServerFactory<?> serverFactory) {
-      this.serverFactory = serverFactory;
-      return this;
-    }
-    
-    public EdgeNodeBuilder withServerConfig(XServerConfig serverConfig) {
-      this.serverConfig = serverConfig;
-      return this;
-    }
-    
-    public EdgeNodeBuilder withWire(Wire wire) {
-      this.wire = wire;
-      return this;
-    }
-
-    public EdgeNodeBuilder withInterchange(Interchange interchange) {
-      this.interchange = interchange;
-      return this;
-    }
-    
-    public EdgeNodeBuilder withPubAuthChain(AuthChain pubAuthChain) {
-      this.pubAuthChain = pubAuthChain;
-      return this;
-    }
-    
-    public EdgeNodeBuilder withSubAuthChain(AuthChain subAuthChain) {
-      this.subAuthChain = subAuthChain;
-      return this;
-    }
-
-    public EdgeNode build() throws Exception {
-      init();
-      return new EdgeNode(serverFactory, serverConfig, wire, interchange, pubAuthChain, subAuthChain);
-    }
   }
   
   public static EdgeNodeBuilder builder() {
