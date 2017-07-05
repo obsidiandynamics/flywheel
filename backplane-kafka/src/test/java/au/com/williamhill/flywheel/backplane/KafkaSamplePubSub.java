@@ -10,6 +10,8 @@ import org.apache.kafka.common.serialization.*;
 import com.obsidiandynamics.indigo.util.*;
 
 public final class KafkaSamplePubSub {
+  private static final boolean MOCK = true;
+  private static final Kafka<String, String> KAFKA = MOCK ? new MockKafka<>() : new RealKafka<>();
   private static final String BROKERS = "localhost:9092";
   private static final String TOPIC = "test";
   private static final String CONSUMER_GROUP = "test";
@@ -38,7 +40,7 @@ public final class KafkaSamplePubSub {
     
     SamplePublisher() {
       super("Kafka-SamplePublisher");
-      producer = new KafkaProducer<>(getProps());
+      producer = KAFKA.getProducer(getProps());
     }
     
     @Override public void run() {
@@ -53,7 +55,7 @@ public final class KafkaSamplePubSub {
       final String msg = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date(now));
       final ProducerRecord<String, String> rec = new ProducerRecord<>(TOPIC, String.valueOf(now), msg);
       producer.send(rec, (metadata, exception) -> {
-        log("p: sent %s\n", metadata);
+        log("p: tx [%s], key: %s, value: %s\n", metadata, rec.key(), rec.value());
       });
     }
   }
@@ -73,7 +75,7 @@ public final class KafkaSamplePubSub {
     
     SampleSubscriber() {
       super("Kafka-SampleSubscriber");
-      consumer = new KafkaConsumer<>(getProps());
+      consumer = KAFKA.getConsumer(getProps());
       consumer.subscribe(Arrays.asList(TOPIC));
     }
     
@@ -86,13 +88,18 @@ public final class KafkaSamplePubSub {
     private void receive() {
       final ConsumerRecords<String, String> records = consumer.poll(100);
       for (ConsumerRecord<String, String> record : records) {
-        log("c: offset: %d, key: %s, value: %s\n", record.offset(), record.key(), record.value());
+        log("c: rx [%s], key: %s, value: %s\n", formatMetadata(record.topic(), record.partition(), record.offset()), record.key(), record.value());
       }
     }
   }
   
+  private static String formatMetadata(String topic, int partition, long offset) {
+    return String.format("%s-%d@%d", topic, partition, offset);
+  }
+  
   public static void main(String[] args) {
     new SamplePublisher().start();
+    TestSupport.sleep(500);
     new SampleSubscriber().start();
     TestSupport.sleep(Long.MAX_VALUE);
   }
