@@ -10,7 +10,7 @@ import org.apache.kafka.common.serialization.*;
 import com.obsidiandynamics.indigo.util.*;
 
 public final class KafkaSamplePubSub {
-  private static final boolean MOCK = true;
+  private static final boolean MOCK = false;
   private static final Kafka<String, String> KAFKA = MOCK ? new MockKafka<>() : new RealKafka<>();
   private static final String BROKERS = "localhost:9092";
   private static final String TOPIC = "test";
