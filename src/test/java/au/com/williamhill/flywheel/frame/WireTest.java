@@ -11,6 +11,7 @@ import org.junit.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.frame.Wire.*;
+import au.com.williamhill.flywheel.util.*;
 
 public final class WireTest implements TestSupport {
   private static String requote(String singleQuotedString) {
@@ -88,13 +89,13 @@ public final class WireTest implements TestSupport {
   public void testPublishBinary() {
     final Wire wire = new Wire(false, LocationHint.UNSPECIFIED);
     testEncodeDecode(wire, new PublishBinaryFrame("some/topic/to/publish", 
-                                                  ByteBuffer.wrap(toByteArray(0x00, 0x01, 0x02))));
+                                                  toByteArray(0x00, 0x01, 0x02)));
   }
   
   @Test
   public void testBinary() {
     final Wire wire = new Wire(false, LocationHint.UNSPECIFIED);
-    testEncodeDecode(wire, new BinaryFrame("some/topic", ByteBuffer.wrap(toByteArray(0x00, 0x01, 0x02))));
+    testEncodeDecode(wire, new BinaryFrame("some/topic", toByteArray(0x00, 0x01, 0x02)));
   }
   
   @Test
@@ -103,7 +104,7 @@ public final class WireTest implements TestSupport {
     final ByteBuffer buf = ByteBuffer.allocate(8);
     buf.putLong(System.nanoTime());
     buf.flip();
-    testEncodeDecode(wire, new BinaryFrame("some/topic", buf));
+    testEncodeDecode(wire, new BinaryFrame("some/topic", BinaryUtils.toByteArray(buf)));
   }
   
   @Test(expected=IllegalArgumentException.class)

@@ -8,7 +8,6 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.net.*;
-import java.nio.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -136,12 +135,11 @@ public final class NodeCommsTest {
     assertEquals(FrameType.BIND, bindRes.getType());
     assertArrayEquals(new Error[0], bindRes.getErrors());
     
-    final PublishBinaryFrame pubRemote = new PublishBinaryFrame("x/y/z", 
-                                                                ByteBuffer.wrap("hello from remote".getBytes()));
+    final PublishBinaryFrame pubRemote = new PublishBinaryFrame("x/y/z", "hello from remote".getBytes());
     remoteNexus.publish(pubRemote);
     
     final EdgeNexus nexus = edge.getNexuses().get(0);
-    final BinaryFrame binaryEdge = new BinaryFrame("l/m/n", ByteBuffer.wrap("hello from edge".getBytes()));
+    final BinaryFrame binaryEdge = new BinaryFrame("l/m/n", "hello from edge".getBytes());
     nexus.send(binaryEdge).get();
     
     remoteNexus.close();

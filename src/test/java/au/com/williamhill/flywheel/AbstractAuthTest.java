@@ -3,7 +3,6 @@ package au.com.williamhill.flywheel;
 import static com.obsidiandynamics.indigo.util.Mocks.*;
 
 import java.net.*;
-import java.nio.*;
 import java.util.concurrent.*;
 
 import org.awaitility.*;
@@ -56,7 +55,7 @@ public abstract class AbstractAuthTest {
         }
       }
 
-      @Override public void onBinary(RemoteNexus nexus, String topic, ByteBuffer payload) {
+      @Override public void onBinary(RemoteNexus nexus, String topic, byte[] payload) {
         binary = new BinaryFrame(topic, payload);
       }
     };

@@ -3,7 +3,6 @@ package au.com.williamhill.flywheel.beacon;
 import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
 
 import java.net.*;
-import java.nio.*;
 import java.util.*;
 
 import org.slf4j.*;
@@ -40,7 +39,7 @@ public final class BeaconRemote {
       }
 
       @Override
-      public void onBinary(RemoteNexus nexus, String topic, ByteBuffer payload) {
+      public void onBinary(RemoteNexus nexus, String topic, byte[] payload) {
         LOG.info("{}: binary {} {}", nexus, topic, payload);
       }
     });

@@ -80,15 +80,12 @@ public final class Wire {
         if (topicBytes.length > MAX_UNSIGNED_SHORT) {
           throw new IllegalArgumentException("Topic length cannot exceed " + MAX_UNSIGNED_SHORT + " bytes");
         }
-        final ByteBuffer payload = bin.getPayload();
-        final int payloadRemaining = payload.remaining();
-        final ByteBuffer buf = ByteBuffer.allocate(3 + topicBytes.length + payloadRemaining);
+        final byte[] payload = bin.getPayload();
+        final ByteBuffer buf = ByteBuffer.allocate(3 + topicBytes.length + payload.length);
         buf.put(type.getByteCode());
         buf.putShort((short) topicBytes.length);
         buf.put(topicBytes);
-        final int payloadPos = payload.position();
         buf.put(payload);
-        payload.position(payloadPos);
         buf.flip();
         return verifiedBuffer(buf);
       }
@@ -99,15 +96,12 @@ public final class Wire {
         if (topicBytes.length > MAX_UNSIGNED_SHORT) {
           throw new IllegalArgumentException("Topic length cannot exceed " + MAX_UNSIGNED_SHORT + " bytes");
         }
-        final ByteBuffer payload = pub.getPayload();
-        final int payloadRemaining = payload.remaining();
-        final ByteBuffer buf = ByteBuffer.allocate(3 + topicBytes.length + payloadRemaining);
+        final byte[] payload = pub.getPayload();
+        final ByteBuffer buf = ByteBuffer.allocate(3 + topicBytes.length + payload.length);
         buf.put(type.getByteCode());
         buf.putShort((short) topicBytes.length);
         buf.put(topicBytes);
-        final int payloadPos = payload.position();
         buf.put(payload);
-        payload.position(payloadPos);
         buf.flip();
         return verifiedBuffer(buf);
       }
@@ -190,7 +184,9 @@ public final class Wire {
         final byte[] topicBytes = new byte[topicLength];
         buf.get(topicBytes);
         final String topic = new String(topicBytes, UTF8);
-        return new BinaryFrame(topic, buf);
+        final byte[] payload = new byte[buf.remaining()];
+        buf.get(payload);
+        return new BinaryFrame(topic, payload);
       }
         
       case PUBLISH: {
@@ -201,7 +197,9 @@ public final class Wire {
         final byte[] topicBytes = new byte[topicLength];
         buf.get(topicBytes);
         final String topic = new String(topicBytes, UTF8);
-        return new PublishBinaryFrame(topic, buf);
+        final byte[] payload = new byte[buf.remaining()];
+        buf.get(payload);
+        return new PublishBinaryFrame(topic, payload);
       }
         
       default:

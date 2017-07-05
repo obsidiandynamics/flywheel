@@ -4,7 +4,6 @@ import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
 
 import java.net.*;
-import java.nio.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -79,8 +78,8 @@ public abstract class BackplaneTest {
     }
     
     @Override
-    public void onBinary(RemoteNexus nexus, String topic, ByteBuffer payload) {
-      final String str = new String(BinaryUtils.toByteArray(payload));
+    public void onBinary(RemoteNexus nexus, String topic, byte[] payload) {
+      final String str = new String(payload);
       log("s: received (binary) %s\n", str);
       received.add(TestMessage.fromString(str));
     }
@@ -163,7 +162,7 @@ public abstract class BackplaneTest {
         for (int i = 0; i < messages; i++) {
           final TestMessage message = new TestMessage(port, i);
           if (binary) {
-            nexus.publish(new PublishBinaryFrame(TOPIC, ByteBuffer.wrap(message.toString().getBytes())));
+            nexus.publish(new PublishBinaryFrame(TOPIC, message.toString().getBytes()));
           } else {
             nexus.publish(new PublishTextFrame(TOPIC, message.toString()));
           }

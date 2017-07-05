@@ -1,12 +1,10 @@
 package au.com.williamhill.flywheel.backplane;
 
-import java.nio.*;
 import java.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class InVMBackplane implements Backplane {
   private final List<EdgeNode> edges = new ArrayList<>();
@@ -16,7 +14,7 @@ public final class InVMBackplane implements Backplane {
     edges.add(edge);
     edge.addTopicListener(new TopicListenerBase() {
       @Override public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
-        if (nexus.isLocal()) return;
+        if (nexus.isLocal() || edges.size() == 1) return;
         
         for (EdgeNode e : edges) {
           if (e != edge) {
@@ -26,12 +24,11 @@ public final class InVMBackplane implements Backplane {
       }
       
       @Override public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
-        if (nexus.isLocal()) return;
+        if (nexus.isLocal() || edges.size() == 1) return;
         
-        final byte[] bytes = BinaryUtils.toByteArray(pub.getPayload());
         for (EdgeNode e : edges) {
           if (e != edge) {
-            e.publish(pub.getTopic(), ByteBuffer.wrap(bytes));
+            e.publish(pub.getTopic(), pub.getPayload());
           }
         }
       }

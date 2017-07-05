@@ -258,10 +258,11 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   }
 
   @Override
-  public void onBinary(RemoteNexus nexus, String topic, ByteBuffer payload) {
+  public void onBinary(RemoteNexus nexus, String topic, byte[] payload) {
     ensureStartTimeSet();
+    final ByteBuffer buf = ByteBuffer.wrap(payload);
     final long now = System.nanoTime();
-    final long serverNanos = payload.getLong();
+    final long serverNanos = buf.getLong();
     time(now, serverNanos);
   }
   

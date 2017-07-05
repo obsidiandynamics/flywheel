@@ -109,7 +109,7 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
           buf.putLong(timestamp);
           buf.put(binPayload);
           buf.flip();
-          node.publish(t.toString(), buf);
+          node.publish(t.toString(), BinaryUtils.toByteArray(buf));
         }
         
         if (sent++ % perInterval == 0) {

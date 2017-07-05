@@ -1,13 +1,13 @@
 package au.com.williamhill.flywheel.frame;
 
-import java.nio.*;
+import java.util.*;
 
 public final class BinaryFrame implements BinaryEncodedFrame {
   private final String topic;
   
-  private final ByteBuffer payload;
+  private final byte[] payload;
 
-  public BinaryFrame(String topic, ByteBuffer payload) {
+  public BinaryFrame(String topic, byte[] payload) {
     this.topic = topic;
     this.payload = payload;
   }
@@ -21,7 +21,7 @@ public final class BinaryFrame implements BinaryEncodedFrame {
     return topic;
   }
 
-  public final ByteBuffer getPayload() {
+  public final byte[] getPayload() {
     return payload;
   }
   
@@ -29,7 +29,7 @@ public final class BinaryFrame implements BinaryEncodedFrame {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((payload == null) ? 0 : payload.hashCode());
+    result = prime * result + Arrays.hashCode(payload);
     result = prime * result + ((topic == null) ? 0 : topic.hashCode());
     return result;
   }
@@ -43,10 +43,7 @@ public final class BinaryFrame implements BinaryEncodedFrame {
     if (getClass() != obj.getClass())
       return false;
     BinaryFrame other = (BinaryFrame) obj;
-    if (payload == null) {
-      if (other.payload != null)
-        return false;
-    } else if (!payload.equals(other.payload))
+    if (!Arrays.equals(payload, other.payload))
       return false;
     if (topic == null) {
       if (other.topic != null)
@@ -58,6 +55,6 @@ public final class BinaryFrame implements BinaryEncodedFrame {
 
   @Override
   public String toString() {
-    return "Binary [topic=" + topic + ", payload.remaining=" + payload.remaining() + "]";
+    return "Binary [topic=" + topic + ", payload.length=" + payload.length + "]";
   }
 }

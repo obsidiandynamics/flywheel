@@ -5,7 +5,6 @@ import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.*;
 import java.util.*;
 
 import org.junit.*;
@@ -51,11 +50,11 @@ public final class PubAuthTest extends AbstractAuthTest {
     final String ourRx = Flywheel.getRxTopicPrefix(sessionId);
     
     // publish a binary on our TX topic; the test Edge is configured to echo so we expect a response on the RX topic
-    remoteNexus.publish(new PublishBinaryFrame(ourTx, ByteBuffer.wrap("hello".getBytes())));
+    remoteNexus.publish(new PublishBinaryFrame(ourTx, "hello".getBytes()));
     awaitReceived();
     assertNull(errors);
     assertNull(text);
-    assertEquals(new BinaryFrame(ourRx, ByteBuffer.wrap("hello".getBytes())), binary);
+    assertEquals(new BinaryFrame(ourRx, "hello".getBytes()), binary);
     clearReceived();
     
     // publish a text on our RX topic, which by default echoes to the RX
@@ -81,7 +80,7 @@ public final class PubAuthTest extends AbstractAuthTest {
     clearReceived();
     
     // publish a binary on someone else's RX topic; expect an error
-    remoteNexus.publish(new PublishBinaryFrame(illegalRx, ByteBuffer.wrap("hello".getBytes())));
+    remoteNexus.publish(new PublishBinaryFrame(illegalRx, "hello".getBytes()));
     awaitReceived();
     assertNotNull(errors);
     assertNull(text);
@@ -122,7 +121,7 @@ public final class PubAuthTest extends AbstractAuthTest {
     assertEquals(TopicAccessError.class, errors.getErrors()[0].getClass());
     clearReceived();
     
-    remoteNexus.publish(new PublishBinaryFrame(customBearer, ByteBuffer.wrap("hello".getBytes())));
+    remoteNexus.publish(new PublishBinaryFrame(customBearer, "hello".getBytes()));
     awaitReceived();
     assertEquals(1, errors.getErrors().length);
     assertNull(binary);
@@ -164,7 +163,7 @@ public final class PubAuthTest extends AbstractAuthTest {
                                               null)).get().isSuccess());
     
     // publish to custom/bearer without with a bad auth; expect an error
-    remoteNexus.publish(new PublishBinaryFrame(customBearer, ByteBuffer.wrap("hello".getBytes())));
+    remoteNexus.publish(new PublishBinaryFrame(customBearer, "hello".getBytes()));
     awaitReceived();
     assertEquals(1, errors.getErrors().length);
     assertNull(binary);
@@ -204,11 +203,11 @@ public final class PubAuthTest extends AbstractAuthTest {
                                               null)).get().isSuccess());
     
     // publish to custom/bearer with good auth; expect success
-    remoteNexus.publish(new PublishBinaryFrame(customBearer, ByteBuffer.wrap("hello".getBytes())));
+    remoteNexus.publish(new PublishBinaryFrame(customBearer, "hello".getBytes()));
     awaitReceived();
     assertNull(errors);
     assertNull(text);
-    assertEquals(new BinaryFrame(customBearer, ByteBuffer.wrap("hello".getBytes())), binary);
+    assertEquals(new BinaryFrame(customBearer, "hello".getBytes()), binary);
     clearReceived();
   }
 }

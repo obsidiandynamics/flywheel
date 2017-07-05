@@ -315,7 +315,7 @@ public final class EdgeNode implements AutoCloseable {
     firePublishEvent(localNexus, pub);
   }
   
-  public void publish(String topic, ByteBuffer payload) {
+  public void publish(String topic, byte[] payload) {
     final PublishBinaryFrame pub = new PublishBinaryFrame(topic, payload);
     interchange.onPublish(localNexus, pub);
     firePublishEvent(localNexus, pub);
