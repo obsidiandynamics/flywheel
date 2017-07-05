@@ -54,7 +54,7 @@ public final class MockKafkaTest {
 
   private static void test(int messages, int sendIntervalMillis, int numConsumers) throws InterruptedException {
     final int maxPartitions = 1;
-    final int maxHistory = 10;
+    final int maxHistory = messages;
     final MockKafka<Integer, Integer> kafka = new MockKafka<>(maxPartitions, maxHistory);
     final Properties props = new Properties();
     props.put("key.serializer", IntegerSerializer.class.getName());
@@ -82,7 +82,7 @@ public final class MockKafkaTest {
     }
     
     try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
+      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
       .until(() -> consumers.stream().filter(c -> c.received.size() < messages).count() == 0);
     } finally {
       for (TestConsumer<Integer, Integer> consumer : consumers) {
