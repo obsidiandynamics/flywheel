@@ -81,8 +81,19 @@ public final class MockKafkaTest {
       consumers.add(new TestConsumer<>(kafka, consumers.size()));
     }
     
-    Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
-    .until(() -> consumers.stream().filter(c -> c.received.size() < messages).count() == 0);
+    try {
+      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
+      .until(() -> consumers.stream().filter(c -> c.received.size() < messages).count() == 0);
+    } finally {
+      for (TestConsumer<Integer, Integer> consumer : consumers) {
+        assertEquals(messages, consumer.received.size());
+        for (int i = 0; i < messages; i++) {
+          final ConsumerRecord<Integer, Integer> cr = consumer.received.get(i);
+          assertEquals(i, (int) cr.key());
+          assertEquals(i, (int) cr.value());
+        }
+      }
+    }
     
     assertTrue("history.size=" + producer.history().size(), producer.history().size() <= maxHistory);
     
@@ -90,15 +101,6 @@ public final class MockKafkaTest {
       consumer.terminate();
     }
     producer.close();
-    
-    for (TestConsumer<Integer, Integer> consumer : consumers) {
-      assertEquals(messages, consumer.received.size());
-      for (int i = 0; i < messages; i++) {
-        final ConsumerRecord<Integer, Integer> cr = consumer.received.get(i);
-        assertEquals(i, (int) cr.key());
-        assertEquals(i, (int) cr.value());
-      }
-    }
     
     for (TestConsumer<?, ?> consumer : consumers) {
       consumer.join();
