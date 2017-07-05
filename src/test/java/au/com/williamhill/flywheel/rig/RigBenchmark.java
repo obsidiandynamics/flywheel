@@ -73,7 +73,7 @@ public final class RigBenchmark implements TestSupport {
         summary = stages = LOG;
         verbose = false;
       }};
-      return times(2);
+      return times(20);//TODO
     }
 
     @Override
@@ -83,7 +83,31 @@ public final class RigBenchmark implements TestSupport {
   }
 
   @Test
-  public void testText() throws Exception {
+  public void testTextSmallSingleton() throws Exception {
+    new Config() {{
+      pulses = 10;
+      pulseDurationMillis = 1;
+      syncFrames = 10;
+      topicSpec = TopicLibrary.singleton(10);
+      text = true;
+      bytes = 16;
+    }}.applyDefaults().test();
+  }
+
+  @Test
+  public void testBinarySmallSingleton() throws Exception {
+    new Config() {{
+      pulses = 1000; //TODO
+      pulseDurationMillis = 1;
+      syncFrames = 10;
+      topicSpec = TopicLibrary.singleton(100);//TODO
+      text = false;
+      bytes = 1600; //TODO
+    }}.applyDefaults().test();
+  }
+
+  @Test
+  public void testTextSmallLeaves() throws Exception {
     new Config() {{
       pulses = 10;
       pulseDurationMillis = 1;
@@ -95,7 +119,7 @@ public final class RigBenchmark implements TestSupport {
   }
 
   @Test
-  public void testBinary() throws Exception {
+  public void testBinarySmallLeaves() throws Exception {
     new Config() {{
       pulses = 10;
       pulseDurationMillis = 1;
