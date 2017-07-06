@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.backplane;
+package au.com.williamhill.flywheel.edge.backplane;
 
 import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
@@ -14,7 +14,6 @@ import org.junit.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.socketx.*;

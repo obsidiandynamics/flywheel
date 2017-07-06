@@ -16,7 +16,7 @@ import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
-public final class EdgeNode implements AutoCloseable {
+public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   private static final Logger LOG = LoggerFactory.getLogger(RemoteNode.class);
   
   private final EdgeNexus localNexus = new EdgeNexus(this, LocalPeer.instance());
@@ -121,6 +121,15 @@ public final class EdgeNode implements AutoCloseable {
     });
     
     backplane.attach(this);
+    addTopicListener(new TopicListenerBase() {
+      @Override public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
+        backplane.onPublish(EdgeNode.this, nexus, pub);
+      }
+      
+      @Override public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
+        backplane.onPublish(EdgeNode.this, nexus, pub);
+      }
+    });
   }
   
   public XServer<?> getServer() {
@@ -309,12 +318,14 @@ public final class EdgeNode implements AutoCloseable {
     return Collections.unmodifiableList(nexuses);
   }
   
+  @Override
   public void publish(String topic, String payload) {
     final PublishTextFrame pub = new PublishTextFrame(topic, payload);
     interchange.onPublish(localNexus, pub);
     firePublishEvent(localNexus, pub);
   }
-  
+
+  @Override
   public void publish(String topic, byte[] payload) {
     final PublishBinaryFrame pub = new PublishBinaryFrame(topic, payload);
     interchange.onPublish(localNexus, pub);
