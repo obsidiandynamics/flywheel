@@ -22,7 +22,7 @@ import au.com.williamhill.flywheel.util.*;
 
 public abstract class BackplaneTest {
   private static final int PORT = 8090;
-  private static final String TOPIC = "test/fan";
+  private static final String TOPIC_PREFIX = "topics/";
   
   private final List<EdgeNode> edges = new ArrayList<>();
   
@@ -65,7 +65,8 @@ public abstract class BackplaneTest {
   
   private static final class RetainingSubscriber extends RemoteNexusHandlerBase implements TestSupport {
     private final RemoteNexus nexus;
-    private final List<TestMessage> received = new CopyOnWriteArrayList<>();
+    private final KeyedBlockingQueue<String, TestMessage> received = 
+        new KeyedBlockingQueue<>(LinkedBlockingQueue::new);
     
     RetainingSubscriber(RemoteNode remote, URI uri) throws URISyntaxException, Exception {
       nexus = remote.open(uri, this); 
@@ -73,15 +74,21 @@ public abstract class BackplaneTest {
 
     @Override
     public void onText(RemoteNexus nexus, String topic, String payload) {
-      log("s: received (text) %s\n", payload);
-      received.add(TestMessage.fromString(payload));
+      log("s: received (text) %s, topic: %s\n", payload, topic);
+      final TestMessage msg = TestMessage.fromString(payload);
+      received.forKey(getKey(msg.brokerId, topic)).add(msg);
     }
     
     @Override
     public void onBinary(RemoteNexus nexus, String topic, byte[] payload) {
       final String str = new String(payload);
-      log("s: received (binary) %s\n", str);
-      received.add(TestMessage.fromString(str));
+      log("s: received (binary) %s, topic: %s\n", str, topic);
+      final TestMessage msg = TestMessage.fromString(str);
+      received.forKey(getKey(msg.brokerId, topic)).add(msg);
+    }
+    
+    private static String getKey(int brokerId, String topic) {
+      return brokerId + "_" + topic;
     }
   }
   
@@ -113,11 +120,13 @@ public abstract class BackplaneTest {
                                         boolean binary,
                                         int edgeNodes, 
                                         int subscribersPerNode, 
-                                        int messages, 
+                                        int topics,
+                                        int messagesPerTopic, 
+                                        int expectedPartitions,
                                         int expectedMessages) throws Exception {
     for (int i = 0; i < cycles; i++) {
       try {
-        testCrossCluster(binary, edgeNodes, subscribersPerNode, messages, expectedMessages);
+        testCrossCluster(binary, edgeNodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
       } finally {
         cleanup();
       }
@@ -127,7 +136,9 @@ public abstract class BackplaneTest {
   private void testCrossCluster(boolean binary,
                                 int edgeNodes, 
                                 int subscribersPerNode, 
-                                int messages, 
+                                int topics,
+                                int messagesPerTopic, 
+                                int expectedPartitions,
                                 int expectedMessages) throws Exception {
     final Backplane backplane = getBackplane();
     final RemoteNode remote = createRemoteNode();
@@ -140,7 +151,7 @@ public abstract class BackplaneTest {
       for (int j = 0; j < subscribersPerNode; j++) {
         final RetainingSubscriber sub = new RetainingSubscriber(remote, getBrokerURI(port));
         subscribers.add(sub);
-        final CompletableFuture<BindResponseFrame> f = sub.nexus.bind(new BindFrame().withSubscribe(TOPIC));
+        final CompletableFuture<BindResponseFrame> f = sub.nexus.bind(new BindFrame().withSubscribe(TOPIC_PREFIX + "#"));
         final BindResponseFrame bindRes = f.get();
         assertTrue(bindRes.isSuccess());
       }
@@ -159,12 +170,14 @@ public abstract class BackplaneTest {
           return;
         }
         
-        for (int i = 0; i < messages; i++) {
-          final TestMessage message = new TestMessage(port, i);
-          if (binary) {
-            nexus.publish(new PublishBinaryFrame(TOPIC, message.toString().getBytes()));
-          } else {
-            nexus.publish(new PublishTextFrame(TOPIC, message.toString()));
+        for (int m = 0; m < messagesPerTopic; m++) {
+          final TestMessage message = new TestMessage(port, m);
+          for (int t = 0; t < topics; t++) {
+            if (binary) {
+              nexus.publish(new PublishBinaryFrame(TOPIC_PREFIX + t, message.toString().getBytes()));
+            } else {
+              nexus.publish(new PublishTextFrame(TOPIC_PREFIX + t, message.toString()));
+            }
           }
         }
       }
@@ -174,12 +187,19 @@ public abstract class BackplaneTest {
 
     try {
       Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
-      .until(() -> subscribers.stream().filter(s -> s.received.size() < expectedMessages).count() == 0);
+      .until(() -> subscribers.stream().filter(s -> s.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (RetainingSubscriber sub : subscribers) {
-        assertEquals(expectedMessages, sub.received.size());
-        
-        //TODO assert message order
+        assertEquals(expectedPartitions, sub.received.asMap().size());
+        assertEquals(expectedMessages, sub.received.totalSize());
+        for (Map.Entry<String, BlockingQueue<TestMessage>> entry : sub.received.asMap().entrySet()) {
+          final List<TestMessage> messages = new ArrayList<>(entry.getValue());
+          assertEquals(messagesPerTopic, messages.size());
+          for (int m = 0; m < messagesPerTopic; m++) {
+            final TestMessage message = messages.get(m);
+            assertEquals(m, message.messageId);
+          }
+        }
       }
     }
   }

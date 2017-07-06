@@ -95,10 +95,11 @@ public final class MockKafkaTest {
         assertEquals(partitions, consumer.received.asMap().size());
         for (Map.Entry<Integer, BlockingQueue<ConsumerRecord<Integer, Integer>>> entry : consumer.received.asMap().entrySet()) {
           final List<ConsumerRecord<Integer, Integer>> records = new ArrayList<>(entry.getValue());
-          for (int i = 0; i < messages; i++) {
-            final ConsumerRecord<Integer, Integer> cr = records.get(i);
-            assertEquals(i, (int) cr.key());
-            assertEquals(i, (int) cr.value());
+          assertEquals(messages, records.size());
+          for (int m = 0; m < messages; m++) {
+            final ConsumerRecord<Integer, Integer> cr = records.get(m);
+            assertEquals(m, (int) cr.key());
+            assertEquals(m, (int) cr.value());
           }
         }
       }

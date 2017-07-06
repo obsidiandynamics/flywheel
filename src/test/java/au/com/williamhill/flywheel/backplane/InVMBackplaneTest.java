@@ -17,19 +17,23 @@ public final class InVMBackplaneTest extends BackplaneTest {
   public void testSingleNode() throws Exception {
     final int nodes = 1;
     final int subscribersPerNode = 5 * SCALE;
-    final int messages = 10 * SCALE;
-    final int expectedMessages = messages;
-    testCrossCluster(CYCLES, false, nodes, subscribersPerNode, messages, expectedMessages);
-    testCrossCluster(CYCLES, true, nodes, subscribersPerNode, messages, expectedMessages);
+    final int topics = 3;
+    final int messagesPerTopic = 10 * SCALE;
+    final int expectedPartitions = nodes * topics;
+    final int expectedMessages = topics * messagesPerTopic;
+    testCrossCluster(CYCLES, false, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+    testCrossCluster(CYCLES, true, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
   }
   
   @Test
   public void testMultiNode() throws Exception {
     final int nodes = 4;
     final int subscribersPerNode = 5 * SCALE;
-    final int messages = 10 * SCALE;
-    final int expectedMessages = messages * nodes;
-    testCrossCluster(CYCLES, false, nodes, subscribersPerNode, messages, expectedMessages);
-    testCrossCluster(CYCLES, true, nodes, subscribersPerNode, messages, expectedMessages);
+    final int topics = 3;
+    final int messagesPerTopic = 10 * SCALE;
+    final int expectedPartitions = nodes * topics;
+    final int expectedMessages = nodes * topics * messagesPerTopic;
+    testCrossCluster(CYCLES, false, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+    testCrossCluster(CYCLES, true, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
   }
 }
