@@ -4,7 +4,13 @@ import java.util.*;
 
 public final class ScramjetObject implements ScramjetPayload {
   static final String JSON_TYPE_NAME = "Scramjet.Messages.Object";
+  
   public final Map<String, Object> atts = new LinkedHashMap<>();
+  
+  public ScramjetObject put(String attribute, Object value) {
+    atts.put(attribute, value);
+    return this;
+  }
   
   @Override
   public int hashCode() {
@@ -34,5 +40,21 @@ public final class ScramjetObject implements ScramjetPayload {
   @Override
   public String toString() {
     return atts.toString();
+  }
+  
+  @Override
+  public AttributeWriter pack() {
+    return new AttributeWriter(JSON_TYPE_NAME).writeAll(atts);
+  }
+  
+  public Map<String, Object> asMap() {
+    return atts;
+  }
+  
+  static ScramjetObject unpack(AttributeReader reader) {
+    final ScramjetObject obj = new ScramjetObject();
+    obj.atts.putAll(reader.getAttributes());
+    obj.atts.remove(ScramjetMessage.TYPE_ATT);
+    return obj;
   }
 }

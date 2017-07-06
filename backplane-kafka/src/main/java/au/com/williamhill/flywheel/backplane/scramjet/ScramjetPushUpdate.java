@@ -1,13 +1,10 @@
 package au.com.williamhill.flywheel.backplane.scramjet;
 
-import com.google.gson.annotations.*;
-
 public final class ScramjetPushUpdate implements ScramjetPayload {
   static final String JSON_TYPE_NAME = "Scramjet.Messages.Push.Update";
   
   private final String topic;
   
-  @SerializedName("timetolive")
   private final int timeToLive;
   
   private final Object payload;
@@ -29,7 +26,7 @@ public final class ScramjetPushUpdate implements ScramjetPayload {
   public Object getPayload() {
     return payload;
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -67,5 +64,17 @@ public final class ScramjetPushUpdate implements ScramjetPayload {
   @Override
   public String toString() {
     return "ScramjetPushUpdate [topic=" + topic + ", timeToLive=" + timeToLive + ", payload=" + payload + "]";
+  }
+
+  @Override
+  public AttributeWriter pack() {
+    return new AttributeWriter(JSON_TYPE_NAME).write("topic", topic).write("timetolive", timeToLive).write("payload", payload);
+  }
+  
+  static ScramjetPushUpdate unpack(AttributeReader reader) {
+    final ScramjetPushUpdate obj = new ScramjetPushUpdate(reader.read("topic"),
+                                                          reader.<Number>read("timetolive").intValue(),
+                                                          reader.read("payload"));
+    return obj;
   }
 }

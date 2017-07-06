@@ -17,20 +17,82 @@ public final class ScramjetMessageTest implements TestSupport {
     gson = ScramjetMessage.defaultGsonBuilder().create();
   }
   
+  private static ScramjetObject newTestObject() {
+    return new ScramjetObject()
+        .put("foo", Arrays.asList("a", "b"))
+        .put("bar", Arrays.asList("c", "d"));
+  }
+  
   @Test
   public void testObjectPayload() {
-    final ScramjetObject obj = new ScramjetObject();
-    obj.atts.put("foo", Arrays.asList("a", "b"));
-    obj.atts.put("bar", Arrays.asList("c", "d"));
     test(new ScramjetMessage(UUID.randomUUID().toString(),
                              "TestMessage",
-                             obj,
+                             newTestObject(),
                              "junit",
                              new Date()));
   }
   
   @Test
-  public void testPushUpdate() {
+  public void testObjectMap() {
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             newTestObject().asMap(),
+                             "junit",
+                             new Date()));
+  }
+  
+  @Test
+  public void testStringPayload() {
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             "payload",
+                             "junit",
+                             new Date()));
+  }
+  
+  @Test
+  public void testDoublePayload() {
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             12.34,
+                             "junit",
+                             new Date()));
+  }
+  
+  @Test
+  public void testBooleanPayload() {
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             true,
+                             "junit",
+                             new Date()));
+  }
+  
+  @Test
+  public void testArrayPayload() {
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             Arrays.asList("eenie", "meenie", "minie"),
+                             "junit",
+                             new Date()));
+  }
+  
+  @Test
+  public void testNullPayload() {
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             null,
+                             "junit",
+                             new Date()));
+  }
+  
+  @Test
+  public void testNullFields() {
+    test(new ScramjetMessage(null, null, null, null, null));
+  }
+  
+  @Test
+  public void testPushUpdateString() {
     final ScramjetPushUpdate push = new ScramjetPushUpdate("test/topic", 30, "testPayload");
     test(new ScramjetMessage(UUID.randomUUID().toString(),
                              "TestMessage",
@@ -39,14 +101,15 @@ public final class ScramjetMessageTest implements TestSupport {
                              new Date()));
   }
   
-//  @Test
-//  public void testStringPayload() {
-//    test(new ScramjetMessage(UUID.randomUUID().toString(),
-//                             "TestMessage",
-//                             "payload",
-//                             "junit",
-//                             new Date()));
-//  }
+  @Test
+  public void testPushUpdateMap() {
+    final ScramjetPushUpdate push = new ScramjetPushUpdate("test/topic", 30, newTestObject().asMap());
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             push,
+                             "junit",
+                             new Date()));
+  }
   
   private void test(ScramjetMessage m) {
     final String json = m.toJson(gson);
@@ -58,5 +121,7 @@ public final class ScramjetMessageTest implements TestSupport {
     assertEquals(m.getPayload(), r.getPayload());
     assertEquals(m.getPublisher(), r.getPublisher());
     assertEquals(m.getSentAt(), r.getSentAt());
+    assertEquals(m, r);
+    assertEquals(m.hashCode(), r.hashCode());
   }
 }
