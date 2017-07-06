@@ -15,18 +15,21 @@ import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
+import au.com.williamhill.flywheel.util.*;
+
 public final class MockKafkaTest {
   private static final String TOPIC = "test";
   
   @Test
   public void test() throws InterruptedException {
-    test(100, 1, 5);
+    test(100, 3, 1, 5);
   }
   
   private static final class TestConsumer<K, V> extends Thread {
     private final Kafka<K, V> kafka;
     
-    private final List<ConsumerRecord<K, V>> received = new CopyOnWriteArrayList<>();
+    private final KeyedBlockingQueue<Integer, ConsumerRecord<K, V>> received = 
+        new KeyedBlockingQueue<>(LinkedBlockingQueue::new);
     
     private volatile boolean running = true;
     
@@ -41,7 +44,7 @@ public final class MockKafkaTest {
       consumer.subscribe(Arrays.asList(TOPIC));
       while (running) {
         final ConsumerRecords<K, V> records = consumer.poll(1);
-        records.forEach(received::add);
+        records.forEach(r -> received.forKey(r.partition()).add(r));
       }
       consumer.close();
     }
@@ -52,10 +55,9 @@ public final class MockKafkaTest {
     }
   }
 
-  private static void test(int messages, int sendIntervalMillis, int numConsumers) throws InterruptedException {
-    final int maxPartitions = 1;
-    final int maxHistory = messages;
-    final MockKafka<Integer, Integer> kafka = new MockKafka<>(maxPartitions, maxHistory);
+  private static void test(int messages, int partitions, int sendIntervalMillis, int numConsumers) throws InterruptedException {
+    final int maxHistory = messages * partitions;
+    final MockKafka<Integer, Integer> kafka = new MockKafka<>(partitions, maxHistory);
     final Properties props = new Properties();
     props.put("key.serializer", IntegerSerializer.class.getName());
     props.put("value.serializer", IntegerSerializer.class.getName());
@@ -63,19 +65,22 @@ public final class MockKafkaTest {
     final List<TestConsumer<Integer, Integer>> consumers = new ArrayList<>(numConsumers);
     
     final AtomicInteger sent = new AtomicInteger();
-    for (int i = 0; i < messages; i++) {
-      producer.send(new ProducerRecord<>(TOPIC, 0, i, i), (metadata, cause) -> sent.incrementAndGet());
+    for (int m = 0; m < messages; m++) {
+      for (int p = 0; p < partitions; p++) {
+        producer.send(new ProducerRecord<>(TOPIC, p, m, m), (metadata, cause) -> sent.incrementAndGet());
+      }
       
       if (consumers.size() < numConsumers) {
         consumers.add(new TestConsumer<>(kafka, consumers.size()));
       }
       
-      if (i != messages - 1) {
+      if (m != messages - 1) {
         TestSupport.sleep(sendIntervalMillis);
       }
     }
-    
-    assertEquals(messages, sent.get());
+
+    final int expectedMessages = messages * partitions;
+    assertEquals(expectedMessages, sent.get());
     
     while (consumers.size() < numConsumers) {
       consumers.add(new TestConsumer<>(kafka, consumers.size()));
@@ -83,14 +88,18 @@ public final class MockKafkaTest {
     
     try {
       Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
-      .until(() -> consumers.stream().filter(c -> c.received.size() < messages).count() == 0);
+      .until(() -> consumers.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (TestConsumer<Integer, Integer> consumer : consumers) {
-        assertEquals(messages, consumer.received.size());
-        for (int i = 0; i < messages; i++) {
-          final ConsumerRecord<Integer, Integer> cr = consumer.received.get(i);
-          assertEquals(i, (int) cr.key());
-          assertEquals(i, (int) cr.value());
+        assertEquals(expectedMessages, consumer.received.totalSize());
+        assertEquals(partitions, consumer.received.asMap().size());
+        for (Map.Entry<Integer, BlockingQueue<ConsumerRecord<Integer, Integer>>> entry : consumer.received.asMap().entrySet()) {
+          final List<ConsumerRecord<Integer, Integer>> records = new ArrayList<>(entry.getValue());
+          for (int i = 0; i < messages; i++) {
+            final ConsumerRecord<Integer, Integer> cr = records.get(i);
+            assertEquals(i, (int) cr.key());
+            assertEquals(i, (int) cr.value());
+          }
         }
       }
     }

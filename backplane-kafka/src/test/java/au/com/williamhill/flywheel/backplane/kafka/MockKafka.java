@@ -51,10 +51,11 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
                 
                 if (callback != null) callback.onCompletion(metadata, exception);
   
+                final int partition = r.partition() != null ? r.partition() : metadata.partition();
                 final ConsumerRecord<K, V> cr = 
-                    new ConsumerRecord<>(r.topic(), metadata.partition(), metadata.offset(), r.key(), r.value());
+                    new ConsumerRecord<>(r.topic(), partition, metadata.offset(), r.key(), r.value());
                 
-                final TopicPartition part = new TopicPartition(r.topic(), metadata.partition());
+                final TopicPartition part = new TopicPartition(r.topic(), partition);
                 synchronized (lock) {
                   backlog.add(cr);
                   for (MockConsumer<K, V> consumer : consumers) {
