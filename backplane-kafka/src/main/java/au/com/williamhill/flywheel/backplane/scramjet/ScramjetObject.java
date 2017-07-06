@@ -3,13 +3,18 @@ package au.com.williamhill.flywheel.backplane.scramjet;
 import java.util.*;
 
 public final class ScramjetObject implements ScramjetPayload {
-  static final String JSON_TYPE_NAME = "Scramjet.Messages.Object";
+  public static final String TYPE = "Scramjet.Messages.Object";
   
-  public final Map<String, Object> atts = new LinkedHashMap<>();
+  private final Map<String, Object> atts = new LinkedHashMap<>();
   
   public ScramjetObject put(String attribute, Object value) {
     atts.put(attribute, value);
     return this;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public <T> T get(String attribute) {
+    return (T) atts.get(attribute);
   }
   
   @Override
@@ -44,10 +49,10 @@ public final class ScramjetObject implements ScramjetPayload {
   
   @Override
   public AttributeWriter pack() {
-    return new AttributeWriter(JSON_TYPE_NAME).writeAll(atts);
+    return new AttributeWriter(TYPE).writeAll(atts);
   }
   
-  public Map<String, Object> asMap() {
+  public Map<String, Object> getAttributes() {
     return atts;
   }
   

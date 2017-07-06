@@ -41,10 +41,13 @@ final class ScramjetMessageTypeAdapter implements JsonSerializer<ScramjetMessage
     final String typeName = reader.getTypeName();
     if (typeName != null) {
       switch (typeName) {
-        case ScramjetPushUpdate.JSON_TYPE_NAME:
+        case ScramjetBase64.TYPE:
+          return ScramjetBase64.unpack(reader);
+        
+        case ScramjetPushUpdate.TYPE:
           return ScramjetPushUpdate.unpack(reader);
           
-        case ScramjetObject.JSON_TYPE_NAME:
+        case ScramjetObject.TYPE:
         default:
           return ScramjetObject.unpack(reader);
       }

@@ -5,7 +5,7 @@ import java.util.*;
 import com.google.gson.*;
 
 public final class ScramjetMessage {
-  static final String TYPE_ATT = "$type";
+  public static final String TYPE_ATT = "$type";
   
   private final String id;
   
@@ -112,6 +112,7 @@ public final class ScramjetMessage {
     return new GsonBuilder()
         .disableHtmlEscaping()
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+        .registerTypeAdapter(ScramjetBase64.class, new ScramjetBase64TypeAdapter())
         .registerTypeAdapter(ScramjetMessage.class, new ScramjetMessageTypeAdapter());
   }
 }

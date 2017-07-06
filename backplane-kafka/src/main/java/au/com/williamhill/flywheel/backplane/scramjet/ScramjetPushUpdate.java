@@ -1,7 +1,7 @@
 package au.com.williamhill.flywheel.backplane.scramjet;
 
 public final class ScramjetPushUpdate implements ScramjetPayload {
-  static final String JSON_TYPE_NAME = "Scramjet.Messages.Push.Update";
+  public static final String TYPE = "Scramjet.Messages.Push.Update";
   
   private final String topic;
   
@@ -9,9 +9,9 @@ public final class ScramjetPushUpdate implements ScramjetPayload {
   
   private final Object payload;
 
-  public ScramjetPushUpdate(String topic, int timeToLive, Object payload) {
+  public ScramjetPushUpdate(String topic, int timeToLiveSeconds, Object payload) {
     this.topic = topic;
-    this.timeToLive = timeToLive;
+    this.timeToLive = timeToLiveSeconds;
     this.payload = payload;
   }
 
@@ -68,7 +68,7 @@ public final class ScramjetPushUpdate implements ScramjetPayload {
 
   @Override
   public AttributeWriter pack() {
-    return new AttributeWriter(JSON_TYPE_NAME).write("topic", topic).write("timetolive", timeToLive).write("payload", payload);
+    return new AttributeWriter(TYPE).write("topic", topic).write("timetolive", timeToLive).write("payload", payload);
   }
   
   static ScramjetPushUpdate unpack(AttributeReader reader) {

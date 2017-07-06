@@ -9,6 +9,8 @@ import org.junit.*;
 import com.google.gson.*;
 import com.obsidiandynamics.indigo.util.*;
 
+import au.com.williamhill.flywheel.util.*;
+
 public final class ScramjetMessageTest implements TestSupport {
   private Gson gson;
   
@@ -24,6 +26,15 @@ public final class ScramjetMessageTest implements TestSupport {
   }
   
   @Test
+  public void testBase64Payload() {
+    test(new ScramjetMessage(UUID.randomUUID().toString(),
+                             "TestMessage",
+                             new ScramjetBase64(BinaryUtils.toByteArray(0, 1, 2, 3, 4, 5, 6, 7)),
+                             "junit",
+                             new Date()));
+  }
+  
+  @Test
   public void testObjectPayload() {
     test(new ScramjetMessage(UUID.randomUUID().toString(),
                              "TestMessage",
@@ -33,10 +44,10 @@ public final class ScramjetMessageTest implements TestSupport {
   }
   
   @Test
-  public void testObjectMap() {
+  public void testMapPayload() {
     test(new ScramjetMessage(UUID.randomUUID().toString(),
                              "TestMessage",
-                             newTestObject().asMap(),
+                             newTestObject().getAttributes(),
                              "junit",
                              new Date()));
   }
@@ -103,7 +114,7 @@ public final class ScramjetMessageTest implements TestSupport {
   
   @Test
   public void testPushUpdateMap() {
-    final ScramjetPushUpdate push = new ScramjetPushUpdate("test/topic", 30, newTestObject().asMap());
+    final ScramjetPushUpdate push = new ScramjetPushUpdate("test/topic", 30, newTestObject().getAttributes());
     test(new ScramjetMessage(UUID.randomUUID().toString(),
                              "TestMessage",
                              push,
