@@ -5,12 +5,12 @@ import org.junit.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 
-public final class NoOpBackplaneTest extends BackplaneTest {
+public final class NoOpClusterTest extends ClusterTest {
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   
   @Override
-  protected Backplane getBackplane() throws Exception {
+  protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
     return new NoOpBackplane();
   }
   

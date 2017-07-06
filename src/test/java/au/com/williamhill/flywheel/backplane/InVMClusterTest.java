@@ -4,13 +4,21 @@ import org.junit.*;
 
 import au.com.williamhill.flywheel.edge.backplane.*;
 
-public final class InVMBackplaneTest extends BackplaneTest {
+public final class InVMClusterTest extends ClusterTest {
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   
+  private String clusterId;
+  
+  private InVMBackplane backplane;
+  
   @Override
-  protected Backplane getBackplane() throws Exception {
-    return new InVMBackplane();
+  protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
+    if (clusterId.equals(this.clusterId)) return backplane;
+    
+    backplane = new InVMBackplane();
+    this.clusterId = clusterId;
+    return backplane;
   }
   
   @Test

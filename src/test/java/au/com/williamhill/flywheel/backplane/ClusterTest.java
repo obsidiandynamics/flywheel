@@ -20,7 +20,7 @@ import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
-public abstract class BackplaneTest {
+public abstract class ClusterTest {
   private static final int PORT = 8090;
   private static final String TOPIC_PREFIX = "topics/";
   
@@ -28,7 +28,7 @@ public abstract class BackplaneTest {
   
   private final List<RemoteNode> remotes = new ArrayList<>();
   
-  protected abstract Backplane getBackplane() throws Exception;
+  protected abstract Backplane getBackplane(String clusterId, String brokerId) throws Exception;
   
   @After
   public final void after() throws Exception {
@@ -140,12 +140,13 @@ public abstract class BackplaneTest {
                                 int messagesPerTopic, 
                                 int expectedPartitions,
                                 int expectedMessages) throws Exception {
-    final Backplane backplane = getBackplane();
+    final String clusterId = UUID.randomUUID().toString();
     final RemoteNode remote = createRemoteNode();
     final List<RetainingSubscriber> subscribers = new ArrayList<>(edgeNodes * subscribersPerNode);
     
     for (int i = 0; i < edgeNodes; i++) {
       final int preferredPort = PORT + i;
+      final Backplane backplane = getBackplane(clusterId, String.valueOf(i));
       final EdgeNode edge = createEdgeNode(preferredPort, backplane);
       final int port = edge.getServer().getConfig().port; // the actual port may differ from the preferred
       for (int j = 0; j < subscribersPerNode; j++) {
