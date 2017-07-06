@@ -124,13 +124,13 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
     addTopicListener(new TopicListenerBase() {
       @Override public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
         if (! nexus.isLocal()) {
-          backplane.onPublish(EdgeNode.this, nexus, pub);
+          backplane.onPublish(nexus, pub);
         }
       }
       
       @Override public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
         if (! nexus.isLocal()) {
-          backplane.onPublish(EdgeNode.this, nexus, pub);
+          backplane.onPublish(nexus, pub);
         }
       }
     });

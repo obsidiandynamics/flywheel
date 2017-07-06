@@ -24,6 +24,10 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
     start();
   }
   
+  public Consumer<K, V> getConsumer() {
+    return consumer;
+  }
+  
   @Override 
   public void run() {
     while (running) {

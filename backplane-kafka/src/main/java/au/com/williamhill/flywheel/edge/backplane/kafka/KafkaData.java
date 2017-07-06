@@ -17,9 +17,9 @@ public final class KafkaData {
   
   private final long expiry;
 
-  public KafkaData(String id, String source, String route, byte[] binaryPayload, String textPayload, long timestamp,
-                      long expiry) {
-    if (binaryPayload != null ^ textPayload != null) 
+  public KafkaData(String id, String source, String route, byte[] binaryPayload, String textPayload, 
+                   long timestamp, long expiry) {
+    if (! (binaryPayload != null ^ textPayload != null))
       throw new IllegalArgumentException("Exactly one of 'binaryPayload' or 'textPayload' may be assigned");
     
     this.id = id;

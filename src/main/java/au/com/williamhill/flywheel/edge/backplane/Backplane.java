@@ -19,19 +19,17 @@ public interface Backplane extends AutoCloseable {
    *  Invoked when a text message is published on the local node. The backplane is responsible
    *  for disseminating this message to the peer nodes.
    *  
-   *  @param connector The originating connector.
    *  @param nexus The publisher nexus.
    *  @param pub The published frame.
    */
-  void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishTextFrame pub);
+  void onPublish(EdgeNexus nexus, PublishTextFrame pub);
 
   /**
    *  Invoked when a binary message is published on the local node. The backplane is responsible
    *  for disseminating this message to the peer nodes.
    *  
-   *  @param connector The originating connector.
    *  @param nexus The publisher nexus.
    *  @param pub The published frame.
    */
-  void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishBinaryFrame pub);
+  void onPublish(EdgeNexus nexus, PublishBinaryFrame pub);
 }

@@ -8,15 +8,15 @@ public final class InVMBackplaneTest extends BackplaneTest {
   
   private String clusterId;
   
-  private InVMBackplane backplane;
+  private InVMCluster cluster;
   
   @Override
   protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
-    if (clusterId.equals(this.clusterId)) return backplane;
+    if (clusterId.equals(this.clusterId)) return cluster.createBackplane();
     
-    backplane = new InVMBackplane();
+    cluster = new InVMCluster();
     this.clusterId = clusterId;
-    return backplane;
+    return cluster.createBackplane();
   }
   
   @Test

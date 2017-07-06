@@ -26,8 +26,9 @@ public final class ScramjetSerializer implements Serializer<KafkaData> {
   
   private static ScramjetMessage toScramjet(KafkaData data) {
     final int ttl = (int) (data.getTimeRemaining() / 1000);
+    final int cappedTtl = ttl < 0 ? Integer.MAX_VALUE : ttl;
     final Object payload = data.isText() ? data.getTextPayload() : new ScramjetBase64(data.getBinaryPayload());
-    final ScramjetPushUpdate update = new ScramjetPushUpdate(data.getRoute(), ttl, payload);
+    final ScramjetPushUpdate update = new ScramjetPushUpdate(data.getRoute(), cappedTtl, payload);
     final ScramjetMessage msg = new ScramjetMessage(data.getId(), "PUSH_UPDATE", update, 
                                                     data.getSource(), new Date(data.getTimestamp()));
     return msg;

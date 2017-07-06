@@ -100,9 +100,9 @@ public abstract class BackplaneTest {
           final EdgeNexus nexus = new EdgeNexus(null, peer);
           for (int t = 0; t < topics; t++) {
             if (binary) {
-              conn.backplane.onPublish(conn, nexus, new PublishBinaryFrame(TOPIC_PREFIX + t, message.toString().getBytes()));
+              conn.backplane.onPublish(nexus, new PublishBinaryFrame(TOPIC_PREFIX + t, message.toString().getBytes()));
             } else {
-              conn.backplane.onPublish(conn, nexus, new PublishTextFrame(TOPIC_PREFIX + t, message.toString()));
+              conn.backplane.onPublish(nexus, new PublishTextFrame(TOPIC_PREFIX + t, message.toString()));
             }
           }
         }

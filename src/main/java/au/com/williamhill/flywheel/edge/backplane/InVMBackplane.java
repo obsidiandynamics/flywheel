@@ -1,42 +1,47 @@
 package au.com.williamhill.flywheel.edge.backplane;
 
-import java.util.*;
-
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 
 public final class InVMBackplane implements Backplane {
-  private final List<BackplaneConnector> connectors = new ArrayList<>();
+  private final InVMCluster cluster;
+  
+  private volatile BackplaneConnector connector;
+  
+  InVMBackplane(InVMCluster cluster) {
+    this.cluster = cluster;
+  }
 
   @Override
   public void attach(BackplaneConnector connector) {
-    connectors.add(connector);
+    this.connector = connector;
+    cluster.getConnectors().add(connector);
+  }
+
+  @Override
+  public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
+    if (cluster.getConnectors().size() == 1) return;
+    
+    for (BackplaneConnector c : cluster.getConnectors()) {
+      if (c != connector) {
+        c.publish(pub.getTopic(), pub.getPayload());
+      }
+    }
+  }
+
+  @Override
+  public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
+    if (cluster.getConnectors().size() == 1) return;
+    
+    for (BackplaneConnector c : cluster.getConnectors()) {
+      if (c != connector) {
+        c.publish(pub.getTopic(), pub.getPayload());
+      }
+    }
   }
 
   @Override
   public void close() throws Exception {
-    connectors.clear();
-  }
-
-  @Override
-  public void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishTextFrame pub) {
-    if (connectors.size() == 1) return;
-    
-    for (BackplaneConnector c : connectors) {
-      if (c != connector) {
-        c.publish(pub.getTopic(), pub.getPayload());
-      }
-    }
-  }
-
-  @Override
-  public void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishBinaryFrame pub) {
-    if (connectors.size() == 1) return;
-    
-    for (BackplaneConnector c : connectors) {
-      if (c != connector) {
-        c.publish(pub.getTopic(), pub.getPayload());
-      }
-    }
+    cluster.getConnectors().clear();
   }
 }

@@ -14,8 +14,8 @@ public final class NoOpBackplane implements Backplane {
   public void attach(BackplaneConnector connector) {}
 
   @Override
-  public void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishTextFrame pub) {}
+  public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {}
 
   @Override
-  public void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishBinaryFrame pub) {}
+  public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {}
 }
