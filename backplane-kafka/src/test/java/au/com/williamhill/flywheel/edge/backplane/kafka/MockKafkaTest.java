@@ -28,7 +28,7 @@ public final class MockKafkaTest {
   private static final class TestConsumer<K, V> extends Thread {
     private final Kafka<K, V> kafka;
     
-    private final KeyedBlockingQueue<Integer, ConsumerRecord<K, V>> received = 
+    final KeyedBlockingQueue<Integer, ConsumerRecord<K, V>> received = 
         new KeyedBlockingQueue<>(LinkedBlockingQueue::new);
     
     private volatile boolean running = true;

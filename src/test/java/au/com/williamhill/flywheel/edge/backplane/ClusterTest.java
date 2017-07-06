@@ -64,7 +64,7 @@ public abstract class ClusterTest {
   
   private static final class RetainingSubscriber extends RemoteNexusHandlerBase implements TestSupport {
     private final RemoteNexus nexus;
-    private final KeyedBlockingQueue<String, TestMessage> received = 
+    final KeyedBlockingQueue<String, TestBackplaneMessage> received = 
         new KeyedBlockingQueue<>(LinkedBlockingQueue::new);
     
     RetainingSubscriber(RemoteNode remote, URI uri) throws URISyntaxException, Exception {
@@ -74,7 +74,7 @@ public abstract class ClusterTest {
     @Override
     public void onText(RemoteNexus nexus, String topic, String payload) {
       log("s: received (text) %s, topic: %s\n", payload, topic);
-      final TestMessage msg = TestMessage.fromString(payload);
+      final TestBackplaneMessage msg = TestBackplaneMessage.fromString(payload);
       received.forKey(getKey(msg.brokerId, topic)).add(msg);
     }
     
@@ -82,11 +82,11 @@ public abstract class ClusterTest {
     public void onBinary(RemoteNexus nexus, String topic, byte[] payload) {
       final String str = new String(payload);
       log("s: received (binary) %s, topic: %s\n", str, topic);
-      final TestMessage msg = TestMessage.fromString(str);
+      final TestBackplaneMessage msg = TestBackplaneMessage.fromString(str);
       received.forKey(getKey(msg.brokerId, topic)).add(msg);
     }
     
-    private static String getKey(int brokerId, String topic) {
+    private static String getKey(String brokerId, String topic) {
       return brokerId + "_" + topic;
     }
   }
@@ -94,51 +94,31 @@ public abstract class ClusterTest {
   private static URI getBrokerURI(int port) throws URISyntaxException {
     return new URI("ws://localhost:" + port + "/");
   }
-  
-  private static final class TestMessage {
-    final int brokerId;
-    final int messageId;
-    
-    TestMessage(int brokerId, int messageId) {
-      this.brokerId = brokerId;
-      this.messageId = messageId;
-    }
 
-    @Override
-    public String toString() {
-      return brokerId + "-" + messageId;
-    }
-    
-    static TestMessage fromString(String str) {
-      final String[] frags = str.split("-");
-      return new TestMessage(Integer.parseInt(frags[0]), Integer.parseInt(frags[1]));
-    }
-  }
-
-  protected final void testCrossCluster(int cycles,
-                                        boolean binary,
-                                        int edgeNodes, 
-                                        int subscribersPerNode, 
-                                        int topics,
-                                        int messagesPerTopic, 
-                                        int expectedPartitions,
-                                        int expectedMessages) throws Exception {
+  protected final void test(int cycles,
+                            boolean binary,
+                            int edgeNodes, 
+                            int subscribersPerNode, 
+                            int topics,
+                            int messagesPerTopic, 
+                            int expectedPartitions,
+                            int expectedMessages) throws Exception {
     for (int i = 0; i < cycles; i++) {
       try {
-        testCrossCluster(binary, edgeNodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+        test(binary, edgeNodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
       } finally {
         cleanup();
       }
     }
   }
 
-  private void testCrossCluster(boolean binary,
-                                int edgeNodes, 
-                                int subscribersPerNode, 
-                                int topics,
-                                int messagesPerTopic, 
-                                int expectedPartitions,
-                                int expectedMessages) throws Exception {
+  private void test(boolean binary,
+                    int edgeNodes, 
+                    int subscribersPerNode, 
+                    int topics,
+                    int messagesPerTopic, 
+                    int expectedPartitions,
+                    int expectedMessages) throws Exception {
     final String clusterId = UUID.randomUUID().toString();
     final RemoteNode remote = createRemoteNode();
     final List<RetainingSubscriber> subscribers = new ArrayList<>(edgeNodes * subscribersPerNode);
@@ -171,7 +151,7 @@ public abstract class ClusterTest {
         }
         
         for (int m = 0; m < messagesPerTopic; m++) {
-          final TestMessage message = new TestMessage(port, m);
+          final TestBackplaneMessage message = new TestBackplaneMessage(String.valueOf(port), m);
           for (int t = 0; t < topics; t++) {
             if (binary) {
               nexus.publish(new PublishBinaryFrame(TOPIC_PREFIX + t, message.toString().getBytes()));
@@ -192,11 +172,11 @@ public abstract class ClusterTest {
       for (RetainingSubscriber sub : subscribers) {
         assertEquals(expectedPartitions, sub.received.asMap().size());
         assertEquals(expectedMessages, sub.received.totalSize());
-        for (Map.Entry<String, BlockingQueue<TestMessage>> entry : sub.received.asMap().entrySet()) {
-          final List<TestMessage> messages = new ArrayList<>(entry.getValue());
+        for (Map.Entry<String, BlockingQueue<TestBackplaneMessage>> entry : sub.received.asMap().entrySet()) {
+          final List<TestBackplaneMessage> messages = new ArrayList<>(entry.getValue());
           assertEquals(messagesPerTopic, messages.size());
           for (int m = 0; m < messagesPerTopic; m++) {
-            final TestMessage message = messages.get(m);
+            final TestBackplaneMessage message = messages.get(m);
             assertEquals(m, message.messageId);
           }
         }

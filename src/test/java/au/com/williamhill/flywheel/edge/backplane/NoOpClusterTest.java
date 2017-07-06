@@ -21,8 +21,8 @@ public final class NoOpClusterTest extends ClusterTest {
     final int messagesPerTopic = 10 * SCALE;
     final int expectedPartitions = topics;
     final int expectedMessages = topics * messagesPerTopic;
-    testCrossCluster(CYCLES, false, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
-    testCrossCluster(CYCLES, true, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+    test(CYCLES, false, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+    test(CYCLES, true, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
   }
   
   @Test
@@ -33,7 +33,7 @@ public final class NoOpClusterTest extends ClusterTest {
     final int messagesPerTopic = 10 * SCALE;
     final int expectedPartitions = topics;
     final int expectedMessages = topics * messagesPerTopic;
-    testCrossCluster(CYCLES, false, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
-    testCrossCluster(CYCLES, true, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+    test(CYCLES, false, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+    test(CYCLES, true, nodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
   }
 }

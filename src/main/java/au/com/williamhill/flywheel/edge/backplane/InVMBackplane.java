@@ -20,7 +20,7 @@ public final class InVMBackplane implements Backplane {
 
   @Override
   public void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishTextFrame pub) {
-    if (nexus.isLocal() || connectors.size() == 1) return;
+    if (connectors.size() == 1) return;
     
     for (BackplaneConnector c : connectors) {
       if (c != connector) {
@@ -31,7 +31,7 @@ public final class InVMBackplane implements Backplane {
 
   @Override
   public void onPublish(BackplaneConnector connector, EdgeNexus nexus, PublishBinaryFrame pub) {
-    if (nexus.isLocal() || connectors.size() == 1) return;
+    if (connectors.size() == 1) return;
     
     for (BackplaneConnector c : connectors) {
       if (c != connector) {

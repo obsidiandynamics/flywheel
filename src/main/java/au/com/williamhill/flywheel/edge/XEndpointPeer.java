@@ -4,10 +4,10 @@ import java.net.*;
 
 import au.com.williamhill.flywheel.socketx.*;
 
-final class WSEndpointPeer implements Peer {
+public final class XEndpointPeer implements Peer {
   private final XEndpoint endpoint;
 
-  WSEndpointPeer(XEndpoint endpoint) {
+  public XEndpointPeer(XEndpoint endpoint) {
     this.endpoint = endpoint;
   }
 
