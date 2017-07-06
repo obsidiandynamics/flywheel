@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.backplane.scramjet;
+package au.com.williamhill.flywheel.edge.backplane.scramjet;
 
 public final class ScramjetPushUpdate implements ScramjetPayload {
   public static final String TYPE = "Scramjet.Messages.Push.Update";

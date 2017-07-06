@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.backplane.kafka;
+package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import java.text.*;
 import java.util.*;

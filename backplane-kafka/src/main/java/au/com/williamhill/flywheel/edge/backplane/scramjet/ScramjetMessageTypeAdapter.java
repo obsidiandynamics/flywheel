@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.backplane.scramjet;
+package au.com.williamhill.flywheel.edge.backplane.scramjet;
 
 import java.lang.reflect.*;
 import java.util.*;

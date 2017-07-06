@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.backplane.kafka;
+package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import org.apache.kafka.common.serialization.*;
 
 import com.google.gson.*;
 
-import au.com.williamhill.flywheel.backplane.scramjet.*;
+import au.com.williamhill.flywheel.edge.backplane.scramjet.*;
 
 public final class ScramjetSerializer implements Serializer<KafkaData> {
   private final StringSerializer s = new StringSerializer();
