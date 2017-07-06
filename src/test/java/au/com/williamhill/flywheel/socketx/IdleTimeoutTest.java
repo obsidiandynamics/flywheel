@@ -22,12 +22,12 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   
   @Test
   public void testUtUtServerTimeout() throws Exception {
-    testServerTimeout(UndertowServer.factory(), UndertowClient.factory(), 1);
+    testServerTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
   }
   
   @Test
   public void testNtUtServerTimeout() throws Exception {
-    testServerTimeout(NettyServer.factory(), UndertowClient.factory(), 1);
+    testServerTimeout(NettyServer.factory(), UndertowClient.factory(), 200);
   }
   
   @Test
@@ -39,7 +39,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   
   @Test
   public void testUtUtClientTimeout() throws Exception {
-    testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 1);
+    testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
   }
   
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
