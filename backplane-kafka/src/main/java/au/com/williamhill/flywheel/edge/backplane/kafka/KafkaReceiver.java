@@ -47,7 +47,6 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   @Override
   public void close() throws InterruptedException {
     running = false;
-    interrupt();
   }
   
   public void await() throws InterruptedException {

@@ -2,9 +2,11 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import java.util.*;
 import java.util.concurrent.atomic.*;
+import java.util.stream.*;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
+import org.apache.kafka.common.*;
 import org.apache.kafka.common.serialization.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -45,6 +47,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   
   private Properties getConsumerProps() {
     final Properties props = new Properties();
+    props.setProperty("group.id", source);
     props.setProperty("key.deserializer", StringDeserializer.class.getName());
     props.setProperty("value.deserializer", config.deserializerClass.getName());
     return props;
@@ -52,7 +55,6 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   
   private Properties getProducerProps() {
     final Properties props = new Properties();
-    props.setProperty("group.id", source);
     props.setProperty("key.serializer", StringSerializer.class.getName());
     props.setProperty("value.serializer", config.serializerClass.getName());
     return props;
@@ -62,7 +64,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   public void attach(BackplaneConnector connector) {
     this.connector = connector;
     final Consumer<String, KafkaData> consumer = config.kafka.getConsumer(getConsumerProps());
-    consumer.subscribe(Arrays.asList(config.topic));
+    seekToEnd(consumer, config.topic);
     final String threadName = "KafkaReceiver-" + clusterId + "-" + brokerId + "-" + config.topic;
     receiver = new KafkaReceiver<>(
         consumer,
@@ -70,6 +72,21 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
         threadName,
         this);
     producer = config.kafka.getProducer(getProducerProps());
+  }
+  
+  private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
+    final List<PartitionInfo> infos = consumer.partitionsFor(topic);
+    if (infos != null) {
+      final List<TopicPartition> partitions = infos.stream()
+          .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
+      final Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
+      consumer.assign(partitions);
+      for (Map.Entry<TopicPartition, Long> entry : endOffsets.entrySet()) {
+        consumer.seek(entry.getKey(), entry.getValue());
+      }
+    } else {
+      consumer.subscribe(Arrays.asList(topic));
+    }
   }
 
   @Override
@@ -114,8 +131,14 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
 
   @Override
   public void close() throws Exception {
-    if (receiver == null) return;
-    receiver.close();
-    receiver.await();
+    if (receiver != null) {
+      receiver.close();
+      receiver.await();
+      receiver = null;
+    }
+    if (producer != null) {
+      producer.close();
+      producer = null;
+    }
   }
 }

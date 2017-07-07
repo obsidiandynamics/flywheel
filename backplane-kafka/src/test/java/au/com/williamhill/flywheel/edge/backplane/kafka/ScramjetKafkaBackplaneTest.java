@@ -1,17 +1,17 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
+import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
+
 import java.util.*;
 
 import org.junit.*;
-
-import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class ScramjetKafkaBackplaneTest extends BackplaneTest {
-  private static final boolean MOCK = PropertyUtils.get("flywheel.kafka.mock", Boolean::valueOf, true);
-  private static final String BROKERS = "localhost:9092";
+  private static final boolean MOCK = get("flywheel.backplane.kafka.mock", Boolean::valueOf, true);
+  private static final String BROKERS = get("flywheel.backplane.kafka.brokers", String::valueOf, "localhost:9092");
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   

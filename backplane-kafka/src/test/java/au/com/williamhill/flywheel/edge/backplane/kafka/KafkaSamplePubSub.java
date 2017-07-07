@@ -41,6 +41,7 @@ public final class KafkaSamplePubSub {
         send();
         if (PUBLISH_INTERVAL != 0) TestSupport.sleep(PUBLISH_INTERVAL);
       }
+      producer.close();
     }
     
     private void send() {

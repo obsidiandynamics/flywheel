@@ -2,6 +2,7 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
@@ -47,6 +48,13 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
               }
             });
             return f;
+          }
+          
+          final AtomicBoolean closed = new AtomicBoolean();
+          @Override public void close(long timeout, TimeUnit timeUnit) {
+            if (closed.compareAndSet(false, true)) {
+              super.close();
+            }
           }
         };
       }
