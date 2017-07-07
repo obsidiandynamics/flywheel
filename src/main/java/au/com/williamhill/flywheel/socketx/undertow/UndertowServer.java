@@ -46,7 +46,7 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
 
     final PathHandler handler = Handlers.path()
         .addPrefixPath("/", servletManager.start())
-        .addPrefixPath(config.contextPath, Handlers.websocket(manager));
+        .addPrefixPath(config.path, Handlers.websocket(manager));
 
     server = Undertow.builder()
         .setWorker(worker)

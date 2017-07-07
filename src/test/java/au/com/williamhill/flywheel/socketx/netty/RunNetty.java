@@ -7,7 +7,7 @@ public final class RunNetty {
     System.setProperty("io.netty.noUnsafe", Boolean.toString(true));
     final XServer<NettyEndpoint> netty = NettyServer.factory().create(new XServerConfig() {{
       port = 8080;
-      contextPath = "/";
+      path = "/";
     }}, null);
     netty.close();
   }

@@ -80,7 +80,7 @@ public final class ServletTest extends BaseClientServerTest {
   private void test(XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
     final XServerConfig serverConfig = getDefaultServerConfig()
-        .withContextPath("/websocket")
+        .withPath("/websocket")
         .withServlets(new XMappedServlet(SERVLET_PATH + "/*", TestServlet.class));
     createServer(serverFactory, serverConfig, new XEndpointLambdaListener<>());
 

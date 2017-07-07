@@ -29,15 +29,15 @@ import io.netty.handler.ssl.*;
 import io.netty.handler.timeout.*;
 
 final class WebSocketServerInitializer extends ChannelInitializer<SocketChannel> {
-  private final String contextPath;
+  private final String path;
   private final SslContext sslCtx;
   private final NettyEndpointManager manager;
   private final int idleTimeoutMillis;
 
-  WebSocketServerInitializer(NettyEndpointManager manager, String contextPath, 
+  WebSocketServerInitializer(NettyEndpointManager manager, String path, 
                              SslContext sslCtx, int idleTimeoutMillis) {
     this.manager = manager;
-    this.contextPath = contextPath;
+    this.path = path;
     this.sslCtx = sslCtx;
     this.idleTimeoutMillis = idleTimeoutMillis;
   }
@@ -60,7 +60,7 @@ final class WebSocketServerInitializer extends ChannelInitializer<SocketChannel>
       }
     });
     pipeline.addLast(new WebSocketServerCompressionHandler());
-    pipeline.addLast(new WebSocketServerProtocolHandler(contextPath, null, true) {
+    pipeline.addLast(new WebSocketServerProtocolHandler(path, null, true) {
       @Override public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         manager.createEndpoint(ctx);

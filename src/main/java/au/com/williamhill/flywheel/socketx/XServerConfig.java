@@ -5,7 +5,7 @@ import java.util.*;
 public class XServerConfig {
   public int port = 8080;
   
-  public String contextPath = "/";
+  public String path = "/";
   
   public int idleTimeoutMillis = 300_000;
   
@@ -22,8 +22,8 @@ public class XServerConfig {
     return this;
   }
   
-  public XServerConfig withContextPath(String contextPath) {
-    this.contextPath = contextPath;
+  public XServerConfig withPath(String path) {
+    this.path = path;
     return this;
   }
   
@@ -54,7 +54,7 @@ public class XServerConfig {
 
   @Override
   public String toString() {
-    return "XServerConfig [port=" + port + ", contextPath=" + contextPath + ", idleTimeoutMillis=" + idleTimeoutMillis
+    return "XServerConfig [port=" + port + ", path=" + path + ", idleTimeoutMillis=" + idleTimeoutMillis
            + ", pingIntervalMillis=" + pingIntervalMillis + ", scanIntervalMillis=" + scanIntervalMillis + ", servlets="
            + Arrays.toString(servlets) + ", endpointConfig=" + endpointConfig + "]";
   }

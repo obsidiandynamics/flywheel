@@ -20,8 +20,8 @@ public final class XServerConfigTest {
   }
 
   @Test
-  public void testContextPath() {
-    assertEquals("/foo/bar", new XServerConfig().withContextPath("/foo/bar").contextPath);
+  public void testPath() {
+    assertEquals("/foo/bar", new XServerConfig().withPath("/foo/bar").path);
   }
 
   @Test

@@ -125,7 +125,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static ServerHarnessFactory serverHarnessFactory(XServerFactory<? extends XEndpoint> serverFactory) throws Exception {
     return (port_, progress, idleTimeout) -> new DefaultServerHarness(new XServerConfig() {{
       port = port_;
-      contextPath = "/";
+      path = "/";
       idleTimeoutMillis = idleTimeout;
     }}, unsafeCast(serverFactory), progress);
   }
