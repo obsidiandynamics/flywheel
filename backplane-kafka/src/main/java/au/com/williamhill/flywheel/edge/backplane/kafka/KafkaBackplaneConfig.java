@@ -5,7 +5,7 @@ import org.apache.kafka.common.serialization.*;
 public class KafkaBackplaneConfig {
   public Kafka<String, KafkaData> kafka;
   
-  public String topic = "flywheel.kafka.v1";
+  public String topic = "flywheel.backplane.v1";
   
   public Class<? extends Serializer<KafkaData>> serializerClass;
   
