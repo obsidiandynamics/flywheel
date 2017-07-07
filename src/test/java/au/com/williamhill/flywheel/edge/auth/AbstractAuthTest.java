@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel;
+package au.com.williamhill.flywheel.edge.auth;
 
 import static com.obsidiandynamics.indigo.util.Mocks.*;
 
@@ -10,9 +10,8 @@ import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
+import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Wire.*;
 import au.com.williamhill.flywheel.remote.*;

@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel;
+package au.com.williamhill.flywheel.edge.auth;
 
 import static org.junit.Assert.*;
 
@@ -8,7 +8,7 @@ import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
-import au.com.williamhill.flywheel.edge.auth.*;
+import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;

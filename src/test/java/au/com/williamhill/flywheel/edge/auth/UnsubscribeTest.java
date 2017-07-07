@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel;
+package au.com.williamhill.flywheel.edge.auth;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
@@ -10,7 +10,6 @@ import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
-import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 
