@@ -17,10 +17,17 @@ import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
-public abstract class BackplaneTest {
+public abstract class BackplaneTest implements TestSupport {
   private static final String TOPIC_PREFIX = "topics/";
 
   protected abstract Backplane getBackplane(String clusterId, String brokerId) throws Exception;
+  
+  @Before
+  public final void before() throws Exception {
+    init();
+  }
+  
+  protected void init() throws Exception {}
 
   @After
   public final void after() throws Exception {
@@ -69,6 +76,7 @@ public abstract class BackplaneTest {
                             int expectedPartitions,
                             int expectedMessages) throws Exception {
     for (int i = 0; i < cycles; i++) {
+      init();
       try {
         test(binary, connectors, topics, messagesPerTopic, expectedPartitions, expectedMessages);
       } finally {
@@ -83,7 +91,7 @@ public abstract class BackplaneTest {
                     int messagesPerTopic, 
                     int expectedPartitions,
                     int expectedMessages) throws Exception {
-    final String clusterId = UUID.randomUUID().toString();
+    final String clusterId = "TestCluster";
     final List<MockConnector> mockConnectors = new ArrayList<>(connectors);
 
     for (int i = 0; i < connectors; i++) {
@@ -108,6 +116,7 @@ public abstract class BackplaneTest {
         }
       }
     }).run();
+    log("publishing complete\n");
 
     try {
       Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)

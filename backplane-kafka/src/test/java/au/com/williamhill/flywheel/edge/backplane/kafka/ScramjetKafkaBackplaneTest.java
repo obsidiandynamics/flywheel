@@ -1,22 +1,47 @@
-package au.com.williamhill.flywheel.edge.backplane;
+package au.com.williamhill.flywheel.edge.backplane.kafka;
+
+import java.util.*;
 
 import org.junit.*;
 
-public final class InVMBackplaneTest extends BackplaneTest {
+import com.obsidiandynamics.indigo.util.*;
+
+import au.com.williamhill.flywheel.edge.backplane.*;
+import au.com.williamhill.flywheel.util.*;
+
+public final class ScramjetKafkaBackplaneTest extends BackplaneTest {
+  private static final boolean MOCK = PropertyUtils.get("flywheel.kafka.mock", Boolean::valueOf, true);
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   
-  private InVMCluster cluster;
+  private Kafka<String, KafkaData> kafka;
+  
+  private final Map<String, KafkaBackplane> backplanes = new HashMap<>();
   
   @Override
-  public void init() throws Exception {
+  protected void init() throws Exception {
     super.init();
-    cluster = new InVMCluster();
+    kafka = MOCK ? new MockKafka<>(1, Integer.MAX_VALUE) : new KafkaCluster<>();
   }
   
   @Override
+  protected void cleanup() throws Exception {
+    for (KafkaBackplane backplane : backplanes.values()) {
+      backplane.close();
+    }
+    backplanes.clear();
+    super.cleanup();
+  }
+
+  @Override
   protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
-    return cluster.createBackplane();
+    final KafkaBackplaneConfig config = new KafkaBackplaneConfig() {{
+      kafka = ScramjetKafkaBackplaneTest.this.kafka;
+      serializerClass = ScramjetSerializer.class;
+      deserializerClass = ScramjetDeserializer.class;
+      pollTimeoutMillis = 1;
+    }};
+    return Keyed.getOrSet(backplanes, backplanes, brokerId, () -> new KafkaBackplane(config, clusterId, brokerId));
   }
   
   @Test

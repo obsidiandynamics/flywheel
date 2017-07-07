@@ -6,16 +6,16 @@ public final class InVMClusterTest extends ClusterTest {
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   
-  private String clusterId;
-  
   private InVMCluster cluster;
   
   @Override
-  protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
-    if (clusterId.equals(this.clusterId)) return cluster.createBackplane();
-    
+  protected void init() throws Exception {
+    super.init();
     cluster = new InVMCluster();
-    this.clusterId = clusterId;
+  }
+  
+  @Override
+  protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
     return cluster.createBackplane();
   }
   

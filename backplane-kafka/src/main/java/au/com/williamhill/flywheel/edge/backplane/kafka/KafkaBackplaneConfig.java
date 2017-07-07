@@ -7,9 +7,9 @@ public class KafkaBackplaneConfig {
   
   public String topic = "flywheel.kafka.v1";
   
-  public Class<Serializer<KafkaData>> serializerClass;
+  public Class<? extends Serializer<KafkaData>> serializerClass;
   
-  public Class<Deserializer<KafkaData>> deserializerClass;
+  public Class<? extends Deserializer<KafkaData>> deserializerClass;
   
   public long pollTimeoutMillis = 100;
   

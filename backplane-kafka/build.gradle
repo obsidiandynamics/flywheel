@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
   compile project(':')
+  compile project(':').sourceSets.test.output
   compile 'org.apache.kafka:kafka-clients:0.11.0.0'
   
   testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'

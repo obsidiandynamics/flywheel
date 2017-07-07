@@ -19,7 +19,7 @@ public final class KafkaSamplePubSub {
   
   private static Properties getCommonProps() {
     final Properties props = new Properties();
-    props.put("bootstrap.servers", BROKERS);
+    props.setProperty("bootstrap.servers", BROKERS);
     return props;
   }
   
@@ -31,8 +31,8 @@ public final class KafkaSamplePubSub {
       props.setProperty("batch.size", String.valueOf(16_384));
       props.setProperty("linger.ms", String.valueOf(1));
       props.setProperty("buffer.memory", String.valueOf(33_554_432));
-      props.put("key.serializer", StringSerializer.class.getName());
-      props.put("value.serializer", StringSerializer.class.getName());
+      props.setProperty("key.serializer", StringSerializer.class.getName());
+      props.setProperty("value.serializer", StringSerializer.class.getName());
       return props;
     }
     
@@ -66,8 +66,8 @@ public final class KafkaSamplePubSub {
       props.setProperty("group.id", CONSUMER_GROUP);
       props.setProperty("enable.auto.commit", String.valueOf(true));
       props.setProperty("auto.commit.interval.ms", String.valueOf(100));
-      props.put("key.deserializer", StringDeserializer.class.getName());
-      props.put("value.deserializer", StringDeserializer.class.getName());
+      props.setProperty("key.deserializer", StringDeserializer.class.getName());
+      props.setProperty("value.deserializer", StringDeserializer.class.getName());
       return props;
     }
     

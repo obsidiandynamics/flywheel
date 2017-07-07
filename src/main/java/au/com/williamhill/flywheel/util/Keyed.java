@@ -37,18 +37,34 @@ public class Keyed<K, P> {
    *  @return The partition.
    */
   public final P forKey(K key) {
-    final P existing = map.get(key);
+    return getOrSet(map, map, key, partitionFactory);
+  }
+  
+  /**
+   *  Utility for atomically retrieving a mapped value if it exists, or assigning a value from a 
+   *  given factory if it doesn't.
+   *  
+   *  @param <K> Key type.
+   *  @param <V> Value type.
+   *  @param lock The lock object to use.
+   *  @param map The map.
+   *  @param key The key.
+   *  @param valueFactory A way of creating a missing value.
+   *  @return The value.
+   */
+  public static <K, V> V getOrSet(Object lock, Map<K, V> map, K key, Supplier<V> valueFactory) {
+    final V existing = map.get(key);
     if (existing != null) {
       return existing;
     } else {
-      synchronized (map) {
-        final P existing2 = map.get(key);
+      synchronized (lock) {
+        final V existing2 = map.get(key);
         if (existing2 != null) {
           return existing2;
         } else {
-          final P queue = partitionFactory.get();
-          map.put(key, queue);
-          return queue;
+          final V created = valueFactory.get();
+          map.put(key, created);
+          return created;
         }
       }
     }

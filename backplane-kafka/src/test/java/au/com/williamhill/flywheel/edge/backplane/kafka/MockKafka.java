@@ -23,7 +23,7 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
   private final Object lock = new Object();
   
   public MockKafka() {
-    this(10, 100);
+    this(10, 100_000);
   }
   
   public MockKafka(int maxPartitions, int maxHistory) {
@@ -38,37 +38,12 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
         final String keySerializer = props.getProperty("key.serializer");
         final String valueSerializer = props.getProperty("value.serializer");
         producer = new MockProducer<K, V>(true, instantiate(keySerializer), instantiate(valueSerializer)) {
-          @Override public synchronized Future<RecordMetadata> send(ProducerRecord<K, V> r, Callback callback) {
-            log("MockKafka: sending %s\n", r);
+          @Override public Future<RecordMetadata> send(ProducerRecord<K, V> r, Callback callback) {
             final Future<RecordMetadata> f = super.send(r, new Callback() {
               @Override public void onCompletion(RecordMetadata metadata, Exception exception) {
-                if (metadata.partition() >= maxPartitions) {
-                  final IllegalStateException e = new IllegalStateException(String.format("Cannot send message on partition %d, "
-                      + "a maximum of %d partitions are supported", metadata.partition(), maxPartitions));
-                  if (callback != null) callback.onCompletion(metadata, e);
-                  throw e;
-                }
-                
                 if (callback != null) callback.onCompletion(metadata, exception);
-  
                 final int partition = r.partition() != null ? r.partition() : metadata.partition();
-                final ConsumerRecord<K, V> cr = 
-                    new ConsumerRecord<>(r.topic(), partition, metadata.offset(), r.key(), r.value());
-                
-                final TopicPartition part = new TopicPartition(r.topic(), partition);
-                synchronized (lock) {
-                  backlog.add(cr);
-                  for (MockConsumer<K, V> consumer : consumers) {
-                    if (consumer.assignment().contains(part)) {
-                      consumer.addRecord(cr);
-                    }
-                  }
-                  
-                  if (history().size() > maxHistory) {
-                    clear();
-                    pruneBacklog();
-                  }
-                }
+                enqueue(r, partition, metadata.offset());
               }
             });
             return f;
@@ -77,6 +52,34 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
       }
     }
     return producer;
+  }
+  
+  private void enqueue(ProducerRecord<K, V> r, int partition, long offset) {
+    if (partition >= maxPartitions) {
+      final IllegalStateException e = new IllegalStateException(String.format("Cannot send message on partition %d, "
+          + "a maximum of %d partitions are supported", partition, maxPartitions));
+      throw e;
+    }
+    
+    final ConsumerRecord<K, V> cr = 
+        new ConsumerRecord<>(r.topic(), partition, offset, r.key(), r.value());
+    
+    final TopicPartition part = new TopicPartition(r.topic(), partition);
+    synchronized (lock) {
+      backlog.add(cr);
+      for (MockConsumer<K, V> consumer : consumers) {
+        if (! consumer.closed()) {
+          if (consumer.assignment().contains(part)) {
+            consumer.addRecord(cr);
+          }
+        }
+      }
+      
+      if (producer.history().size() > maxHistory) {
+        producer.clear();
+        pruneBacklog();
+      }
+    }
   }
   
   private void pruneBacklog() {

@@ -19,7 +19,7 @@ import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
-public abstract class ClusterTest {
+public abstract class ClusterTest implements TestSupport {
   private static final int PORT = 8090;
   private static final String TOPIC_PREFIX = "topics/";
   
@@ -27,7 +27,14 @@ public abstract class ClusterTest {
   
   private final List<RemoteNode> remotes = new ArrayList<>();
   
-  protected abstract Backplane getBackplane(String clusterId, String brokerId) throws Exception;
+  protected abstract Backplane getBackplane(String clusterId, String brokerId) throws Exception;  
+  
+  @Before
+  public final void before() throws Exception {
+    init();
+  }
+  
+  protected void init() throws Exception {}
   
   @After
   public final void after() throws Exception {
@@ -104,6 +111,7 @@ public abstract class ClusterTest {
                             int expectedPartitions,
                             int expectedMessages) throws Exception {
     for (int i = 0; i < cycles; i++) {
+      init();
       try {
         test(binary, edgeNodes, subscribersPerNode, topics, messagesPerTopic, expectedPartitions, expectedMessages);
       } finally {
@@ -119,7 +127,7 @@ public abstract class ClusterTest {
                     int messagesPerTopic, 
                     int expectedPartitions,
                     int expectedMessages) throws Exception {
-    final String clusterId = UUID.randomUUID().toString();
+    final String clusterId = "TestCluster";
     final RemoteNode remote = createRemoteNode();
     final List<RetainingSubscriber> subscribers = new ArrayList<>(edgeNodes * subscribersPerNode);
     
@@ -162,6 +170,7 @@ public abstract class ClusterTest {
         }
       }
     }).run();
+    log("publishing complete\n");
     
     assertFalse(error.get());
 

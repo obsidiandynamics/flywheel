@@ -16,8 +16,8 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   
   private volatile boolean running = true;
   
-  public KafkaReceiver(Consumer<K, V> consumer, long pollTimeoutMillis, String name, RecordHandler<K, V> handler) {
-    super(name);
+  public KafkaReceiver(Consumer<K, V> consumer, long pollTimeoutMillis, String threadName, RecordHandler<K, V> handler) {
+    super(threadName);
     this.consumer = consumer;
     this.pollTimeoutMillis = pollTimeoutMillis;
     this.handler = handler;
