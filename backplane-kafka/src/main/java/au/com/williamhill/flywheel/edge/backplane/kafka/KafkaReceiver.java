@@ -31,7 +31,12 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   @Override 
   public void run() {
     while (running) {
-      final ConsumerRecords<K, V> records = consumer.poll(pollTimeoutMillis);
+      final ConsumerRecords<K, V> records;
+      try {
+        records = consumer.poll(pollTimeoutMillis);
+      } catch (org.apache.kafka.common.errors.InterruptException e) {
+        break;
+      }
       if (! records.isEmpty()) {
         handler.handle(records);
       }

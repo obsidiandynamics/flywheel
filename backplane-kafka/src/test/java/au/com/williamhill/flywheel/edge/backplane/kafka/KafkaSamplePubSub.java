@@ -11,42 +11,35 @@ import com.obsidiandynamics.indigo.util.*;
 
 public final class KafkaSamplePubSub {
   private static final boolean MOCK = false;
-  private static final Kafka<String, String> KAFKA = MOCK ? new MockKafka<>() : new KafkaCluster<>();
   private static final String BROKERS = "localhost:9092";
   private static final String TOPIC = "test";
   private static final String CONSUMER_GROUP = "test";
   private static final long PUBLISH_INTERVAL = 100;
-  
-  private static Properties getCommonProps() {
-    final Properties props = new Properties();
-    props.setProperty("bootstrap.servers", BROKERS);
-    return props;
-  }
+  private static final Kafka<String, String> KAFKA = MOCK ? new MockKafka<>() : new KafkaCluster<>(new KafkaClusterConfig() {{
+    bootstrapServers = BROKERS;
+  }});
   
   private static final class SamplePublisher extends Thread implements TestSupport {
     private static Properties getProps() {
-      final Properties props = getCommonProps();
-      props.setProperty("acks", "all");
-      props.setProperty("retries", String.valueOf(0));
-      props.setProperty("batch.size", String.valueOf(16_384));
-      props.setProperty("linger.ms", String.valueOf(1));
-      props.setProperty("buffer.memory", String.valueOf(33_554_432));
+      final Properties props = new Properties();
       props.setProperty("key.serializer", StringSerializer.class.getName());
       props.setProperty("value.serializer", StringSerializer.class.getName());
       return props;
     }
     
     private final Producer<String, String> producer;
+    private volatile boolean running = true;
     
     SamplePublisher() {
       super("Kafka-SamplePublisher");
       producer = KAFKA.getProducer(getProps());
+      start();
     }
     
     @Override public void run() {
-      for (;;) {
+      while (running) {
         send();
-        TestSupport.sleep(PUBLISH_INTERVAL);
+        if (PUBLISH_INTERVAL != 0) TestSupport.sleep(PUBLISH_INTERVAL);
       }
     }
     
@@ -58,38 +51,38 @@ public final class KafkaSamplePubSub {
         log("p: tx [%s], key: %s, value: %s\n", metadata, rec.key(), rec.value());
       });
     }
+    
+    void close() {
+      running = false;
+    }
   }
   
-  private static final class SampleSubscriber extends Thread implements TestSupport {
+  private static final class SampleSubscriber implements TestSupport {
     private static Properties getProps() {
-      final Properties props = getCommonProps();
+      final Properties props = new Properties();
       props.setProperty("group.id", CONSUMER_GROUP);
-      props.setProperty("enable.auto.commit", String.valueOf(true));
-      props.setProperty("auto.commit.interval.ms", String.valueOf(100));
       props.setProperty("key.deserializer", StringDeserializer.class.getName());
       props.setProperty("value.deserializer", StringDeserializer.class.getName());
       return props;
     }
-    
+
+    private final KafkaReceiver<String, String> receiver;
     private final Consumer<String, String> consumer;
     
     SampleSubscriber() {
-      super("Kafka-SampleSubscriber");
       consumer = KAFKA.getConsumer(getProps());
       consumer.subscribe(Arrays.asList(TOPIC));
+      receiver = new KafkaReceiver<>(consumer, 100, "Kafka-SampleSubscriber", this::receive);
     }
     
-    @Override public void run() {
-      for (;;) {
-        receive();
-      }
-    }
-    
-    private void receive() {
-      final ConsumerRecords<String, String> records = consumer.poll(100);
+    private void receive(ConsumerRecords<String, String> records) {
       for (ConsumerRecord<String, String> record : records) {
         log("c: rx [%s], key: %s, value: %s\n", formatMetadata(record.topic(), record.partition(), record.offset()), record.key(), record.value());
       }
+    }
+    
+    void close() throws InterruptedException {
+      receiver.close();
     }
   }
   
@@ -98,9 +91,18 @@ public final class KafkaSamplePubSub {
   }
   
   public static void main(String[] args) {
-    new SamplePublisher().start();
+    final SamplePublisher pub = new SamplePublisher();
     TestSupport.sleep(500);
-    new SampleSubscriber().start();
+    final SampleSubscriber sub = new SampleSubscriber();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      TestSupport.logStatic("Shutting down\n");
+      try {
+        pub.close();
+        sub.close();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }, "ShutdownHook"));
     TestSupport.sleep(Long.MAX_VALUE);
   }
 }

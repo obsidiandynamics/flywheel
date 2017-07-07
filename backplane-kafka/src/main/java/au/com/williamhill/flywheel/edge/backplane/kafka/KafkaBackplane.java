@@ -52,6 +52,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   
   private Properties getProducerProps() {
     final Properties props = new Properties();
+    props.setProperty("group.id", source);
     props.setProperty("key.serializer", StringSerializer.class.getName());
     props.setProperty("value.serializer", config.serializerClass.getName());
     return props;

@@ -11,6 +11,7 @@ import au.com.williamhill.flywheel.util.*;
 
 public final class ScramjetKafkaBackplaneTest extends BackplaneTest {
   private static final boolean MOCK = PropertyUtils.get("flywheel.kafka.mock", Boolean::valueOf, true);
+  private static final String BROKERS = "localhost:9092";
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   
@@ -21,7 +22,9 @@ public final class ScramjetKafkaBackplaneTest extends BackplaneTest {
   @Override
   protected void init() throws Exception {
     super.init();
-    kafka = MOCK ? new MockKafka<>(1, Integer.MAX_VALUE) : new KafkaCluster<>();
+    kafka = MOCK ? new MockKafka<>(1, Integer.MAX_VALUE) : new KafkaCluster<>(new KafkaClusterConfig() {{
+      bootstrapServers = BROKERS;
+    }});
   }
   
   @Override
