@@ -1,7 +1,5 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
-import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
-
 import java.util.*;
 
 import org.junit.*;
@@ -9,9 +7,7 @@ import org.junit.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.util.*;
 
-public final class ScramjetKafkaBackplaneTest extends BackplaneTest {
-  private static final boolean MOCK = get("flywheel.backplane.kafka.mock", Boolean::valueOf, true);
-  private static final String BROKERS = get("flywheel.backplane.kafka.brokers", String::valueOf, "localhost:9092");
+public class ScramjetKafkaBackplaneTest extends BackplaneTest {
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   
@@ -22,9 +18,11 @@ public final class ScramjetKafkaBackplaneTest extends BackplaneTest {
   @Override
   protected void init() throws Exception {
     super.init();
-    kafka = MOCK ? new MockKafka<>(1, Integer.MAX_VALUE) : new KafkaCluster<>(new KafkaClusterConfig() {{
-      bootstrapServers = BROKERS;
-    }});
+    kafka = getKafka();
+  }
+  
+  protected Kafka<String, KafkaData> getKafka() {
+    return new MockKafka<>(1, Integer.MAX_VALUE);
   }
   
   @Override
