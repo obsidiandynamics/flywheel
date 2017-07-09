@@ -1,12 +1,9 @@
 package au.com.williamhill.flywheel.util;
 
-import java.util.concurrent.atomic.*;
-
-import com.obsidiandynamics.indigo.util.*;
-
+/**
+ *  An interface to Docker Compose, equivalent of BashUtils.running the 'docker-compose' CLI.
+ */
 public final class DockerCompose {
-  private static final String PATH = PropertyUtils.get("flywheel.bash.path", String::valueOf, null);
-  
   private final String project;
   
   private final String composeFile;
@@ -26,12 +23,7 @@ public final class DockerCompose {
   }
   
   public static void checkInstalled() {
-    final int code = BashInteractor.execute(commandWithPath("docker-compose version"), true, s -> {});
-    if (code != 0) {
-      final AtomicReference<String> path = new AtomicReference<>();
-      BashInteractor.execute(commandWithPath("echo $PATH"), true, path::set);
-      throw new AssertionError("Docker Compose is not installed, or is missing from the path (" + path + ")");
-    }
+    BashUtils.checkInstalled("Docker Compose", "docker-compose version");
   }
   
   public void up() throws DockerException {
@@ -39,7 +31,7 @@ public final class DockerCompose {
         .when(project != null).append(new StringBuilder(" -p ").append(project))
         .append(" -f ").append(composeFile)
         .append(" up -d");
-    run(cmd);
+    BashUtils.run(cmd);
   }
   
   public void down(boolean removeVolumes) throws DockerException {
@@ -48,7 +40,7 @@ public final class DockerCompose {
         .append(" -f ").append(composeFile)
         .append(" down")
         .when(removeVolumes).append(" -v");
-    run(cmd);
+    BashUtils.run(cmd);
   }
   
   public void stop(int timeout) throws DockerException {
@@ -57,7 +49,7 @@ public final class DockerCompose {
         .append(" -f ").append(composeFile)
         .append(" stop")
         .when(timeout != 0).append(new StringBuilder(" -t ").append(timeout));
-    run(cmd);
+    BashUtils.run(cmd);
   }
   
   public void rm(boolean removeVolumes) throws DockerException {
@@ -66,21 +58,6 @@ public final class DockerCompose {
         .append(" -f ").append(composeFile)
         .append(" rm -f")
         .when(removeVolumes).append(" -v");
-    run(cmd);
-  }
-  
-  private static void run(CharSequence cmd) throws DockerException {
-    final String commandWithPath = commandWithPath(cmd);
-    final StringBuilder out = new StringBuilder();
-    final int code = BashInteractor.execute(commandWithPath, true, out::append);
-    if (code != 0) {
-      throw new DockerException(commandWithPath, out.toString(), code);
-    }
-  }
-  
-  private static String commandWithPath(CharSequence cmd) {
-    return new StringChainer()
-        .when(PATH != null).append(new StringBuilder("export PATH=").append(PATH).append(" && "))
-        .append(cmd).toString();
+    BashUtils.run(cmd);
   }
 }

@@ -1,5 +1,15 @@
 package au.com.williamhill.flywheel.util;
 
+/**
+ *  A chainable string builder that allows conditional appending of strings, e.g.:<p/>
+ *  
+ *  <pre> {@code
+ *  new StringChainer("foo").when(someCondition).append(" bar");
+ *  } </pre><p/>
+ *  
+ *  Produces "foo" if <code>someCondition</code> is false and "foo bar" if <code>someCondition</code>
+ *  is true.
+ */
 public final class StringChainer implements CharSequence {
   private final StringBuilder sb;
   
