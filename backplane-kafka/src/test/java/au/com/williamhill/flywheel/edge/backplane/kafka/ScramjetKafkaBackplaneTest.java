@@ -46,7 +46,7 @@ public class ScramjetKafkaBackplaneTest extends BackplaneTest {
   }
   
   @Test
-  public void testSingleNode() throws Exception {
+  public final void testSingleNode() throws Exception {
     final int connectors = 1;
     final int topics = 3;
     final int messagesPerTopic = 10 * SCALE;
@@ -57,7 +57,7 @@ public class ScramjetKafkaBackplaneTest extends BackplaneTest {
   }
   
   @Test
-  public void testMultiNode() throws Exception {
+  public final void testMultiNode() throws Exception {
     final int connectors = 4;
     final int topics = 3;
     final int messagesPerTopic = 10 * SCALE;

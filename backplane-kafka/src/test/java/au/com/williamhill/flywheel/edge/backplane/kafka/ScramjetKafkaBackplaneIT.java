@@ -10,16 +10,16 @@ import au.com.williamhill.flywheel.util.*;
 
 public final class ScramjetKafkaBackplaneIT extends ScramjetKafkaBackplaneTest {
   private static final boolean SETUP_TEARDOWN = true;
-  private static final String COMPOSE_FILE = "stacks/kafka/docker-compose.yaml";
   private static final String BROKERS = get("flywheel.backplane.kafka.brokers", String::valueOf, "localhost:9092");
+  private static final DockerCompose COMPOSE = new DockerCompose("flywheel", "stacks/kafka/docker-compose.yaml");
   
   @BeforeClass
   public static void beforeClass() throws Exception {
     if (SETUP_TEARDOWN) {
+      DockerCompose.checkInstalled();
       TestSupport.logStatic("Starting Kafka stack... ");
       final long took = TestSupport.tookThrowing(() -> {
-        DockerUtils.checkInstalled();
-        DockerUtils.composeUp(COMPOSE_FILE);
+        COMPOSE.up();
       });
       TestSupport.logStatic("took %,d ms\n", took);
     }
@@ -30,7 +30,8 @@ public final class ScramjetKafkaBackplaneIT extends ScramjetKafkaBackplaneTest {
     if (SETUP_TEARDOWN) {
       TestSupport.logStatic("Stopping Kafka stack... ");
       final long took = TestSupport.tookThrowing(() -> {
-        DockerUtils.composeDown(COMPOSE_FILE);
+        COMPOSE.stop(1);
+        COMPOSE.down(true);
       });
       TestSupport.logStatic("took %,d ms\n", took);
     }
