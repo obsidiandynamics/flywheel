@@ -31,7 +31,7 @@ public final class NettyServer implements XServer<NettyEndpoint> {
     b.group(bossGroup, workerGroup)
     .channel(NioServerSocketChannel.class)
     .handler(new LoggingHandler(LogLevel.INFO))
-    .childHandler(new WebSocketServerInitializer(manager, config.contextPath, null, 
+    .childHandler(new WebSocketServerInitializer(manager, config.path, null, 
                                                  config.idleTimeoutMillis));
 
     channel = b.bind(config.port).sync().channel();

@@ -4,10 +4,10 @@ import java.net.*;
 
 import au.com.williamhill.flywheel.socketx.*;
 
-final class LocalPeer implements Peer {
+public final class LocalPeer implements Peer {
   private static final LocalPeer INSTANCE = new LocalPeer();
   
-  static LocalPeer instance() { return INSTANCE; }
+  public static LocalPeer instance() { return INSTANCE; }
   
   @Override
   public InetSocketAddress getAddress() {

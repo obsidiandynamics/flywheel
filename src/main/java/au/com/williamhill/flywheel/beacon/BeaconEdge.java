@@ -19,7 +19,7 @@ public final class BeaconEdge extends Thread implements TopicListener {
   
   private static final Properties PROPS = new Properties(System.getProperties());
   private static final int PORT = getOrSet(PROPS, "flywheel.beacon.port", Integer::valueOf, 8080);
-  private static final String CONTEXT_PATH = getOrSet(PROPS, "flywheel.beacon.contextPath", String::valueOf, "/beacon");
+  private static final String PATH = getOrSet(PROPS, "flywheel.beacon.path", String::valueOf, "/beacon");
   private static final int INTERVAL_MILLIS = getOrSet(PROPS, "flywheel.beacon.interval", Integer::valueOf, 1_000);
   
   private final EdgeNode edge;
@@ -34,7 +34,7 @@ public final class BeaconEdge extends Thread implements TopicListener {
     
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig()
-                          .withContextPath(CONTEXT_PATH)
+                          .withPath(PATH)
                           .withPort(PORT)
                           .withServlets(new XMappedServlet("/health/*", HealthServlet.class)))
         .build();
