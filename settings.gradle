@@ -3,5 +3,8 @@ rootProject.name = 'flywheel'
 include 'flywheel-backplane-kafka'
 project(':flywheel-backplane-kafka').projectDir = new File(settingsDir, 'backplane-kafka')
 
+include 'flywheel-logging-splunk'
+project(':flywheel-logging-splunk').projectDir = new File(settingsDir, 'logging-splunk')
+
 include 'flywheel-standalone'
 project(':flywheel-standalone').projectDir = new File(settingsDir, 'standalone')

@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.log;
+package au.com.williamhill.flywheel.logging;
 
 import java.net.*;
 import java.security.cert.*;

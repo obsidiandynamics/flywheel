@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.log;
+package au.com.williamhill.flywheel.logging;
 
 import java.util.*;
 
@@ -52,8 +52,8 @@ public class SplunkHECAppender extends AppenderSkeleton {
 
     // send error stack traces to splunk
     if (layout.ignoresThrowable()) {
-      String[] s = event.getThrowableStrRep();
-      StringBuilder stackTrace = new StringBuilder();
+      final String[] s = event.getThrowableStrRep();
+      final StringBuilder stackTrace = new StringBuilder();
       if (s != null) {
         int len = s.length;
         for (int i = 0; i < len; i++) {
@@ -87,6 +87,10 @@ public class SplunkHECAppender extends AppenderSkeleton {
   @Override
   public boolean requiresLayout() {
     return true;
+  }
+  
+  public void setUrl(String url) {
+    config.setUrl(url);
   }
 
   public String getToken() {

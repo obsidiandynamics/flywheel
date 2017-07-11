@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.log;
+package au.com.williamhill.flywheel.logging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public abstract class SplunkInput {
   private long maxQueueSize = 500 * KB;
   
   // If true, queue will get emptied when it fills up to accommodate new data.
-  private boolean dropEventsOnQueueFull = false;
+  private boolean dropEventsOnQueueFull = true;
 
   // Using this collection structure to implement the FIFO queue.
   private List<String> queue = new ArrayList<String>();
@@ -27,7 +27,7 @@ public abstract class SplunkInput {
 
   /**
    *  Add an event to the tail of the FIFO queue subject to there being
-   *  capacity
+   *  capacity.
    * 
    *  @param event The event to enqueue.
    */

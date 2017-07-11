@@ -1,4 +1,6 @@
-package au.com.williamhill.flywheel.log;
+package au.com.williamhill.flywheel.logging;
+
+import java.net.*;
 
 /**
  *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
@@ -24,6 +26,19 @@ public final class HECTransportConfig {
   private long maxBatchSizeBytes = 1 * MB;
   private long maxBatchSizeEvents = 100;
   private long maxInactiveTimeBeforeBatchFlush = 5000;
+  
+  public void setUrl(String url) {
+    final URL u;
+    try {
+      u = new URL(url);
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("Malformed URL " + url, e);
+    }
+    setHttps(u.getProtocol().equals("https"));
+    setHost(u.getHost());
+    setPort(u.getPort());
+    setPath(u.getPath());
+  }
 
   public String getToken() {
     return token;
