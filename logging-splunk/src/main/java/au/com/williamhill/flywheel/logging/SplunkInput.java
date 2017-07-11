@@ -9,7 +9,7 @@ import java.util.List;
  *  
  *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
  */
-public abstract class SplunkInput {
+abstract class SplunkInput {
   // data size multipliers
   private static final int KB = 1024;
   private static final int MB = KB * 1024;
@@ -20,7 +20,7 @@ public abstract class SplunkInput {
   // If true, queue will get emptied when it fills up to accommodate new data.
   private boolean dropEventsOnQueueFull = true;
 
-  // Using this collection structure to implement the FIFO queue.
+  // Using this collection structure to implement the FIFO retry queue.
   private List<String> queue = new ArrayList<String>();
 
   private long currentQueueSizeInBytes = 0;

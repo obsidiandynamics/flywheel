@@ -5,13 +5,13 @@ import java.net.*;
 /**
  *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
  */
-public final class HECTransportConfig {
+final class HECTransportConfig {
   private String token;
   private String host = "localhost";
   private int port = 8088;
   private boolean https = false;
   private String path = "/services/collector";
-  private int poolsize = 1;
+  private int poolSize = 1;
 
   private String index = "main";
   private String source = "splunk_javalogging_hec";
@@ -27,7 +27,7 @@ public final class HECTransportConfig {
   private long maxBatchSizeEvents = 100;
   private long maxInactiveTimeBeforeBatchFlush = 5000;
   
-  public void setUrl(String url) {
+  void setUrl(String url) {
     final URL u;
     try {
       u = new URL(url);
@@ -40,91 +40,91 @@ public final class HECTransportConfig {
     setPath(u.getPath());
   }
 
-  public String getToken() {
+  String getToken() {
     return token;
   }
 
-  public void setToken(String token) {
+  void setToken(String token) {
     this.token = token;
   }
 
-  public String getHost() {
+  String getHost() {
     return host;
   }
 
-  public void setHost(String host) {
+  void setHost(String host) {
     this.host = host;
   }
 
-  public int getPort() {
+  int getPort() {
     return port;
   }
 
-  public void setPort(int port) {
+  void setPort(int port) {
     this.port = port;
   }
 
-  public boolean isHttps() {
+  boolean isHttps() {
     return https;
   }
 
-  public void setHttps(boolean https) {
+  void setHttps(boolean https) {
     this.https = https;
   }
   
-  public String getPath() {
+  String getPath() {
     return path;
   }
 
-  public void setPath(String path) {
+  void setPath(String path) {
     this.path = path;
   }
 
-  public int getPoolsize() {
-    return poolsize;
+  int getPoolSize() {
+    return poolSize;
   }
 
-  public void setPoolsize(int poolsize) {
-    this.poolsize = poolsize;
+  void setPoolSize(int poolSize) {
+    this.poolSize = poolSize;
   }
 
-  public String getIndex() {
+  String getIndex() {
     return index;
   }
 
-  public void setIndex(String index) {
+  void setIndex(String index) {
     this.index = index;
   }
 
-  public String getSource() {
+  String getSource() {
     return source;
   }
 
-  public void setSource(String source) {
+  void setSource(String source) {
     this.source = source;
   }
 
-  public String getSourcetype() {
+  String getSourcetype() {
     return sourcetype;
   }
 
-  public void setSourcetype(String sourcetype) {
+  void setSourcetype(String sourcetype) {
     this.sourcetype = sourcetype;
   }
 
-  public boolean isBatchMode() {
+  boolean isBatchMode() {
     return batchMode;
   }
 
-  public void setBatchMode(boolean batchMode) {
+  void setBatchMode(boolean batchMode) {
     this.batchMode = batchMode;
   }
 
-  public long getMaxBatchSizeBytes() {
+  long getMaxBatchSizeBytes() {
     return maxBatchSizeBytes;
   }
 
-  public void setMaxBatchSizeBytes(long maxBatchSizeBytes) {
+  void setMaxBatchSizeBytes(long maxBatchSizeBytes) {
     this.maxBatchSizeBytes = maxBatchSizeBytes;
   }
 
@@ -134,7 +134,7 @@ public final class HECTransportConfig {
    * 
    *  @param rawProperty In format [<integer>|<integer>[KB|MB|GB]].
    */
-  public void setMaxBatchSizeBytes(String rawProperty) {
+  void setMaxBatchSizeBytes(String rawProperty) {
     int multiplier;
     int factor;
 
@@ -155,19 +155,19 @@ public final class HECTransportConfig {
     setMaxBatchSizeBytes(factor * multiplier);
   }
 
-  public long getMaxBatchSizeEvents() {
+  long getMaxBatchSizeEvents() {
     return maxBatchSizeEvents;
   }
 
-  public void setMaxBatchSizeEvents(long maxBatchSizeEvents) {
+  void setMaxBatchSizeEvents(long maxBatchSizeEvents) {
     this.maxBatchSizeEvents = maxBatchSizeEvents;
   }
 
-  public long getMaxInactiveTimeBeforeBatchFlush() {
+  long getMaxInactiveTimeBeforeBatchFlush() {
     return maxInactiveTimeBeforeBatchFlush;
   }
 
-  public void setMaxInactiveTimeBeforeBatchFlush(long maxInactiveTimeBeforeBatchFlush) {
+  void setMaxInactiveTimeBeforeBatchFlush(long maxInactiveTimeBeforeBatchFlush) {
     this.maxInactiveTimeBeforeBatchFlush = maxInactiveTimeBeforeBatchFlush;
   }
 }

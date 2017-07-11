@@ -27,7 +27,7 @@ import org.apache.http.util.*;
  *  
  *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
  */
-public final class SplunkHECInput extends SplunkInput {
+final class SplunkHECInput extends SplunkInput {
   private static final boolean DEBUG = false;
   
   // connection props
@@ -40,6 +40,8 @@ public final class SplunkHECInput extends SplunkInput {
 
   private final CloseableHttpAsyncClient httpClient;
   private final URI uri;
+  
+  private final Object lock = new Object();
 
   private static final HostnameVerifier HOSTNAME_VERIFIER = new HostnameVerifier() {
     @Override public boolean verify(String s, SSLSession sslSession) {
@@ -47,10 +49,10 @@ public final class SplunkHECInput extends SplunkInput {
     }
   };
 
-  public SplunkHECInput(HECTransportConfig config) throws Exception {
+  SplunkHECInput(HECTransportConfig config) throws Exception {
     this.config = config;
 
-    this.batchBuffer = Collections.synchronizedList(new LinkedList<>());
+    this.batchBuffer = new LinkedList<>();
     this.lastEventReceivedTime = System.currentTimeMillis();
 
     final Registry<SchemeIOSessionStrategy> sslSessionStrategy = RegistryBuilder
@@ -62,11 +64,11 @@ public final class SplunkHECInput extends SplunkInput {
 
     final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
     final PoolingNHttpClientConnectionManager cm = new PoolingNHttpClientConnectionManager(ioReactor, sslSessionStrategy);
-    cm.setMaxTotal(config.getPoolsize());
-    cm.setDefaultMaxPerRoute(config.getPoolsize());
+    cm.setMaxTotal(config.getPoolSize());
+    cm.setDefaultMaxPerRoute(config.getPoolSize());
 
     final HttpHost splunk = new HttpHost(config.getHost(), config.getPort());
-    cm.setMaxPerRoute(new HttpRoute(splunk), config.getPoolsize());
+    cm.setMaxPerRoute(new HttpRoute(splunk), config.getPoolSize());
 
     httpClient = HttpAsyncClients.custom().setConnectionManager(cm).build();
 
@@ -93,13 +95,15 @@ public final class SplunkHECInput extends SplunkInput {
         String currentMessage = "";
         try {
           long currentTime = System.currentTimeMillis();
-          if ((currentTime - lastEventReceivedTime) >= config
-              .getMaxInactiveTimeBeforeBatchFlush()) {
-            if (batchBuffer.size() > 0) {
-              currentMessage = rollOutBatchBuffer();
-              batchBuffer.clear();
-              currentBatchSizeBytes = 0;
-              hecPost(currentMessage);
+          synchronized (lock) {
+            if ((currentTime - lastEventReceivedTime) >= config
+                .getMaxInactiveTimeBeforeBatchFlush()) {
+              if (batchBuffer.size() > 0) {
+                currentMessage = rollOutBatchBuffer();
+                batchBuffer.clear();
+                currentBatchSizeBytes = 0;
+                hecPost(currentMessage);
+              }
             }
           }
 
@@ -108,16 +112,9 @@ public final class SplunkHECInput extends SplunkInput {
           System.err.println("Splunk: handling batch: " + e);
           e.printStackTrace(System.err);
           
-          // something went wrong, put message on the queue for retry
-          enqueue(currentMessage);
-          try {
-            closeStream();
-          } catch (Exception e1) {
-          }
-
-          try {
-            openStream();
-          } catch (Exception e2) {
+          synchronized (lock) {
+            // something went wrong, put message on the queue for retry
+            enqueueAndReopen(currentMessage);
           }
         }
       }
@@ -145,7 +142,7 @@ public final class SplunkHECInput extends SplunkInput {
     httpClient.start();
   }
 
-  public void closeStream() {
+  void closeStream() {
     try {
       httpClient.close();
     } catch (Exception e) {
@@ -163,7 +160,7 @@ public final class SplunkHECInput extends SplunkInput {
    *  @param message The message to send.
    *  @param timestamp The time of the original event.
    */
-  public void streamEvent(String message, long timestamp) {
+  void streamEvent(String message, long timestamp) {
     String currentMessage = "";
     try {
       final String escaped = escapeAndQuote(message);
@@ -181,41 +178,53 @@ public final class SplunkHECInput extends SplunkInput {
 
       currentMessage = json.toString();
 
-      if (config.isBatchMode()) {
-        lastEventReceivedTime = System.currentTimeMillis();
-        currentBatchSizeBytes += currentMessage.length();
-        batchBuffer.add(currentMessage);
-        if (flushBuffer()) {
-          currentMessage = rollOutBatchBuffer();
-          batchBuffer.clear();
-          currentBatchSizeBytes = 0;
+      synchronized (lock) {
+        if (config.isBatchMode()) {
+          lastEventReceivedTime = timestamp;
+          currentBatchSizeBytes += currentMessage.length();
+          batchBuffer.add(currentMessage);
+          if (flushBuffer()) {
+            currentMessage = rollOutBatchBuffer();
+            batchBuffer.clear();
+            currentBatchSizeBytes = 0;
+            hecPost(currentMessage);
+          }
+        } else {
           hecPost(currentMessage);
         }
-      } else {
-        hecPost(currentMessage);
-      }
-
-      // flush the queue
-      while (queueContainsEvents()) {
-        String messageOffQueue = dequeue();
-        currentMessage = messageOffQueue;
-        hecPost(currentMessage);
+  
+        // flush the queue
+        while (queueContainsEvents()) {
+          String messageOffQueue = dequeue();
+          currentMessage = messageOffQueue;
+          hecPost(currentMessage);
+        }
       }
     } catch (Exception e) {
       System.err.println("Splunk: error streaming event: " + e);
       e.printStackTrace(System.err);
       
-      // something went wrong, put message on the queue for retry
-      enqueue(currentMessage);
-      try {
-        closeStream();
-      } catch (Exception e1) {
+      synchronized (lock) {
+        // something went wrong, put message on the queue for retry
+        enqueueAndReopen(message);
       }
+    }
+  }
+  
+  private void enqueueAndReopen(String message) {
+    enqueue(message);
+    try {
+      closeStream();
+    } catch (Exception e) {
+      System.err.println("Splunk: error closing stream: " + e);
+      e.printStackTrace(System.err);
+    }
 
-      try {
-        openStream();
-      } catch (Exception e2) {
-      }
+    try {
+      openStream();
+    } catch (Exception e) {
+      System.err.println("Splunk: error opening stream: " + e);
+      e.printStackTrace(System.err);
     }
   }
 
@@ -232,7 +241,7 @@ public final class SplunkHECInput extends SplunkInput {
     return sb.toString();
   }
 
-  private synchronized void hecPost(String payload) throws Exception {
+  private void hecPost(String payload) throws Exception {
     final HttpPost post = new HttpPost(uri);
     post.addHeader("Authorization", "Splunk " + config.getToken());
 

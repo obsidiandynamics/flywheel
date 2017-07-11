@@ -19,7 +19,7 @@ public class SplunkHECAppender extends AppenderSkeleton {
   private String maxQueueSize;
   private boolean dropEventsOnQueueFull = true;
 
-  private SplunkHECInput shi;
+  private volatile SplunkHECInput shi;
   
   public SplunkHECAppender() {}
 
@@ -36,9 +36,13 @@ public class SplunkHECAppender extends AppenderSkeleton {
   protected void append(LoggingEvent event) {
     try {
       if (shi == null) {
-        shi = new SplunkHECInput(config);
-        if (maxQueueSize != null) shi.setMaxQueueSize(maxQueueSize);
-        shi.setDropEventsOnQueueFull(dropEventsOnQueueFull);
+        synchronized (this) {
+          if (shi == null) {
+            shi = new SplunkHECInput(config);
+            if (maxQueueSize != null) shi.setMaxQueueSize(maxQueueSize);
+            shi.setDropEventsOnQueueFull(dropEventsOnQueueFull);
+          }
+        }
       }
     } catch (Exception e) {
       errorHandler
@@ -101,36 +105,12 @@ public class SplunkHECAppender extends AppenderSkeleton {
     config.setToken(token);
   }
 
-  public String getHost() {
-    return config.getHost();
+  public int getPoolSize() {
+    return config.getPoolSize();
   }
 
-  public void setHost(String host) {
-    config.setHost(host);
-  }
-
-  public int getPort() {
-    return config.getPort();
-  }
-
-  public void setPort(int port) {
-    config.setPort(port);
-  }
-
-  public boolean isHttps() {
-    return config.isHttps();
-  }
-
-  public void setHttps(boolean https) {
-    config.setHttps(https);
-  }
-
-  public int getPoolsize() {
-    return config.getPoolsize();
-  }
-
-  public void setPoolsize(int poolsize) {
-    config.setPoolsize(poolsize);
+  public void setPoolSize(int poolSize) {
+    config.setPoolSize(poolSize);
   }
 
   public String getIndex() {
