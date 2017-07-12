@@ -91,7 +91,7 @@ public abstract class BackplaneTest implements TestSupport {
                     int messagesPerTopic, 
                     int expectedPartitions,
                     int expectedMessages) throws Exception {
-    final String clusterId = "TestCluster";
+    final String clusterId = "TestCluster-" + System.currentTimeMillis();
     final List<MockConnector> mockConnectors = new ArrayList<>(connectors);
 
     for (int i = 0; i < connectors; i++) {
@@ -119,7 +119,7 @@ public abstract class BackplaneTest implements TestSupport {
     log("publishing complete\n");
 
     try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
+      Awaitility.await().dontCatchUncaughtExceptions().atMost(120, SECONDS)
       .until(() -> mockConnectors.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (MockConnector conn : mockConnectors) {
