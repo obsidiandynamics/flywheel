@@ -2,8 +2,8 @@ package au.com.williamhill.flywheel.yconfig;
 
 import java.util.*;
 
-@Y(YTyped.Mapper.class)
-public interface YTyped {
+@Y(YRuntimeTyped.Mapper.class)
+public interface YRuntimeTyped {
   static class Mapper implements YMapper<Map<String, Object>, Object> {
     private static final String TYPE_ATT = "type";
     

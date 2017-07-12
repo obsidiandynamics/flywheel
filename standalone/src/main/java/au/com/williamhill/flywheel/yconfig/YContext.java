@@ -38,8 +38,12 @@ public final class YContext {
     }
   }
   
-  public <T> T map(Object yaml, Class<T> type) {
-    final YMapper<Object, T> mapper = getMapper(type);
+  public Object map(Object yaml) {
+    return map(yaml, YRuntimeTyped.class);
+  }
+  
+  public <T> T map(Object yaml, Class<? extends T> type) {
+    final YMapper<Object, ? extends T> mapper = getMapper(type);
     return mapper.map(yaml, this);
   }
   

@@ -8,7 +8,7 @@ public class YFooBar {
     @Override
     public YFooBar map(Map<String, Object> yaml, YContext context) {
       return new YFooBar(context.map(yaml.get("foo"), YFoo.class),
-                         context.map(yaml.get("bar"), YTyped.class));
+                         context.map(yaml.get("bar")));
     }
   }
   

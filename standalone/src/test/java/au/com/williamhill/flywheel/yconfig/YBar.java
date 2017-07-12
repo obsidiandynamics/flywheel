@@ -1,6 +1,7 @@
 package au.com.williamhill.flywheel.yconfig;
 
 import java.util.*;
+import java.util.stream.*;
 
 @Y(YBar.Mapper.class)
 public class YBar {
@@ -9,12 +10,7 @@ public class YBar {
     public YBar map(Map<String, Object> yaml, YContext context) {
       @SuppressWarnings("unchecked")
       final List<Object> itemsYaml = (List<Object>) yaml.get("items");
-      final List<Object> items = new ArrayList<>(itemsYaml.size());
-      for (Object itemYaml : itemsYaml) {
-        items.add(context.map(itemYaml, YTyped.class));
-      }
-      return new YBar(items);
-//      return new YBar(itemsYaml.stream().map(itemYaml -> context.map(itemYaml, YTyped.class)).collect(Collectors.toList()));
+      return new YBar(itemsYaml.stream().map(itemYaml -> context.map(itemYaml)).collect(Collectors.toList()));
     }
   }
   
