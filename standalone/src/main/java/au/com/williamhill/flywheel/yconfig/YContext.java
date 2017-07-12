@@ -8,7 +8,18 @@ import org.yaml.snakeyaml.*;
 public final class YContext {
   private final Map<Class<?>, YMapper> mappers = new HashMap<>();
   
-  private String runtimeTypeAttribute = "type";
+  public YContext() {
+    withMapper(Boolean.class, new YPrimordialMapper(Boolean.class, Boolean::parseBoolean));
+    withMapper(Byte.class, new YPrimordialMapper(Byte.class, Byte::parseByte));
+    withMapper(Character.class, new YPrimordialMapper(Character.class, s -> s.isEmpty() ? null : s.charAt(0)));
+    withMapper(Double.class, new YPrimordialMapper(Double.class, Double::parseDouble));
+    withMapper(Float.class, new YPrimordialMapper(Float.class, Float::parseFloat));
+    withMapper(Integer.class, new YPrimordialMapper(Integer.class, Integer::parseInt));
+    withMapper(Long.class, new YPrimordialMapper(Long.class, Long::parseLong));
+    withMapper(Object.class, new YRuntimeMapper());
+    withMapper(Short.class, new YPrimordialMapper(Short.class, Short::parseShort));
+    withMapper(String.class, new YPrimordialMapper(String.class, s -> s));
+  }
   
   private YMapper getMapper(Class<?> type) {
     final YMapper existing = mappers.get(type);
@@ -21,17 +32,8 @@ public final class YContext {
     }
   }
   
-  String getRuntimeTypeAttribute() {
-    return runtimeTypeAttribute;
-  }
-  
   public YContext withMapper(Class<?> type, YMapper mapper) {
     mappers.put(type, mapper);
-    return this;
-  }
-  
-  public YContext withRuntimeTypeAttribute(String runtimeTypeAttribute) {
-    this.runtimeTypeAttribute = runtimeTypeAttribute;
     return this;
   }
   
@@ -55,7 +57,7 @@ public final class YContext {
   public <T> T map(Object yaml, Class<? extends T> type) {
     if (yaml instanceof YObject) throw new IllegalArgumentException("Cannot map an instance of " + YObject.class.getSimpleName());
     
-    final YMapper mapper = getMapper(type != null ? type : YRuntimeTyped.class);
+    final YMapper mapper = getMapper(type != null ? type : Object.class);
     final YObject y = new YObject(yaml, this);
     if (y.isNull()) return null;
     else return cast(mapper.map(y));

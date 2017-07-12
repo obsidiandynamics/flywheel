@@ -10,7 +10,7 @@ public class YBar {
     public Object map(YObject y) {
       final List<YObject> itemsYaml = y.getAttribute("items").list();
       final List<Object> items = itemsYaml.stream().map(itemYaml -> itemYaml.map()).collect(Collectors.toList());
-      return new YBar((Integer) y.<Object>mapAttribute("num", YRawTyped.class), items);
+      return new YBar((Integer) y.mapAttribute("num", Object.class), items);
     }
   }
   

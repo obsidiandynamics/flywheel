@@ -5,9 +5,9 @@ public class YFoo {
   static class Mapper implements YMapper {
     @Override
     public Object map(YObject y) {
-      return new YFoo(y.getAttribute("a").value(),
-                      y.getAttribute("b").value(),
-                      y.getAttribute("c").value());
+      return new YFoo(y.mapAttribute("a", String.class),
+                      y.mapAttribute("b", Integer.class),
+                      y.mapAttribute("c", Boolean.class));
     }
   }
   

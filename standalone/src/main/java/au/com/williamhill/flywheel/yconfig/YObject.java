@@ -14,6 +14,10 @@ public final class YObject {
     this.context = context;
   }
   
+  public boolean is(Class<?> type) {
+    return yaml != null && type.isAssignableFrom(yaml.getClass());
+  }
+  
   public boolean isNull() {
     return yaml == null;
   }

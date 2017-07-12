@@ -13,7 +13,7 @@ public final class YContextTest implements TestSupport {
   @Test
   public void test() throws IOException {
     final YFooBar fb = new YContext()
-        .withRuntimeTypeAttribute("_type")
+        .withMapper(Object.class, new YRuntimeMapper().withTypeAttribute("_type"))
         .withMapper(YFooBar.class, y -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar")))
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("test.yaml"), YFooBar.class);
     log("fb=%s\n", fb);
@@ -33,10 +33,12 @@ public final class YContextTest implements TestSupport {
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("test.yaml"), YFooBar.class);
   }
   
-  @Test(expected=YException.class)
   public void testWithoutMapperAttribute() throws IOException {
     final String yaml = "a: b";
-    new YContext().fromReader(new StringReader(yaml), YRuntimeTyped.class);
+    final Object obj = new YContext().fromReader(new StringReader(yaml), Object.class);
+    final Map<String, String> expected = new LinkedHashMap<>();
+    expected.put("a", "b");
+    assertEquals(expected, obj);
   }
   
   @Test(expected=IllegalArgumentException.class)
@@ -63,13 +65,13 @@ public final class YContextTest implements TestSupport {
   @Test
   public void testFromString() {
     final String yaml = "a: b";
-    new YContext().fromString(yaml, YRawTyped.class);
+    new YContext().fromString(yaml, Object.class);
   }
   
   @Test
   public void testFromReader() throws IOException {
     final String yaml = "a: b";
-    new YContext().fromReader(new StringReader(yaml), YRawTyped.class);
+    new YContext().fromReader(new StringReader(yaml), Object.class);
   }
   
   @Y(TestType.Mapper.class)
@@ -80,7 +82,7 @@ public final class YContextTest implements TestSupport {
   @Test(expected=YException.class)
   public void testUninstantiableMapper() {
     final String yaml = "type: " + TestType.class.getName();
-    new YContext().fromString(yaml, YRuntimeTyped.class);
+    new YContext().fromString(yaml, Object.class);
   }
   
   @Test(expected=NullPointerException.class)
