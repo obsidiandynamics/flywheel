@@ -11,9 +11,10 @@ repositories {
 
 dependencies {
   compile project(':')
+  compile 'org.yaml:snakeyaml:1.18'
   runtime project(':flywheel-logging-splunk')
   
-  testCompile 'junit:junit:4.12'
+  testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
 }
 
 jar {

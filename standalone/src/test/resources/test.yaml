@@ -1,0 +1,9 @@
+foo:
+  a: A string
+  b: 123
+bar:
+  type: au.com.williamhill.flywheel.yconfig.YBar
+  items:
+  - type: au.com.williamhill.flywheel.yconfig.YFoo
+    a: Another string
+    b: 456

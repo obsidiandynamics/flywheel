@@ -1,0 +1,5 @@
+properties:
+- key: flywheel.xxx.yyy
+  value: 100
+- key: flywheel.xxx.zzz
+  value: 200
