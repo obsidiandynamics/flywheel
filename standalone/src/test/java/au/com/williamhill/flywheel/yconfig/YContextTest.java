@@ -14,7 +14,7 @@ public final class YContextTest implements TestSupport {
   public void test() throws IOException {
     final YFooBar fb = new YContext()
         .withMapper(Object.class, new YRuntimeMapper().withTypeAttribute("_type"))
-        .withMapper(YFooBar.class, y -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar")))
+        .withMapper(YFooBar.class, y -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar", Object.class)))
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("test.yaml"), YFooBar.class);
     log("fb=%s\n", fb);
 
@@ -53,7 +53,7 @@ public final class YContextTest implements TestSupport {
   
   @Test(expected=NullPointerException.class)
   public void testNullList() {
-    new YObject(null, null).list();
+    new YObject(null, null).asList();
   }
 
   @Test(expected=YException.class)

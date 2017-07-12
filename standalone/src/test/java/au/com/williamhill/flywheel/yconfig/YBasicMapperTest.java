@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.*;
 
-public final class YPrimordialMapperTest {
+public final class YBasicMapperTest {
   @Test
   public void testBoolean() {
     test(true, Boolean.class, true);
@@ -21,7 +21,11 @@ public final class YPrimordialMapperTest {
   public void testCharacter() {
     test('a', Character.class, 'a');
     test("b", Character.class, 'b');
-    test("", Character.class, null);
+  }
+  
+  @Test(expected=YException.class)
+  public void testInvalidCharacter() {
+    test("abc", Character.class, null);
   }
 
   @Test

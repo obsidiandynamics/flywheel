@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 
 /**
  *  Explicitly provides a {@link YMapper}, specifying how to construct the annotated
- *  class from a Yaml fragment.
+ *  class from an {@link YObject} wrapping a DOM fragment.
  */
 @Documented
 @Retention(RUNTIME)

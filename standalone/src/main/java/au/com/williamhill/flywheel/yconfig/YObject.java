@@ -3,44 +3,43 @@ package au.com.williamhill.flywheel.yconfig;
 import java.util.*;
 import java.util.stream.*;
 
+/**
+ *  Encapsulates a DOM fragment, as well as the current deserialization context.
+ */
 public final class YObject {
-  private final Object yaml;
+  private final Object dom;
   
   private final YContext context;
 
-  YObject(Object yaml, YContext context) {
-    if (yaml instanceof YObject) throw new IllegalArgumentException("Cannot wrap another " + YObject.class.getSimpleName());
-    this.yaml = yaml;
+  YObject(Object dom, YContext context) {
+    if (dom instanceof YObject) throw new IllegalArgumentException("Cannot wrap another " + YObject.class.getSimpleName());
+    this.dom = dom;
     this.context = context;
   }
   
   public boolean is(Class<?> type) {
-    return yaml != null && type.isAssignableFrom(yaml.getClass());
+    return dom != null && type.isAssignableFrom(dom.getClass());
   }
   
   public boolean isNull() {
-    return yaml == null;
+    return dom == null;
   }
   
   public <T> T value() {
-    return YContext.cast(yaml);
+    return YContext.cast(dom);
   }
   
   private void checkNotNull() {
-    if (isNull()) throw new NullPointerException("Yaml content cannot be null");
+    if (isNull()) throw new NullPointerException("Wrapping a null DOM");
   }
   
-  public List<YObject> list() {
+  public List<YObject> asList() {
     checkNotNull();
     return this.<List<?>>value().stream().map(v -> new YObject(v, context)).collect(Collectors.toList());
   }
   
-  public <T> T map() {
-    return map(null);
-  }
-  
   public <T> T map(Class<? extends T> type) {
-    return context.map(yaml, type);
+    return context.map(dom, type);
   }
   
   public YContext getContext() {
@@ -52,16 +51,12 @@ public final class YObject {
     return new YObject(this.<Map<?, ?>>value().get(att), context);
   }
   
-  public <T> T mapAttribute(String att) {
-    return mapAttribute(att, null);
-  }
-  
   public <T> T mapAttribute(String att, Class<? extends T> type) {
     return context.map(getAttribute(att).value(), type);
   }
   
   @Override
   public String toString() {
-    return String.valueOf(yaml);
+    return String.valueOf(dom);
   }
 }

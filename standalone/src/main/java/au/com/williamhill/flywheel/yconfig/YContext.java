@@ -9,16 +9,25 @@ public final class YContext {
   private final Map<Class<?>, YMapper> mappers = new HashMap<>();
   
   public YContext() {
-    withMapper(Boolean.class, new YPrimordialMapper(Boolean.class, Boolean::parseBoolean));
-    withMapper(Byte.class, new YPrimordialMapper(Byte.class, Byte::parseByte));
-    withMapper(Character.class, new YPrimordialMapper(Character.class, s -> s.isEmpty() ? null : s.charAt(0)));
-    withMapper(Double.class, new YPrimordialMapper(Double.class, Double::parseDouble));
-    withMapper(Float.class, new YPrimordialMapper(Float.class, Float::parseFloat));
-    withMapper(Integer.class, new YPrimordialMapper(Integer.class, Integer::parseInt));
-    withMapper(Long.class, new YPrimordialMapper(Long.class, Long::parseLong));
-    withMapper(Object.class, new YRuntimeMapper());
-    withMapper(Short.class, new YPrimordialMapper(Short.class, Short::parseShort));
-    withMapper(String.class, new YPrimordialMapper(String.class, s -> s));
+    withMappers(defaultMappers());
+  }
+  
+  private static Map<Class<?>, YMapper> defaultMappers() {
+    final Map<Class<?>, YMapper> mappers = new HashMap<>();
+    mappers.put(Boolean.class, new YBasicMapper(Boolean.class, Boolean::parseBoolean));
+    mappers.put(Byte.class, new YBasicMapper(Byte.class, Byte::parseByte));
+    mappers.put(Character.class, new YBasicMapper(Character.class, s -> {
+      if (s.length() != 1) throw new YException("Invalid character '" + s + "'", null);
+      return s.charAt(0);
+    }));
+    mappers.put(Double.class, new YBasicMapper(Double.class, Double::parseDouble));
+    mappers.put(Float.class, new YBasicMapper(Float.class, Float::parseFloat));
+    mappers.put(Integer.class, new YBasicMapper(Integer.class, Integer::parseInt));
+    mappers.put(Long.class, new YBasicMapper(Long.class, Long::parseLong));
+    mappers.put(Object.class, new YRuntimeMapper());
+    mappers.put(Short.class, new YBasicMapper(Short.class, Short::parseShort));
+    mappers.put(String.class, new YBasicMapper(String.class, s -> s));
+    return mappers;
   }
   
   private YMapper getMapper(Class<?> type) {
@@ -34,6 +43,11 @@ public final class YContext {
   
   public YContext withMapper(Class<?> type, YMapper mapper) {
     mappers.put(type, mapper);
+    return this;
+  }
+  
+  public YContext withMappers(Map<Class<?>, YMapper> mappers) {
+    this.mappers.putAll(mappers);
     return this;
   }
   
@@ -54,11 +68,11 @@ public final class YContext {
     }
   }
   
-  public <T> T map(Object yaml, Class<? extends T> type) {
-    if (yaml instanceof YObject) throw new IllegalArgumentException("Cannot map an instance of " + YObject.class.getSimpleName());
+  public <T> T map(Object dom, Class<? extends T> type) {
+    if (dom instanceof YObject) throw new IllegalArgumentException("Cannot map an instance of " + YObject.class.getSimpleName());
     
     final YMapper mapper = getMapper(type != null ? type : Object.class);
-    final YObject y = new YObject(yaml, this);
+    final YObject y = new YObject(dom, this);
     if (y.isNull()) return null;
     else return cast(mapper.map(y));
   }

@@ -8,8 +8,8 @@ public class YBar {
   static class Mapper implements YMapper {
     @Override
     public Object map(YObject y) {
-      final List<YObject> itemsYaml = y.getAttribute("items").list();
-      final List<Object> items = itemsYaml.stream().map(itemYaml -> itemYaml.map()).collect(Collectors.toList());
+      final List<YObject> itemsYaml = y.getAttribute("items").asList();
+      final List<Object> items = itemsYaml.stream().map(itemYaml -> itemYaml.map(Object.class)).collect(Collectors.toList());
       return new YBar((Integer) y.mapAttribute("num", Object.class), items);
     }
   }

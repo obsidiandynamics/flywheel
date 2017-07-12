@@ -2,12 +2,12 @@ package au.com.williamhill.flywheel.yconfig;
 
 import java.util.function.*;
 
-public final class YPrimordialMapper implements YMapper {
+public final class YBasicMapper implements YMapper {
   private final Class<?> type;
   
   private final Function<String, ?> converter;
 
-  public <T> YPrimordialMapper(Class<T> type, Function<String, ? extends T> converter) {
+  public <T> YBasicMapper(Class<T> type, Function<String, ? extends T> converter) {
     this.type = type;
     this.converter = converter;
   }
