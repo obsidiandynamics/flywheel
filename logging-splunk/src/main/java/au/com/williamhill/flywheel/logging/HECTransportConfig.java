@@ -25,7 +25,7 @@ final class HECTransportConfig {
   private boolean batchMode = false;
   private long maxBatchSizeBytes = 1 * MB;
   private long maxBatchSizeEvents = 100;
-  private long maxInactiveTimeBeforeBatchFlush = 5000;
+  private long maxInactiveTimeBeforeBatchFlush = 1000;
   
   void setUrl(String url) {
     final URL u;

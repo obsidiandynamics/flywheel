@@ -128,14 +128,13 @@ final class SplunkHECInput extends SplunkInput {
         return true;
       }
     };
-    SSLContext sslContext = null;
     try {
-      sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+      return SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
     } catch (Exception e) {
       System.err.println("Splunk: error constructing SSL context: " + e);
       e.printStackTrace(System.err);
+      return null;
     }
-    return sslContext;
   }
 
   private void openStream() throws Exception {
@@ -150,7 +149,7 @@ final class SplunkHECInput extends SplunkInput {
   }
 
   private String escapeAndQuote(final String message) {
-    String trimmed = message.substring(0, message.length() - 1);
+    final String trimmed = message.substring(0, message.length() - 1);
     return "\"" + trimmed.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
   }
 
@@ -195,7 +194,7 @@ final class SplunkHECInput extends SplunkInput {
   
         // flush the queue
         while (queueContainsEvents()) {
-          String messageOffQueue = dequeue();
+          final String messageOffQueue = dequeue();
           currentMessage = messageOffQueue;
           hecPost(currentMessage);
         }
