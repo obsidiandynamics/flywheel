@@ -1,17 +1,6 @@
 package au.com.williamhill.flywheel.yconfig;
 
-import java.util.*;
-
-@Y(YFooBar.Mapper.class)
 public class YFooBar {
-  static class Mapper implements YMapper<Map<String, Object>, YFooBar> {
-    @Override
-    public YFooBar map(Map<String, Object> yaml, YContext context) {
-      return new YFooBar(context.map(yaml.get("foo"), YFoo.class),
-                         context.map(yaml.get("bar")));
-    }
-  }
-  
   YFoo foo;
   Object bar;
   

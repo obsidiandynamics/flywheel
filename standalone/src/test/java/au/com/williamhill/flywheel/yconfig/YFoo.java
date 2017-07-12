@@ -1,24 +1,24 @@
 package au.com.williamhill.flywheel.yconfig;
 
-import java.util.*;
-
 @Y(YFoo.Mapper.class)
 public class YFoo {
-  static class Mapper implements YMapper<Map<String, Object>, YFoo> {
+  static class Mapper implements YMapper {
     @Override
-    public YFoo map(Map<String, Object> yaml, YContext context) {
-      System.out.println("yaml=" + yaml);
-      return new YFoo((String) yaml.get("a"),
-                      (Integer) yaml.get("b"));
+    public Object map(YObject y) {
+      return new YFoo(y.getAttribute("a").value(),
+                      y.getAttribute("b").value(),
+                      y.getAttribute("c").value());
     }
   }
   
   String a;
   int b;
+  Boolean c;
   
-  YFoo(String a, int b) {
+  YFoo(String a, int b, Boolean c) {
     this.a = a;
     this.b = b;
+    this.c = c;
   }
 
   @Override
@@ -27,6 +27,7 @@ public class YFoo {
     int result = 1;
     result = prime * result + ((a == null) ? 0 : a.hashCode());
     result = prime * result + b;
+    result = prime * result + ((c == null) ? 0 : c.hashCode());
     return result;
   }
 
@@ -46,11 +47,16 @@ public class YFoo {
       return false;
     if (b != other.b)
       return false;
+    if (c == null) {
+      if (other.c != null)
+        return false;
+    } else if (!c.equals(other.c))
+      return false;
     return true;
   }
 
   @Override
   public String toString() {
-    return "YFoo [a=" + a + ", b=" + b + "]";
+    return "YFoo [a=" + a + ", b=" + b + ", c=" + c + "]";
   }
 }

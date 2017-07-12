@@ -1,9 +1,18 @@
 foo:
   a: A string
   b: 123
+  c: false
 bar:
-  type: au.com.williamhill.flywheel.yconfig.YBar
+  _type: au.com.williamhill.flywheel.yconfig.YBar
+  num: 42
   items:
-  - type: au.com.williamhill.flywheel.yconfig.YFoo
+  - _type: au.com.williamhill.flywheel.yconfig.YFoo
     a: Another string
     b: 456
+  - &1
+    _type: au.com.williamhill.flywheel.yconfig.YFoo
+    a: null
+    b: 789
+  - # will be a null
+  - # will be a null
+  - *1

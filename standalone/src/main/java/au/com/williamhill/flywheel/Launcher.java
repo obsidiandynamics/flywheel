@@ -28,13 +28,13 @@ public final class Launcher {
       throw new LauncherException("Profile configuration " + profileYaml + " is missing", null);
     }
     
-    final Map<String, Object> yamlRoot;
-    try {
-      yamlRoot = YConfig.fromFile(profileYaml);
-    } catch (IOException e) {
-      throw new LauncherException("Error parsing profile", e);
-    }
-    System.out.println("Yaml=" + yamlRoot);
+//    final Map<String, Object> yamlRoot;
+//    try {
+//      yamlRoot = YConfig.fromFile(profileYaml);
+//    } catch (IOException e) {
+//      throw new LauncherException("Error parsing profile", e);
+//    }
+//    System.out.println("Yaml=" + yamlRoot);
     
   }
   

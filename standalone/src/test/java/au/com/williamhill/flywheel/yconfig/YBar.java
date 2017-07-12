@@ -5,18 +5,21 @@ import java.util.stream.*;
 
 @Y(YBar.Mapper.class)
 public class YBar {
-  static class Mapper implements YMapper<Map<String, Object>, YBar> {
+  static class Mapper implements YMapper {
     @Override
-    public YBar map(Map<String, Object> yaml, YContext context) {
-      @SuppressWarnings("unchecked")
-      final List<Object> itemsYaml = (List<Object>) yaml.get("items");
-      return new YBar(itemsYaml.stream().map(itemYaml -> context.map(itemYaml)).collect(Collectors.toList()));
+    public Object map(YObject y) {
+      final List<YObject> itemsYaml = y.getAttribute("items").list();
+      final List<Object> items = itemsYaml.stream().map(itemYaml -> itemYaml.map()).collect(Collectors.toList());
+      return new YBar((Integer) y.<Object>mapAttribute("num", YRawTyped.class), items);
     }
   }
   
+  Integer num;
+  
   List<Object> items;
 
-  YBar(List<Object> items) {
+  YBar(Integer num, List<Object> items) {
+    this.num = num;
     this.items = items;
   }
 
@@ -25,6 +28,7 @@ public class YBar {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((items == null) ? 0 : items.hashCode());
+    result = prime * result + ((num == null) ? 0 : num.hashCode());
     return result;
   }
 
@@ -42,11 +46,16 @@ public class YBar {
         return false;
     } else if (!items.equals(other.items))
       return false;
+    if (num == null) {
+      if (other.num != null)
+        return false;
+    } else if (!num.equals(other.num))
+      return false;
     return true;
   }
 
   @Override
   public String toString() {
-    return "YBar [items=" + items + "]";
+    return "YBar [num=" + num + ", items=" + items + "]";
   }
 }
