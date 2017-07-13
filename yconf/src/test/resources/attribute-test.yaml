@@ -4,3 +4,4 @@ dub: 45.67
 byte: -128
 list: [1, 2, 3]
 map: {a: "foo", b: "bar"}
+cls: java.lang.String

@@ -30,6 +30,13 @@ public final class YContext {
     mappers.put(Byte.class, new YCoercingMapper(Byte.class, Byte::parseByte));
     mappers.put(char.class, getCharMapper());
     mappers.put(Character.class, getCharMapper());
+    mappers.put(Class.class, new YCoercingMapper(Class.class, s -> {
+      try {
+        return Class.forName(s);
+      } catch (ClassNotFoundException e) {
+        throw new YException(null, e);
+      }
+    }));
     mappers.put(double.class, new YCoercingMapper(Double.class, Double::parseDouble));
     mappers.put(Double.class, new YCoercingMapper(Double.class, Double::parseDouble));
     mappers.put(float.class, new YCoercingMapper(Float.class, Float::parseFloat));

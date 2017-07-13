@@ -35,6 +35,9 @@ public final class YAttributeTest {
     
     @YAttribute(type=Object.class)
     Map<?, ?> map;
+    
+    @YAttribute
+    Class<?> cls;
   }
 
   @Test
@@ -52,6 +55,8 @@ public final class YAttributeTest {
     map.put("a", "foo");
     map.put("b", "bar");
     assertEquals(map, t.map);
+    
+    assertEquals(String.class, t.cls);
   }
   
   @Y(TestWrongType.Mapper.class)
@@ -65,11 +70,30 @@ public final class YAttributeTest {
     @YAttribute(name="byte", type=String.class)
     public boolean b;
   }
+  
+  @Y(TestClassNotFound.Mapper.class)
+  public static final class TestClassNotFound {
+    public static final class Mapper implements YMapper {
+      @Override public Object map(YObject y) {
+        return y.mapReflectively(new TestClassNotFound());
+      }
+    }
+
+    @YAttribute(name="byte")
+    public Class<?> cls;
+  }
 
   @Test(expected=YException.class)
   public void testReflectiveWrongType() throws IOException {
     new YContext()
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("attribute-test.yaml"), 
                     TestWrongType.class);
+  }
+
+  @Test(expected=YException.class)
+  public void testReflectiveClassNotFound() throws IOException {
+    new YContext()
+        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("attribute-test.yaml"), 
+                    TestClassNotFound.class);
   }
 }
