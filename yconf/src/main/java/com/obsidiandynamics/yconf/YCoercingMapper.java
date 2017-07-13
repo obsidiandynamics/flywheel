@@ -14,11 +14,8 @@ public final class YCoercingMapper implements YMapper {
 
   @Override
   public Object map(YObject y) {
-    final Object val = y.value();
-    if (val == null) {
-      return val;
-    } else if (type.isAssignableFrom(val.getClass())) {
-      return val;
+    if (y.isNull() || y.is(type)) {
+      return y.value();
     } else {
       final String str = String.valueOf(y.<Object>value());
       return converter.apply(str);

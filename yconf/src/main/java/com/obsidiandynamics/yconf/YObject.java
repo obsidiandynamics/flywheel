@@ -14,7 +14,7 @@ public final class YObject {
 
   YObject(Object dom, YContext context) {
     if (dom instanceof YObject) throw new IllegalArgumentException("Cannot wrap another " + YObject.class.getSimpleName());
-    this.dom = dom;
+    this.dom = context.transformDom(dom);
     this.context = context;
   }
   
@@ -22,8 +22,12 @@ public final class YObject {
     return dom == null;
   }
   
+  public boolean is(Class<?> type) {
+    return dom != null && type.isAssignableFrom(dom.getClass());
+  }
+  
   public <T> T value() {
-    return dom != null ? YContext.cast(context.transformDom(dom)) : null;
+    return dom != null ? YContext.cast(dom) : null;
   }
   
   private void checkNotNull() {

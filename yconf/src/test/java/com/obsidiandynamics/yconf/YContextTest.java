@@ -5,7 +5,9 @@ import static junit.framework.TestCase.*;
 import java.io.*;
 import java.util.*;
 
-import org.junit.*;
+import org.junit.Test;
+
+import junit.framework.*;
 
 public final class YContextTest {
   @Test
@@ -40,12 +42,12 @@ public final class YContextTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void testWrapObject() {
-    new YObject(new YObject("foo", null), null);
+    new YObject(new YObject("foo", new YContext()), null);
   }
   
   @Test
   public void testObjectToString() {
-    assertEquals("foo", new YObject("foo", null).toString());
+    assertEquals("foo", new YObject("foo", new YContext()).toString());
   }
   
   @Test(expected=NullPointerException.class)
@@ -94,6 +96,49 @@ public final class YContextTest {
   
   @Test(expected=IllegalArgumentException.class)
   public void testMapYObject() {
-    new YContext().map(new YObject(null, null), null);
+    new YContext().map(new YObject(null, new YContext()), null);
+  }
+  
+  @Test
+  public void testGetContext() {
+    final Object out = new YContext().withMapper(Void.class, y -> {
+      return y.getContext().map(y.getAttribute("f").value(), String.class);
+    }).fromString("f: foo", Void.class);
+    TestCase.assertEquals("foo", out);
+  }
+  
+  @Test
+  public void testIsNotType() {
+    final Object out = new YContext().withMapper(Void.class, y -> {
+      assertTrue(y.is(Map.class));
+      return "done";
+    }).fromString("f: foo", Void.class);
+    TestCase.assertEquals("done", out);
+  }
+  
+  @Test
+  public void testIsType() {
+    final Object out = new YContext().withMapper(Void.class, y -> {
+      assertFalse(y.is(Integer.class));
+      return "done";
+    }).fromString("f: foo", Void.class);
+    TestCase.assertEquals("done", out);
+  }
+  
+  @Test
+  public void testIsTypeWithNull() {
+    final Object out = new YContext().withMapper(Void.class, y -> {
+      assertFalse(y.getAttribute("a").is(Integer.class));
+      return "done";
+    }).fromString("f: foo", Void.class);
+    TestCase.assertEquals("done", out);
+  }
+  
+  @Test(expected=NullPointerException.class)
+  public void testAsListNPE() {
+    new YContext().withMapper(Void.class, y -> {
+      y.getAttribute("a").asList();
+      return null;
+    }).fromString("f: foo", Void.class);
   }
 }
