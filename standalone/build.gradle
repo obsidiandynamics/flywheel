@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
   compile project(':')
+  compile project(':flywheel-yconf')
   compile 'org.yaml:snakeyaml:1.18'
   runtime project(':flywheel-logging-splunk')
   

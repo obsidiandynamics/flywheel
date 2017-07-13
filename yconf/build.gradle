@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+group = project(':').group
+version = project(':').version
+
+def packageName = 'flywheel-yconf'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile project(':')
+  compile 'org.yaml:snakeyaml:1.18'
+  
+  testCompile 'junit:junit:4.12'
+}

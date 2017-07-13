@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.yconfig;
+package com.obsidiandynamics.yconf;
 
 /**
  *  Specifies how an instance of a specific class can be created from a given {@link YObject} 

@@ -3,9 +3,6 @@ package au.com.williamhill.flywheel;
 import static java.lang.System.*;
 
 import java.io.*;
-import java.util.*;
-
-import au.com.williamhill.flywheel.yconfig.*;
 
 public final class Launcher {
   static final class LauncherException extends Exception {

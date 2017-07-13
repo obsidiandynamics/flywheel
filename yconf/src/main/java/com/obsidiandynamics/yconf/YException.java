@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.yconfig;
+package com.obsidiandynamics.yconf;
 
 public final class YException extends RuntimeException {
   private static final long serialVersionUID = 1L;

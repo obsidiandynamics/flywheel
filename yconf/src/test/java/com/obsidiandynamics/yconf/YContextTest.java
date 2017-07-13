@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.yconfig;
+package com.obsidiandynamics.yconf;
 
 import static junit.framework.TestCase.*;
 
@@ -7,16 +7,13 @@ import java.util.*;
 
 import org.junit.*;
 
-import com.obsidiandynamics.indigo.util.*;
-
-public final class YContextTest implements TestSupport {
+public final class YContextTest {
   @Test
   public void test() throws IOException {
     final YFooBar fb = new YContext()
         .withMapper(Object.class, new YRuntimeMapper().withTypeAttribute("_type"))
         .withMapper(YFooBar.class, y -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar", Object.class)))
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("test.yaml"), YFooBar.class);
-    log("fb=%s\n", fb);
 
     final YFooBar expected = new YFooBar(new YFoo("A string", 123, false), 
                                          new YBar(42, Arrays.asList(new YFoo("Another string", 456, null),

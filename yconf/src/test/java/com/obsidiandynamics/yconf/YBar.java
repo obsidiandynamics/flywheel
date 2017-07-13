@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.yconfig;
+package com.obsidiandynamics.yconf;
 
 import java.util.*;
 import java.util.stream.*;
