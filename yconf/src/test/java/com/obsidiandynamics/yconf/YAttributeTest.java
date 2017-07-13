@@ -38,7 +38,7 @@ public final class YAttributeTest {
   }
 
   @Test
-  public void test() throws IOException {
+  public void testReflective() throws IOException {
     final TestAttributes t = new YContext()
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("attribute-test.yaml"), 
                     TestAttributes.class);
@@ -52,5 +52,24 @@ public final class YAttributeTest {
     map.put("a", "foo");
     map.put("b", "bar");
     assertEquals(map, t.map);
+  }
+  
+  @Y(TestWrongType.Mapper.class)
+  public static final class TestWrongType {
+    public static final class Mapper implements YMapper {
+      @Override public Object map(YObject y) {
+        return y.mapReflectively(new TestWrongType());
+      }
+    }
+
+    @YAttribute(name="byte", type=String.class)
+    public boolean b;
+  }
+
+  @Test(expected=YException.class)
+  public void testReflectiveWrongType() throws IOException {
+    new YContext()
+        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("attribute-test.yaml"), 
+                    TestWrongType.class);
   }
 }
