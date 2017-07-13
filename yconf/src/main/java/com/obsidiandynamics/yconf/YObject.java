@@ -103,14 +103,23 @@ public final class YObject {
     return new YConditional(getAttribute(att));
   }
   
+  /**
+   *  Reflectively maps this DOM to the fields of the given target object, assigning
+   *  all declared fields across the entire class hierarchy that have been annotated
+   *  with {@link YInject}.
+   *  
+   *  @param <T> The target type.
+   *  @param target The target object to populate.
+   *  @return The pass-through instance of the {@code target} parameter.
+   */
   public <T> T mapReflectively(T target) {
     Class<?> cls = target.getClass();
     do {
       for (Field field : cls.getDeclaredFields()) {
-        final YAttribute ya = field.getDeclaredAnnotation(YAttribute.class);
-        if (ya != null) {
-          final String name = ! ya.name().isEmpty() ? ya.name() : field.getName();
-          final Class<?> type = ya.type() != Void.class ? ya.type() : field.getType();
+        final YInject inj = field.getDeclaredAnnotation(YInject.class);
+        if (inj != null) {
+          final String name = ! inj.name().isEmpty() ? inj.name() : field.getName();
+          final Class<?> type = inj.type() != Void.class ? inj.type() : field.getType();
           final Object value = getAttribute(name).map(type);
           field.setAccessible(true);
           try {

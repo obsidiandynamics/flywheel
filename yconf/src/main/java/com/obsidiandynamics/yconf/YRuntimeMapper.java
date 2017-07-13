@@ -19,25 +19,25 @@ public final class YRuntimeMapper implements YMapper {
   }
   
   @Override
-  public Object map(YObject y) {
+  public Object map(YObject y, Class<?> type) {
     final Object val = y.value();
-    final String type;
+    final String typeVal;
     if (val instanceof Map) {
       final Map<String, Object> map = YContext.cast(val);
       final Object typeV = map.get(typeAttribute);
       if (typeV instanceof String) {
-        type = typeFormatter.apply((String) typeV);
+        typeVal = typeFormatter.apply((String) typeV);
       } else {
-        type = null;
+        typeVal = null;
       }
     } else {
-      type = null;
+      typeVal = null;
     }
 
-    if (type != null) {
+    if (typeVal != null) {
       final Class<?> concreteType;
       try {
-        concreteType = Class.forName(type);
+        concreteType = Class.forName(typeVal);
       } catch (ClassNotFoundException e) {
         throw new YException("Error loading class", e);
       }

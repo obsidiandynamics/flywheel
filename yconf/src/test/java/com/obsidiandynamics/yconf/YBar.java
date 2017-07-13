@@ -7,7 +7,7 @@ import java.util.stream.*;
 public class YBar {
   static class Mapper implements YMapper {
     @Override
-    public Object map(YObject y) {
+    public Object map(YObject y, Class<?> type) {
       final List<YObject> itemsYaml = y.getAttribute("items").asList();
       final List<Object> items = itemsYaml.stream().map(itemYaml -> itemYaml.map(Object.class)).collect(Collectors.toList());
       return new YBar((Integer) y.mapAttribute("num", Object.class), items);

@@ -105,7 +105,7 @@ public final class YContext {
     if (dom == null) return null;
     final YMapper mapper = getMapper(type != null ? type : Object.class);
     final YObject y = new YObject(dom, this);
-    return cast(mapper.map(y));
+    return cast(mapper.map(y, type));
   }
   
   public <T> T fromStream(InputStream stream, Class<? extends T> type) throws IOException {

@@ -8,7 +8,7 @@ import com.obsidiandynamics.yconf.*;
 @Y(Masked.Mapper.class)
 public final class Masked {
   public static final class Mapper implements YMapper {
-    @Override public Object map(YObject y) {
+    @Override public Object map(YObject y, Class<?> type) {
       return new Masked(y.getAttribute("value").map(String.class));
     }
   }

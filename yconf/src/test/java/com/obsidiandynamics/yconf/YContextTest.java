@@ -16,7 +16,7 @@ public final class YContextTest {
         .withMapper(Object.class, new YRuntimeMapper()
                     .withTypeAttribute("_type")
                     .withTypeFormatter("com.obsidiandynamics.yconf."::concat))
-        .withMapper(YFooBar.class, y -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar", Object.class)))
+        .withMapper(YFooBar.class, (y, type) -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar", Object.class)))
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("context-test.yaml"), YFooBar.class);
 
     final YFooBar expected = new YFooBar(new YFoo("A string", 123, false), 
@@ -103,7 +103,7 @@ public final class YContextTest {
   
   @Test
   public void testGetContext() {
-    final Object out = new YContext().withMapper(Void.class, y -> {
+    final Object out = new YContext().withMapper(Void.class, (y, type) -> {
       return y.getContext().map(y.getAttribute("f").value(), String.class);
     }).fromString("f: foo", Void.class);
     TestCase.assertEquals("foo", out);
@@ -111,7 +111,7 @@ public final class YContextTest {
   
   @Test
   public void testIsNotType() {
-    final Object out = new YContext().withMapper(Void.class, y -> {
+    final Object out = new YContext().withMapper(Void.class, (y, type) -> {
       assertTrue(y.is(Map.class));
       return "done";
     }).fromString("f: foo", Void.class);
@@ -120,7 +120,7 @@ public final class YContextTest {
   
   @Test
   public void testIsType() {
-    final Object out = new YContext().withMapper(Void.class, y -> {
+    final Object out = new YContext().withMapper(Void.class, (y, type) -> {
       assertFalse(y.is(Integer.class));
       return "done";
     }).fromString("f: foo", Void.class);
@@ -129,7 +129,7 @@ public final class YContextTest {
   
   @Test
   public void testIsTypeWithNull() {
-    final Object out = new YContext().withMapper(Void.class, y -> {
+    final Object out = new YContext().withMapper(Void.class, (y, type) -> {
       assertFalse(y.getAttribute("a").is(Integer.class));
       return "done";
     }).fromString("f: foo", Void.class);
@@ -138,7 +138,7 @@ public final class YContextTest {
   
   @Test(expected=NullPointerException.class)
   public void testAsListNPE() {
-    new YContext().withMapper(Void.class, y -> {
+    new YContext().withMapper(Void.class, (y, type) -> {
       y.getAttribute("a").asList();
       return null;
     }).fromString("f: foo", Void.class);

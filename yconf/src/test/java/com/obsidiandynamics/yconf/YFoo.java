@@ -4,7 +4,7 @@ package com.obsidiandynamics.yconf;
 public class YFoo {
   static class Mapper implements YMapper {
     @Override
-    public Object map(YObject y) {
+    public Object map(YObject y, Class<?> type) {
       return new YFoo(y.mapAttribute("a", String.class),
                       y.mapAttribute("b", Integer.class),
                       y.mapAttribute("c", Boolean.class));

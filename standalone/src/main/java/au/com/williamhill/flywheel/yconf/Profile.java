@@ -8,7 +8,7 @@ import com.obsidiandynamics.yconf.*;
 @Y(Profile.Mapper.class)
 public final class Profile {
   public static final class Mapper implements YMapper {
-    @Override public Object map(YObject y) {
+    @Override public Object map(YObject y, Class<?> type) {
       final Profile p = new Profile();
       y.when("properties").then(properties -> {
         properties.asMap().entrySet().forEach(e -> {

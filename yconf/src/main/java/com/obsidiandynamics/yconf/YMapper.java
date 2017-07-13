@@ -6,5 +6,5 @@ package com.obsidiandynamics.yconf;
  */
 @FunctionalInterface
 public interface YMapper {
-  Object map(YObject y);
+  Object map(YObject y, Class<?> type);
 }

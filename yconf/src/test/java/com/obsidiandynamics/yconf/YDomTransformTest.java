@@ -33,7 +33,7 @@ public final class YDomTransformTest {
   public void testList() {
     final List<?> out = new YContext()
         .withDomTransform(STRING_CAPITALIZER)
-        .withMapper(List.class, y -> y.asList().stream()
+        .withMapper(List.class, (y, type) -> y.asList().stream()
                     .map(i -> i.map(String.class)).collect(Collectors.toList()))
         .map(Arrays.asList("foo", "bar"), List.class);
     assertEquals(Arrays.asList("FOO", "BAR"), out);
@@ -57,7 +57,7 @@ public final class YDomTransformTest {
     
     final Map<?, ?> out = new YContext()
         .withDomTransform(STRING_CAPITALIZER)
-        .withMapper(Map.class, y -> y.asMap().entrySet().stream()
+        .withMapper(Map.class, (y, type) -> y.asMap().entrySet().stream()
                     .map(e -> new Tuple<>(e.getKey(), e.getValue().map(String.class)))
                     .collect(Collectors.toMap(t -> t.k, t -> t.v)))
         .map(map, Map.class);

@@ -9,34 +9,34 @@ import org.junit.*;
 
 public final class YAttributeTest {
   public static abstract class TestAttributesSuper {
-    @YAttribute(name="byte", type=byte.class)
+    @YInject(name="byte", type=byte.class)
     protected byte b;
   }
   
   @Y(TestAttributes.Mapper.class)
   public static final class TestAttributes extends TestAttributesSuper {
     public static final class Mapper implements YMapper {
-      @Override public Object map(YObject y) {
+      @Override public Object map(YObject y, Class<?> type) {
         return y.mapReflectively(new TestAttributes());
       }
     }
     
-    @YAttribute
+    @YInject
     public String str;
     
-    @YAttribute(name="number")
+    @YInject(name="number")
     private int num;
     
-    @YAttribute(type=Float.class)
+    @YInject(type=Float.class)
     double dub;
     
-    @YAttribute(type=Object.class)
+    @YInject(type=Object.class)
     List<?> list;
     
-    @YAttribute(type=Object.class)
+    @YInject(type=Object.class)
     Map<?, ?> map;
     
-    @YAttribute
+    @YInject
     Class<?> cls;
   }
 
@@ -62,24 +62,24 @@ public final class YAttributeTest {
   @Y(TestWrongType.Mapper.class)
   public static final class TestWrongType {
     public static final class Mapper implements YMapper {
-      @Override public Object map(YObject y) {
+      @Override public Object map(YObject y, Class<?> type) {
         return y.mapReflectively(new TestWrongType());
       }
     }
 
-    @YAttribute(name="byte", type=String.class)
+    @YInject(name="byte", type=String.class)
     public boolean b;
   }
   
   @Y(TestClassNotFound.Mapper.class)
   public static final class TestClassNotFound {
     public static final class Mapper implements YMapper {
-      @Override public Object map(YObject y) {
+      @Override public Object map(YObject y, Class<?> type) {
         return y.mapReflectively(new TestClassNotFound());
       }
     }
 
-    @YAttribute(name="byte")
+    @YInject(name="byte")
     public Class<?> cls;
   }
 
