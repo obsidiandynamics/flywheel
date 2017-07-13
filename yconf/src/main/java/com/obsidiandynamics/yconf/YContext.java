@@ -2,11 +2,14 @@ package com.obsidiandynamics.yconf;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 
 import org.yaml.snakeyaml.*;
 
 public final class YContext {
   private final Map<Class<?>, YMapper> mappers = new HashMap<>();
+  
+  private Function<Object, Object> domTransform = Function.identity();
   
   public YContext() {
     withMappers(defaultMappers());
@@ -14,19 +17,19 @@ public final class YContext {
   
   private static Map<Class<?>, YMapper> defaultMappers() {
     final Map<Class<?>, YMapper> mappers = new HashMap<>();
-    mappers.put(Boolean.class, new YBasicMapper(Boolean.class, Boolean::parseBoolean));
-    mappers.put(Byte.class, new YBasicMapper(Byte.class, Byte::parseByte));
-    mappers.put(Character.class, new YBasicMapper(Character.class, s -> {
+    mappers.put(Boolean.class, new YCoercingMapper(Boolean.class, Boolean::parseBoolean));
+    mappers.put(Byte.class, new YCoercingMapper(Byte.class, Byte::parseByte));
+    mappers.put(Character.class, new YCoercingMapper(Character.class, s -> {
       if (s.length() != 1) throw new YException("Invalid character '" + s + "'", null);
       return s.charAt(0);
     }));
-    mappers.put(Double.class, new YBasicMapper(Double.class, Double::parseDouble));
-    mappers.put(Float.class, new YBasicMapper(Float.class, Float::parseFloat));
-    mappers.put(Integer.class, new YBasicMapper(Integer.class, Integer::parseInt));
-    mappers.put(Long.class, new YBasicMapper(Long.class, Long::parseLong));
+    mappers.put(Double.class, new YCoercingMapper(Double.class, Double::parseDouble));
+    mappers.put(Float.class, new YCoercingMapper(Float.class, Float::parseFloat));
+    mappers.put(Integer.class, new YCoercingMapper(Integer.class, Integer::parseInt));
+    mappers.put(Long.class, new YCoercingMapper(Long.class, Long::parseLong));
     mappers.put(Object.class, new YRuntimeMapper());
-    mappers.put(Short.class, new YBasicMapper(Short.class, Short::parseShort));
-    mappers.put(String.class, new YBasicMapper(String.class, s -> s));
+    mappers.put(Short.class, new YCoercingMapper(Short.class, Short::parseShort));
+    mappers.put(String.class, new YCoercingMapper(String.class, s -> s));
     return mappers;
   }
   
@@ -39,6 +42,15 @@ public final class YContext {
       mappers.put(type, newMapper);
       return newMapper;
     }
+  }
+  
+  Object transformDom(Object dom) {
+    return domTransform.apply(dom);
+  }
+  
+  public YContext withDomTransform(Function<Object, Object> domTransform) {
+    this.domTransform = domTransform;
+    return this;
   }
   
   public YContext withMapper(Class<?> type, YMapper mapper) {
@@ -70,11 +82,11 @@ public final class YContext {
   
   public <T> T map(Object dom, Class<? extends T> type) {
     if (dom instanceof YObject) throw new IllegalArgumentException("Cannot map an instance of " + YObject.class.getSimpleName());
-    
+
+    if (dom == null) return null;
     final YMapper mapper = getMapper(type != null ? type : Object.class);
     final YObject y = new YObject(dom, this);
-    if (y.isNull()) return null;
-    else return cast(mapper.map(y));
+    return cast(mapper.map(y));
   }
   
   public <T> T fromStream(InputStream stream, Class<? extends T> type) throws IOException {

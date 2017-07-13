@@ -12,7 +12,19 @@ public final class YRuntimeMapper implements YMapper {
   
   @Override
   public Object map(YObject y) {
-    final String type = y.is(Map.class) ? y.getAttribute(typeAttribute).value() : null;
+    final Object val = y.value();
+    final String type;
+    if (val instanceof Map) {
+      final Map<String, Object> map = YContext.cast(val);
+      final Object typeV = map.get(typeAttribute);
+      if (typeV instanceof String) {
+        type = (String) typeV;
+      } else {
+        type = null;
+      }
+    } else {
+      type = null;
+    }
 
     if (type != null) {
       final Class<?> concreteType;

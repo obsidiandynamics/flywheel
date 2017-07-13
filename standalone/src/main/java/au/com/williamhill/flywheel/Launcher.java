@@ -4,6 +4,10 @@ import static java.lang.System.*;
 
 import java.io.*;
 
+import com.obsidiandynamics.yconf.*;
+
+import au.com.williamhill.flywheel.yconf.*;
+
 public final class Launcher {
   static final class LauncherException extends Exception {
     private static final long serialVersionUID = 1L;
@@ -25,14 +29,12 @@ public final class Launcher {
       throw new LauncherException("Profile configuration " + profileYaml + " is missing", null);
     }
     
-//    final Map<String, Object> yamlRoot;
-//    try {
-//      yamlRoot = YConfig.fromFile(profileYaml);
-//    } catch (IOException e) {
-//      throw new LauncherException("Error parsing profile", e);
-//    }
-//    System.out.println("Yaml=" + yamlRoot);
-    
+    final Profile p;
+    try {
+      p = Profile.fromFile(profileYaml);
+    } catch (Exception e) {
+      throw new LauncherException("Error reading profile", e);
+    }
   }
   
   public static void main(String[] args) {
@@ -60,6 +62,7 @@ public final class Launcher {
       new Launcher(profilePath);
     } catch (LauncherException e) {
       err.format("Error: " + e);
+      e.printStackTrace(err);
       System.exit(1);;
     }
   }

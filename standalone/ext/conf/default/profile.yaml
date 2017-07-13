@@ -1,5 +1,3 @@
 properties:
-- key: flywheel.xxx.yyy
-  value: 100
-- key: flywheel.xxx.zzz
-  value: 200
+  flywheel.xxx.yyy: ${env.buildNo * 2 + 1}
+  flywheel.xxx.zzz: 200

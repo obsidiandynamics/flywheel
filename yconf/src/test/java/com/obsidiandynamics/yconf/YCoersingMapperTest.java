@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.*;
 
-public final class YBasicMapperTest {
+public final class YCoersingMapperTest {
   @Test
   public void testBoolean() {
     test(true, Boolean.class, true);
