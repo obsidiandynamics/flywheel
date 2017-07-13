@@ -15,7 +15,7 @@ public final class YContextTest {
     final YFooBar fb = new YContext()
         .withMapper(Object.class, new YRuntimeMapper().withTypeAttribute("_type"))
         .withMapper(YFooBar.class, y -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar", Object.class)))
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("test.yaml"), YFooBar.class);
+        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("context-test.yaml"), YFooBar.class);
 
     final YFooBar expected = new YFooBar(new YFoo("A string", 123, false), 
                                          new YBar(42, Arrays.asList(new YFoo("Another string", 456, null),
@@ -29,7 +29,7 @@ public final class YContextTest {
   @Test(expected=YException.class)
   public void testWithoutMapper() throws IOException {
     new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("test.yaml"), YFooBar.class);
+        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("context-test.yaml"), YFooBar.class);
   }
   
   public void testWithoutMapperAttribute() throws IOException {
