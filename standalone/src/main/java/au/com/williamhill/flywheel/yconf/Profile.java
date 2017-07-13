@@ -12,24 +12,21 @@ public final class Profile {
       final Profile p = new Profile();
       y.when("properties").then(properties -> {
         properties.asMap().entrySet().forEach(e -> {
-          System.out.println("adding " + e.getValue().value());
-          System.out.println("-> " + e.getValue().map(Object.class));
-          p.properties.put(e.getKey(), e.getValue().map(String.class));
+          final Object value = e.getValue().map(Object.class);
+          if (value == null) throw new IllegalArgumentException("No resolved value for property " + e.getKey());
+          p.properties.put(e.getKey(), value);
         });
       });
       return p;
     }
   }
   
-  final Map<String, String> properties = new LinkedHashMap<>();
+  public final Map<String, Object> properties = new LinkedHashMap<>();
   
   public static Profile fromFile(File file) throws FileNotFoundException, IOException {
-    //TODO
-    final Map<Object, Object> env = new HashMap<>();
-    env.put("buildNo", "8989");
-    
     return new YContext()
-        .withDomTransform(new ELTransform().withVariable("env", env))
+        .withMapper(Object.class, new YRuntimeMapper().withTypeFormatter("au.com.williamhill."::concat))
+        .withDomTransform(new ELTransform().withVariable("env", System.getenv()))
         .fromReader(new FileReader(file), Profile.class);
   }
 }

@@ -14,7 +14,7 @@ public final class LauncherTest {
 
   @Test(expected=LauncherException.class)
   public void testPathNotADirectory() throws LauncherException {
-    new Launcher(new File("ext/conf/default/profile.yaml"));
+    new Launcher(new File("ext/conf/test/profile.yaml"));
   }
 
   @Test(expected=LauncherException.class)
@@ -24,6 +24,6 @@ public final class LauncherTest {
 
   @Test
   public void testDefault() throws LauncherException {
-    new Launcher(new File("ext/conf/default"));
+    new Launcher(new File("ext/conf/test"));
   }
 }

@@ -1,3 +1,5 @@
 properties:
-  flywheel.xxx.yyy: ${env.buildNo * 2 + 1}
-  flywheel.xxx.zzz: 200
+  flywheel.logging.splunk.url: ${env.FLYWHEEL_SPLUNK_URL}
+  flywheel.logging.splunk.token:
+    type: flywheel.yconf.Masked
+    value: ${env.FLYWHEEL_SPLUNK_TOKEN}

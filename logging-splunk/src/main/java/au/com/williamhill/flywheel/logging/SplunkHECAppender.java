@@ -11,7 +11,7 @@ import org.apache.log4j.spi.*;
  *  
  *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
  */
-public class SplunkHECAppender extends AppenderSkeleton {
+public final class SplunkHECAppender extends AppenderSkeleton {
   // connection settings
   private HECTransportConfig config = new HECTransportConfig();
 
@@ -36,6 +36,12 @@ public class SplunkHECAppender extends AppenderSkeleton {
   protected void append(LoggingEvent event) {
     try {
       if (shi == null) {
+        final String token = System.getProperty("flywheel.logging.splunk.token");
+        if (token != null) setToken(token);
+        
+        final String url = System.getProperty("flywheel.logging.splunk.url");
+        if (url != null) setUrl(url);
+        
         synchronized (this) {
           if (shi == null) {
             shi = new SplunkHECInput(config);

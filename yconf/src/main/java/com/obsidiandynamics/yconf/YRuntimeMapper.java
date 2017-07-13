@@ -1,12 +1,20 @@
 package com.obsidiandynamics.yconf;
 
 import java.util.*;
+import java.util.function.*;
 
 public final class YRuntimeMapper implements YMapper {
   private String typeAttribute = "type";
   
+  private Function<String, String> typeFormatter = Function.identity();
+  
   public YRuntimeMapper withTypeAttribute(String typeAttribute) {
     this.typeAttribute = typeAttribute;
+    return this;
+  }
+  
+  public YRuntimeMapper withTypeFormatter(Function<String, String> typeFormatter) {
+    this.typeFormatter = typeFormatter;
     return this;
   }
   
@@ -18,7 +26,7 @@ public final class YRuntimeMapper implements YMapper {
       final Map<String, Object> map = YContext.cast(val);
       final Object typeV = map.get(typeAttribute);
       if (typeV instanceof String) {
-        type = (String) typeV;
+        type = typeFormatter.apply((String) typeV);
       } else {
         type = null;
       }

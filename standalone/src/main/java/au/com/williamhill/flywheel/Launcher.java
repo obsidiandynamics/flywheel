@@ -3,12 +3,15 @@ package au.com.williamhill.flywheel;
 import static java.lang.System.*;
 
 import java.io.*;
+import java.util.*;
 
-import com.obsidiandynamics.yconf.*;
+import org.slf4j.*;
 
 import au.com.williamhill.flywheel.yconf.*;
 
 public final class Launcher {
+  private static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
+  
   static final class LauncherException extends Exception {
     private static final long serialVersionUID = 1L;
     
@@ -34,6 +37,15 @@ public final class Launcher {
       p = Profile.fromFile(profileYaml);
     } catch (Exception e) {
       throw new LauncherException("Error reading profile", e);
+    }
+    
+    for (Map.Entry<String, ?> entry : p.properties.entrySet()) {
+      final String unmasked = Masked.unmask(entry.getValue());
+      System.setProperty(entry.getKey(), unmasked);
+    }
+    
+    for (Map.Entry<String, ?> entry : p.properties.entrySet()) {
+      LOG.info("{}: {}", entry.getKey(), entry.getValue());
     }
   }
   

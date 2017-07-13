@@ -54,7 +54,11 @@ public final class YObject {
     }
     return this.<Map<String, ?>>value().entrySet().stream()
         .map(e -> new Tuple<>(e.getKey(), new YObject(e.getValue(), context)))
-        .collect(Collectors.toMap(t -> t.k, t -> t.v));
+        .collect(Collectors.toMap(t -> t.k, t -> t.v, throwingMerger(), LinkedHashMap::new));
+  }
+  
+  private static <T> BinaryOperator<T> throwingMerger() {
+    return (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
   }
   
   public <T> T map(Class<? extends T> type) {
