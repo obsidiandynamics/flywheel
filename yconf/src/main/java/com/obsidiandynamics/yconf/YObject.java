@@ -1,5 +1,6 @@
 package com.obsidiandynamics.yconf;
 
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -58,10 +59,10 @@ public final class YObject {
   }
   
   private static <T> BinaryOperator<T> throwingMerger() {
-    return (u,v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
+    return (u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
   }
   
-  public <T> T map(Class<? extends T> type) {
+  public <T> T map(Class<? extends T> type) { 
     return context.map(value(), type);
   }
   
@@ -100,6 +101,28 @@ public final class YObject {
   
   public YConditional when(String att) {
     return new YConditional(getAttribute(att));
+  }
+  
+  public <T> T mapReflectively(T target) {
+    Class<?> cls = target.getClass();
+    do {
+      for (Field field : cls.getDeclaredFields()) {
+        final YAttribute ya = field.getDeclaredAnnotation(YAttribute.class);
+        if (ya != null) {
+          final String name = ! ya.name().isEmpty() ? ya.name() : field.getName();
+          final Class<?> type = ya.type() != Void.class ? ya.type() : field.getType();
+          final Object value = getAttribute(name).map(type);
+          field.setAccessible(true);
+          try {
+            field.set(target, value);
+          } catch (IllegalArgumentException | IllegalAccessException e) {
+            throw new YException("Unable to assign to field " + field.getName() + " of class " + cls, e);
+          }
+        }
+      }
+      cls = cls.getSuperclass();
+    } while (cls != null);
+    return target;
   }
   
   @Override

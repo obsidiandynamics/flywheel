@@ -15,19 +15,31 @@ public final class YContext {
     withMappers(defaultMappers());
   }
   
-  private static Map<Class<?>, YMapper> defaultMappers() {
-    final Map<Class<?>, YMapper> mappers = new HashMap<>();
-    mappers.put(Boolean.class, new YCoercingMapper(Boolean.class, Boolean::parseBoolean));
-    mappers.put(Byte.class, new YCoercingMapper(Byte.class, Byte::parseByte));
-    mappers.put(Character.class, new YCoercingMapper(Character.class, s -> {
+  private static YMapper getCharMapper() {
+    return new YCoercingMapper(Character.class, s -> {
       if (s.length() != 1) throw new YException("Invalid character '" + s + "'", null);
       return s.charAt(0);
-    }));
+    });
+  }
+  
+  private static Map<Class<?>, YMapper> defaultMappers() {
+    final Map<Class<?>, YMapper> mappers = new HashMap<>();
+    mappers.put(boolean.class, new YCoercingMapper(Boolean.class, Boolean::parseBoolean));
+    mappers.put(Boolean.class, new YCoercingMapper(Boolean.class, Boolean::parseBoolean));
+    mappers.put(byte.class, new YCoercingMapper(Byte.class, Byte::parseByte));
+    mappers.put(Byte.class, new YCoercingMapper(Byte.class, Byte::parseByte));
+    mappers.put(char.class, getCharMapper());
+    mappers.put(Character.class, getCharMapper());
+    mappers.put(double.class, new YCoercingMapper(Double.class, Double::parseDouble));
     mappers.put(Double.class, new YCoercingMapper(Double.class, Double::parseDouble));
+    mappers.put(float.class, new YCoercingMapper(Float.class, Float::parseFloat));
     mappers.put(Float.class, new YCoercingMapper(Float.class, Float::parseFloat));
+    mappers.put(int.class, new YCoercingMapper(Integer.class, Integer::parseInt));
     mappers.put(Integer.class, new YCoercingMapper(Integer.class, Integer::parseInt));
+    mappers.put(long.class, new YCoercingMapper(Long.class, Long::parseLong));
     mappers.put(Long.class, new YCoercingMapper(Long.class, Long::parseLong));
     mappers.put(Object.class, new YRuntimeMapper());
+    mappers.put(short.class, new YCoercingMapper(Short.class, Short::parseShort));
     mappers.put(Short.class, new YCoercingMapper(Short.class, Short::parseShort));
     mappers.put(String.class, new YCoercingMapper(String.class, s -> s));
     return mappers;

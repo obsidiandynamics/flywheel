@@ -13,7 +13,9 @@ public final class YContextTest {
   @Test
   public void test() throws IOException {
     final YFooBar fb = new YContext()
-        .withMapper(Object.class, new YRuntimeMapper().withTypeAttribute("_type"))
+        .withMapper(Object.class, new YRuntimeMapper()
+                    .withTypeAttribute("_type")
+                    .withTypeFormatter("com.obsidiandynamics.yconf."::concat))
         .withMapper(YFooBar.class, y -> new YFooBar(y.getAttribute("foo").map(YFoo.class), y.mapAttribute("bar", Object.class)))
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("context-test.yaml"), YFooBar.class);
 

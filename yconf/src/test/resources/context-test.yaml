@@ -3,14 +3,14 @@ foo:
   b: 123
   c: false
 bar:
-  _type: com.obsidiandynamics.yconf.YBar
+  _type: YBar
   num: 42
   items:
-  - _type: com.obsidiandynamics.yconf.YFoo
+  - _type: YFoo
     a: Another string
     b: 456
   - &1
-    _type: com.obsidiandynamics.yconf.YFoo
+    _type: YFoo
     a: null
     b: 789
   - # will be a null
