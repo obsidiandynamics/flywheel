@@ -10,8 +10,6 @@ import org.slf4j.*;
 import au.com.williamhill.flywheel.yconf.*;
 
 public final class Launchpad {
-  private static final Logger LOG = LoggerFactory.getLogger(Launchpad.class);
-  
   static final class LauncherException extends Exception {
     private static final long serialVersionUID = 1L;
     
@@ -39,14 +37,17 @@ public final class Launchpad {
       throw new LauncherException("Error reading profile", e);
     }
     
+    final StringBuilder sb = new StringBuilder("\nproperties:");
     for (Map.Entry<String, ?> entry : p.properties.entrySet()) {
+      sb.append("\n  ").append(entry.getKey()).append(": ").append(entry.getValue());
       final String unmasked = Masked.unmask(entry.getValue());
       System.setProperty(entry.getKey(), unmasked);
     }
     
-    for (Map.Entry<String, ?> entry : p.properties.entrySet()) {
-      LOG.info("{}: {}", entry.getKey(), entry.getValue());
-    }
+    sb.append("\nlauncher: ").append(p.launcher);
+    
+    final Logger log = LoggerFactory.getLogger(Launchpad.class);
+    log.info(sb.toString());
   }
   
   public static void main(String[] args) {

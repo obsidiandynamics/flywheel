@@ -23,6 +23,10 @@ public final class Masked {
     return secret;
   }
   
+  public static Masked mask(String secret) {
+    return new Masked(secret);
+  }
+  
   public static String unmask(Object obj) {
     if (obj instanceof Masked) {
       return ((Masked) obj).unmask();
