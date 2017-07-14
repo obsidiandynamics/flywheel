@@ -41,7 +41,7 @@ else
   CMD="java $JVM_OPTS \
        $LOG4J_OPTS \
        -cp flywheel-standalone-full-*jar \
-       au.com.williamhill.flywheel.beacon.RunBeaconEdge \
+       au.com.williamhill.flywheel.Launchpad \
        $@"
   echo "> Starting $CMD"
   $CMD

@@ -51,7 +51,7 @@ public final class Launchpad {
   }
   
   public static void main(String[] args) {
-    final String propertyName = "flywheel.launcher.profile";
+    final String propertyName = "flywheel.launchpad.profile";
     final String envName = "FLYWHEEL_PROFILE";
     
     final String profileProp = System.getProperty(propertyName);
@@ -61,10 +61,10 @@ public final class Launchpad {
     } else {
       final String profileEnv = System.getenv(envName);
       if (profileEnv != null) {
-        profilePath = new File(profileProp);
+        profilePath = new File(profileEnv);
       } else {
         err.format("Error: no profile name specified.\n");
-        err.format("Set either the %s system property or the %s environment variable to point to the profile path.\n",
+        err.format("Point either the %s system property or the %s environment variable to the profile directory.\n",
                    propertyName, envName);
         System.exit(1);
         return;
