@@ -21,9 +21,9 @@ public final class YReflectiveMapper implements YMapper {
     final Parameter[] params = constr.getParameters();
     for (int i = 0; i < params.length; i++) {
       final YInject inj = params[i].getAnnotation(YInject.class);
-      final String name = ! inj.name().isEmpty() ? inj.name() : params[i].getName();
       final Class<?> t = inj.type() != Void.class ? inj.type() : params[i].getType();
-      args[i] = y.getAttribute(name).map(t);
+      if (inj.name().isEmpty()) throw new YException("No name specified for attribute of type " + t.getName(), null);
+      args[i] = y.getAttribute(inj.name()).map(t);
     }
 
     final Object target;
