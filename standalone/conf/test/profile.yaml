@@ -1,1 +1,5 @@
 properties:
+  TestLauncher.a: a
+  TestLauncher.b: b
+launcher: 
+  type: flywheel.TestLauncher
