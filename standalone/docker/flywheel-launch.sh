@@ -30,7 +30,7 @@ else
     shift
   fi
 
-  LOG_FILE=ext/conf/log4j.properties
+  LOG_FILE=conf/log4j.properties
   if [ -e $LOG_FILE ]; then
     echo "> Using external Log4j file ${LOG_FILE}"
     LOG4J_OPTS=-Dlog4j.configuration=file:${LOG_FILE}

@@ -26,7 +26,6 @@ jar {
   from { // bundle all dependencies
     configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
-    configurations.testCompile.collect { it.isDirectory() ? it : zipTree(it) }
   }   
   baseName packageName + '-full'
 }

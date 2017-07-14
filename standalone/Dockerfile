@@ -3,8 +3,11 @@ LABEL maintainer "Emil Koutanov <ekoutanov@gmail.com>"
 
 COPY build/libs/flywheel-standalone-full-*jar /
 COPY docker/* /
+RUN mkdir conf
+COPY conf/ /conf/
 RUN chmod +x flywheel-*.sh
 
 VOLUME /ext
+VOLUME /log
 EXPOSE 8080
 ENTRYPOINT ["/flywheel-launch.sh"]
