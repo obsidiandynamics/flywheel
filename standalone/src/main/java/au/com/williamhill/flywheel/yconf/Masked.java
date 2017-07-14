@@ -28,7 +28,9 @@ public final class Masked {
   }
   
   public static String unmask(Object obj) {
-    if (obj instanceof Masked) {
+    if (obj == null) {
+      return null;
+    } else if (obj instanceof Masked) {
       return ((Masked) obj).unmask();
     } else {
       return String.valueOf(obj);

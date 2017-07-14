@@ -16,7 +16,7 @@ public final class Profile {
       .when("properties").then(properties -> {
         properties.asMap().entrySet().forEach(e -> {
           final Object value = e.getValue().map(Object.class);
-          if (value == null) throw new IllegalArgumentException("No resolved value for property " + e.getKey());
+          if (Masked.unmask(value) == null) throw new IllegalArgumentException("No resolved value for property " + e.getKey());
           p.properties.put(e.getKey(), value);
         });
       })
