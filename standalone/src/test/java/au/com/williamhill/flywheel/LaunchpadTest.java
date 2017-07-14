@@ -4,26 +4,26 @@ import java.io.*;
 
 import org.junit.*;
 
-import au.com.williamhill.flywheel.Launcher.*;
+import au.com.williamhill.flywheel.Launchpad.*;
 
-public final class LauncherTest {
+public final class LaunchpadTest {
   @Test(expected=LauncherException.class)
   public void testPathDoesNotExit() throws LauncherException {
-    new Launcher(new File("ext/foo"));
+    new Launchpad(new File("ext/foo"));
   }
 
   @Test(expected=LauncherException.class)
   public void testPathNotADirectory() throws LauncherException {
-    new Launcher(new File("ext/conf/test/profile.yaml"));
+    new Launchpad(new File("ext/conf/test/profile.yaml"));
   }
 
   @Test(expected=LauncherException.class)
   public void testProfileMissing() throws LauncherException {
-    new Launcher(new File("ext"));
+    new Launchpad(new File("ext"));
   }
 
   @Test
   public void testDefault() throws LauncherException {
-    new Launcher(new File("ext/conf/test"));
+    new Launchpad(new File("ext/conf/test"));
   }
 }

@@ -9,8 +9,8 @@ import org.slf4j.*;
 
 import au.com.williamhill.flywheel.yconf.*;
 
-public final class Launcher {
-  private static final Logger LOG = LoggerFactory.getLogger(Launcher.class);
+public final class Launchpad {
+  private static final Logger LOG = LoggerFactory.getLogger(Launchpad.class);
   
   static final class LauncherException extends Exception {
     private static final long serialVersionUID = 1L;
@@ -18,7 +18,7 @@ public final class Launcher {
     LauncherException(String m, Throwable cause) { super(m, cause); }
   }
   
-  Launcher(File profilePath) throws LauncherException {
+  Launchpad(File profilePath) throws LauncherException {
     if (! profilePath.exists()) {
       throw new LauncherException("Profile path " + profilePath + " does not exist", null);
     }
@@ -71,7 +71,7 @@ public final class Launcher {
     }
     
     try {
-      new Launcher(profilePath);
+      new Launchpad(profilePath);
     } catch (LauncherException e) {
       err.format("Error: " + e);
       e.printStackTrace(err);
