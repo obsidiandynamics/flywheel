@@ -2,12 +2,12 @@ package com.obsidiandynamics.yconf;
 
 import java.util.function.*;
 
-public final class YCoercingMapper implements YMapper {
+public final class CoercingMapper implements TypeMapper {
   private final Class<?> coercedType;
   
   private final Function<String, ?> converter;
 
-  public <T> YCoercingMapper(Class<T> coercedType, Function<String, ? extends T> converter) {
+  public <T> CoercingMapper(Class<T> coercedType, Function<String, ? extends T> converter) {
     this.coercedType = coercedType;
     this.converter = converter;
   }

@@ -11,9 +11,9 @@ import java.util.stream.*;
 public final class YObject {
   private final Object dom;
   
-  private final YContext context;
+  private final MappingContext context;
 
-  YObject(Object dom, YContext context) {
+  YObject(Object dom, MappingContext context) {
     if (dom instanceof YObject) throw new IllegalArgumentException("Cannot wrap another " + YObject.class.getSimpleName());
     this.dom = context.transformDom(dom);
     this.context = context;
@@ -28,7 +28,7 @@ public final class YObject {
   }
   
   public <T> T value() {
-    return dom != null ? YContext.cast(dom) : null;
+    return dom != null ? MappingContext.cast(dom) : null;
   }
   
   private void checkNotNull() {
@@ -66,7 +66,7 @@ public final class YObject {
     return context.map(value(), type);
   }
   
-  public YContext getContext() {
+  public MappingContext getContext() {
     return context;
   }
   
@@ -126,7 +126,7 @@ public final class YObject {
             try {
               field.set(target, value);
             } catch (IllegalArgumentException | IllegalAccessException e) {
-              throw new YException("Unable to assign to field " + field.getName() + " of class " + cls, e);
+              throw new MappingException("Unable to assign to field " + field.getName() + " of class " + cls, e);
             }
           }
         }

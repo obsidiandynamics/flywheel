@@ -3,17 +3,17 @@ package com.obsidiandynamics.yconf;
 import java.util.*;
 import java.util.function.*;
 
-public final class YRuntimeMapper implements YMapper {
+public final class RuntimeMapper implements TypeMapper {
   private String typeAttribute = "type";
   
   private Function<String, String> typeFormatter = Function.identity();
   
-  public YRuntimeMapper withTypeAttribute(String typeAttribute) {
+  public RuntimeMapper withTypeAttribute(String typeAttribute) {
     this.typeAttribute = typeAttribute;
     return this;
   }
   
-  public YRuntimeMapper withTypeFormatter(Function<String, String> typeFormatter) {
+  public RuntimeMapper withTypeFormatter(Function<String, String> typeFormatter) {
     this.typeFormatter = typeFormatter;
     return this;
   }
@@ -23,7 +23,7 @@ public final class YRuntimeMapper implements YMapper {
     final Object val = y.value();
     final String typeVal;
     if (val instanceof Map) {
-      final Map<String, Object> map = YContext.cast(val);
+      final Map<String, Object> map = MappingContext.cast(val);
       final Object typeV = map.get(typeAttribute);
       if (typeV instanceof String) {
         typeVal = typeFormatter.apply((String) typeV);
@@ -39,7 +39,7 @@ public final class YRuntimeMapper implements YMapper {
       try {
         concreteType = Class.forName(typeVal);
       } catch (ClassNotFoundException e) {
-        throw new YException("Error loading class", e);
+        throw new MappingException("Error loading class", e);
       }
   
       return y.map(concreteType);

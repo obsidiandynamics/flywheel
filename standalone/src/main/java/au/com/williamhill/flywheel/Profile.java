@@ -1,16 +1,15 @@
-package au.com.williamhill.flywheel.yconf;
+package au.com.williamhill.flywheel;
 
 import java.io.*;
 import java.util.*;
 
 import com.obsidiandynamics.yconf.*;
 
-import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 
 @Y(Profile.Mapper.class)
 public final class Profile {
-  public static final class Mapper implements YMapper {
+  public static final class Mapper implements TypeMapper {
     @Override public Object map(YObject y, Class<?> type) {
       final Profile p = new Profile();
       return y
@@ -34,8 +33,8 @@ public final class Profile {
   public Backplane backplane;
   
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
-    return new YContext()
-        .withMapper(Object.class, new YRuntimeMapper().withTypeFormatter("au.com.williamhill."::concat))
+    return new MappingContext()
+        .withMapper(Object.class, new RuntimeMapper().withTypeFormatter("au.com.williamhill."::concat))
         .withDomTransform(new ELTransform()
                           .withVariable("env", System.getenv())
                           .withFunction("flywheel", "mask", Masked.class.getMethod("mask", String.class)))

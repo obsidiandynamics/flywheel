@@ -2,9 +2,7 @@ package au.com.williamhill.flywheel;
 
 import com.obsidiandynamics.yconf.*;
 
-import au.com.williamhill.flywheel.yconf.*;
-
-@Y(YReflectiveMapper.class)
+@Y
 public final class TestLauncher implements Launcher {
   boolean launched;
   

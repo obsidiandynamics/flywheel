@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.yconf;
+package au.com.williamhill.flywheel;
 
 import java.lang.reflect.*;
 import java.util.function.*;

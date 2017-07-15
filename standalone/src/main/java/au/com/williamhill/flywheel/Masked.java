@@ -1,21 +1,15 @@
-package au.com.williamhill.flywheel.yconf;
+package au.com.williamhill.flywheel;
 
 import com.obsidiandynamics.yconf.*;
 
 /**
  *  Obfuscates secrets from general logging operations that typically involve {@link #toString()}. 
  */
-@Y(Masked.Mapper.class)
+@Y
 public final class Masked {
-  public static final class Mapper implements YMapper {
-    @Override public Object map(YObject y, Class<?> type) {
-      return new Masked(y.getAttribute("value").map(String.class));
-    }
-  }
-  
   private final String secret;
 
-  Masked(String secret) {
+  Masked(@YInject(name="secret") String secret) {
     this.secret = secret;
   }
   
@@ -39,6 +33,6 @@ public final class Masked {
   
   @Override
   public String toString() {
-    return "<not shown>";
+    return "<masked>";
   }
 }

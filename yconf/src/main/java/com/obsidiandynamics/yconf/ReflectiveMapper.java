@@ -4,17 +4,17 @@ import java.lang.reflect.*;
 import java.util.*;
 
 /**
- *  A {@link YMapper} implementation that will attempt to reflectively instantiate a given
+ *  A {@link TypeMapper} implementation that will attempt to reflectively instantiate a given
  *  class, in addition to setting fields directly post construction.
  */
-public final class YReflectiveMapper implements YMapper {
+public final class ReflectiveMapper implements TypeMapper {
   @Override
   public Object map(YObject y, Class<?> type) {
     final Constructor<?> constr;
     try {
       constr = getConstructor(type);
     } catch (NoSuchMethodException | SecurityException e) {
-      throw new YException("Class " + type.getName() + " does not have a suitable constructor", e);
+      throw new MappingException("Class " + type.getName() + " does not have a suitable constructor", e);
     }
     
     final Object[] args = new Object[constr.getParameterCount()];
@@ -22,7 +22,7 @@ public final class YReflectiveMapper implements YMapper {
     for (int i = 0; i < params.length; i++) {
       final YInject inj = params[i].getAnnotation(YInject.class);
       final Class<?> t = inj.type() != Void.class ? inj.type() : params[i].getType();
-      if (inj.name().isEmpty()) throw new YException("No name specified for attribute of type " + t.getName(), null);
+      if (inj.name().isEmpty()) throw new MappingException("No name specified for attribute of type " + t.getName(), null);
       args[i] = y.getAttribute(inj.name()).map(t);
     }
 
@@ -30,7 +30,7 @@ public final class YReflectiveMapper implements YMapper {
     try {
       target = constr.newInstance(args);
     } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-      throw new YException("Error instantiating " + type.getName(), e);
+      throw new MappingException("Error instantiating " + type.getName(), e);
     }
     
     return y.mapReflectively(target);
@@ -40,6 +40,7 @@ public final class YReflectiveMapper implements YMapper {
     for (Constructor<?> c : type.getDeclaredConstructors()) {
       final long count = Arrays.stream(c.getParameters()).filter(p -> p.isAnnotationPresent(YInject.class)).count();
       if (count > 0 && count == c.getParameterCount()) {
+        c.setAccessible(true);
         return c;
       }
     }

@@ -8,7 +8,7 @@ import java.util.stream.*;
 
 import org.junit.*;
 
-public final class YDomTransformTest {
+public final class DomTransformTest {
   private static final Function<Object, Object> STRING_CAPITALIZER = dom -> {
     if (dom instanceof String) {
       return ((String) dom).toUpperCase();
@@ -19,19 +19,19 @@ public final class YDomTransformTest {
 
   @Test
   public void testLowerToUpper() {
-    final String s = new YContext().withDomTransform(STRING_CAPITALIZER).map("hello", String.class);
+    final String s = new MappingContext().withDomTransform(STRING_CAPITALIZER).map("hello", String.class);
     assertEquals("HELLO", s);
   }
 
   @Test
   public void testNull() {
-    final String s = new YContext().withDomTransform(STRING_CAPITALIZER).map(null, String.class);
+    final String s = new MappingContext().withDomTransform(STRING_CAPITALIZER).map(null, String.class);
     assertNull(s);
   }
 
   @Test
   public void testList() {
-    final List<?> out = new YContext()
+    final List<?> out = new MappingContext()
         .withDomTransform(STRING_CAPITALIZER)
         .withMapper(List.class, (y, type) -> y.asList().stream()
                     .map(i -> i.map(String.class)).collect(Collectors.toList()))
@@ -55,7 +55,7 @@ public final class YDomTransformTest {
       }
     }
     
-    final Map<?, ?> out = new YContext()
+    final Map<?, ?> out = new MappingContext()
         .withDomTransform(STRING_CAPITALIZER)
         .withMapper(Map.class, (y, type) -> y.asMap().entrySet().stream()
                     .map(e -> new Tuple<>(e.getKey(), e.getValue().map(String.class)))

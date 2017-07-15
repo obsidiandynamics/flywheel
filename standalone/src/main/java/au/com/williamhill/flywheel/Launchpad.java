@@ -9,8 +9,6 @@ import org.slf4j.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
-import au.com.williamhill.flywheel.yconf.*;
-
 public final class Launchpad {
   private static final String DEF_PROFILE = "conf/default";
   

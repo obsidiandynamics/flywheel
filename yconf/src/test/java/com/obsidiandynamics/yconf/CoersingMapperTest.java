@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.*;
 
-public final class YCoersingMapperTest {
+public final class CoersingMapperTest {
   @Test
   public void testBoolean() {
     test(true, Boolean.class, true);
@@ -23,7 +23,7 @@ public final class YCoersingMapperTest {
     test("b", Character.class, 'b');
   }
   
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testInvalidCharacter() {
     test("abc", Character.class, null);
   }
@@ -37,7 +37,7 @@ public final class YCoersingMapperTest {
   public void testDouble() {
     test(1234.56d, Double.class, 1234.56d);
 
-    final YContext context = new YContext();
+    final MappingContext context = new MappingContext();
     final Double mapped = context.map("1234.56", Double.class);
     assertEquals(1234.56f, mapped, 0.0001);
   }
@@ -46,7 +46,7 @@ public final class YCoersingMapperTest {
   public void testFloat() {
     test(1234.56f, Float.class, 1234.56f);
 
-    final YContext context = new YContext();
+    final MappingContext context = new MappingContext();
     final Float mapped = context.map("1234.56", Float.class);
     assertEquals(1234.56f, mapped, 0.0001);
   }
@@ -75,7 +75,7 @@ public final class YCoersingMapperTest {
   }
 
   private <T> void test(Object doc, Class<T> type, T expected) {
-    final YContext context = new YContext();
+    final MappingContext context = new MappingContext();
     final Object mapped = context.map(doc, type);
     assertEquals(expected, mapped);
   }

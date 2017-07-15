@@ -5,6 +5,6 @@ package com.obsidiandynamics.yconf;
  *  DOM fragment.
  */
 @FunctionalInterface
-public interface YMapper {
+public interface TypeMapper {
   Object map(YObject y, Class<?> type);
 }

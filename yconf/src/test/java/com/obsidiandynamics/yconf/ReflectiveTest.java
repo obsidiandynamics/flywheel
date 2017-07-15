@@ -7,7 +7,7 @@ import java.util.*;
 
 import org.junit.*;
 
-public final class YReflectiveTest {
+public final class ReflectiveTest {
   private static final String FILE = "reflective-test.yaml";
   
   public static abstract class Super {
@@ -17,7 +17,7 @@ public final class YReflectiveTest {
   
   @Y(Mid.Mapper.class)
   public static class Mid extends Super {
-    public static final class Mapper implements YMapper {
+    public static final class Mapper implements TypeMapper {
       @Override public Object map(YObject y, Class<?> type) {
         return y.mapReflectively(new Mid());
       }
@@ -41,7 +41,7 @@ public final class YReflectiveTest {
   
   @Y(CustomConstruction.Mapper.class)
   public static final class CustomConstruction extends Mid {
-    public static final class Mapper implements YMapper {
+    public static final class Mapper implements TypeMapper {
       @Override public Object map(YObject y, Class<?> type) {
         return y.mapReflectively(new CustomConstruction());
       }
@@ -53,8 +53,8 @@ public final class YReflectiveTest {
 
   @Test
   public void testInjectAttributesCustomConstruction() throws IOException {
-    final CustomConstruction t = new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    final CustomConstruction t = new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     CustomConstruction.class);
     checkAssertions(t);
     assertEquals(123, t.num);
@@ -76,7 +76,7 @@ public final class YReflectiveTest {
   
   @Y(TestWrongType.Mapper.class)
   public static final class TestWrongType {
-    public static final class Mapper implements YMapper {
+    public static final class Mapper implements TypeMapper {
       @Override public Object map(YObject y, Class<?> type) {
         return y.mapReflectively(new TestWrongType());
       }
@@ -88,7 +88,7 @@ public final class YReflectiveTest {
   
   @Y(TestClassNotFound.Mapper.class)
   public static final class TestClassNotFound {
-    public static final class Mapper implements YMapper {
+    public static final class Mapper implements TypeMapper {
       @Override public Object map(YObject y, Class<?> type) {
         return y.mapReflectively(new TestClassNotFound());
       }
@@ -98,21 +98,21 @@ public final class YReflectiveTest {
     public Class<?> cls;
   }
 
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testReflectiveWrongType() throws IOException {
-    new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     TestWrongType.class);
   }
 
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testReflectiveClassNotFound() throws IOException {
-    new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     TestClassNotFound.class);
   }
   
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class DefaultConstructor extends Mid {
     @YInject(name="number")
     private int num;
@@ -120,14 +120,14 @@ public final class YReflectiveTest {
 
   @Test
   public void testDefaultConstructor() throws IOException {
-    final DefaultConstructor t = new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    final DefaultConstructor t = new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     DefaultConstructor.class);
     checkAssertions(t);
     assertEquals(123, t.num);
   }
   
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class AnnotatedConstructorMinimal extends Mid {
     private int num;
     
@@ -138,14 +138,14 @@ public final class YReflectiveTest {
 
   @Test
   public void testAnnotatedConstructorMinimal() throws IOException {
-    final AnnotatedConstructorMinimal t = new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    final AnnotatedConstructorMinimal t = new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorMinimal.class);
     checkAssertions(t);
     assertEquals(123, t.num);
   }
   
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class AnnotatedConstructorComplete extends Mid {
     private int num;
     
@@ -168,70 +168,70 @@ public final class YReflectiveTest {
 
   @Test
   public void testAnnotatedConstructorComplete() throws IOException {
-    final AnnotatedConstructorComplete t = new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    final AnnotatedConstructorComplete t = new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorComplete.class);
     checkAssertions(t);
     assertEquals(123, t.num);
   }
 
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class AnnotatedConstructorNoName extends Mid {
     AnnotatedConstructorNoName(@YInject int num) {}
   }
 
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testAnnotatedConstructorNoName() throws IOException {
-    new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorNoName.class);
   }
 
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class AnnotatedConstructorNoDefaultConstructor extends Mid {
     AnnotatedConstructorNoDefaultConstructor(int num) {}
   }
 
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testAnnotatedConstructorNoDefaultConstructor() throws IOException {
-    new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorNoDefaultConstructor.class);
   }
 
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class AnnotatedConstructorPartial extends Mid {
     AnnotatedConstructorPartial(@YInject(name="number") int num, String str) {}
   }
 
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testAnnotatedConstructorPartial() throws IOException {
-    new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorPartial.class);
   }
 
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class AnnotatedConstructorPrivate extends Mid {
     private AnnotatedConstructorPrivate() {}
   }
 
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testAnnotatedConstructorPrivate() throws IOException {
-    new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorPrivate.class);
   }
 
-  @Y(YReflectiveMapper.class)
+  @Y(ReflectiveMapper.class)
   public static final class AnnotatedConstructorIllegalArg extends Mid {
     AnnotatedConstructorIllegalArg(@YInject(name="number", type=int.class) char num) {}
   }
 
-  @Test(expected=YException.class)
+  @Test(expected=MappingException.class)
   public void testAnnotatedConstructorIllegalArg() throws IOException {
-    new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorIllegalArg.class);
   }
 
@@ -243,8 +243,8 @@ public final class YReflectiveTest {
 
   @Test
   public void testAttributeDefaultValue() throws IOException {
-    final AttributeDefaultValue t = new YContext()
-        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+    final AttributeDefaultValue t = new MappingContext()
+        .fromStream(MappingContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AttributeDefaultValue.class);
     checkAssertions(t);
     assertEquals("defaultValue", t.defStr);
