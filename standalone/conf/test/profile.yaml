@@ -2,4 +2,4 @@ properties:
   TestLauncher.a: a
   TestLauncher.b: b
 launcher: 
-  type: flywheel.TestLauncher
+  type: au.com.williamhill.flywheel.TestLauncher

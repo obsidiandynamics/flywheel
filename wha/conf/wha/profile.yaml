@@ -1,20 +1,20 @@
 properties:
   log4j.configuration: file:conf/wha/log4j-wha.properties
-  flywheel.logging.splunk.url: ${env.FLYWHEEL_SPLUNK_URL}
-  flywheel.logging.splunk.token: ${flywheel:mask(env.FLYWHEEL_SPLUNK_TOKEN)}
-  flywheel.logging.splunk.index: ${env.FLYWHEEL_SPLUNK_INDEX}
-  flywheel.logging.splunk.source: ${env.FLYWHEEL_SPLUNK_INDEX}
+  flywheel.logging.splunk.url: ${f:notNull(env.FLYWHEEL_SPLUNK_URL, "Splunk URL cannot be null")}
+  flywheel.logging.splunk.token: ${f:secret(f:notNull(env.FLYWHEEL_SPLUNK_TOKEN, "Splunk token cannot be null"))}
+  flywheel.logging.splunk.index: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk index cannot be null")}
+  flywheel.logging.splunk.source: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk source cannot be null")}
   
 launcher: 
-  type: flywheel.BeaconLauncher
+  type: au.com.williamhill.flywheel.BeaconLauncher
   
 backplane:
-  type: flywheel.edge.backplane.kafka.KafkaBackplane
+  type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaBackplane
   clusterId: default
   brokerId: 0
   backplaneConfig:
     kafka:
-      type: flywheel.edge.backplane.kafka.KafkaCluster
+      type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaCluster
       clusterConfig:
         bootstrapServers: localhost:9092
         prodAcks: all

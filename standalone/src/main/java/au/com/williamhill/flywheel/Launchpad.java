@@ -37,7 +37,7 @@ public final class Launchpad {
     try {
       profile = Profile.fromFile(profileYaml);
     } catch (Exception e) {
-      throw new LaunchpadException("Error reading profile", e);
+      throw new LaunchpadException("Error reading profile", getUltimateCause(e));
     }
     
     final StringBuilder sb = new StringBuilder();
@@ -52,7 +52,7 @@ public final class Launchpad {
     sb.append("\n  Properties:");
     for (Map.Entry<String, ?> entry : profile.properties.entrySet()) {
       sb.append("\n    ").append(entry.getKey()).append(": ").append(entry.getValue());
-      final String unmasked = Masked.unmask(entry.getValue());
+      final String unmasked = Secret.unmask(entry.getValue());
       System.setProperty(entry.getKey(), unmasked);
     }
     
@@ -61,6 +61,14 @@ public final class Launchpad {
     
     final Logger log = LoggerFactory.getLogger(Launchpad.class);
     log.info(sb.toString());
+  }
+  
+  private static Throwable getUltimateCause(Throwable throwable) {
+    Throwable cause = throwable;
+    while (cause.getCause() != null) {
+      cause = cause.getCause();
+    }
+    return cause;
   }
   
   public void launch(String[] args) throws LaunchpadException {

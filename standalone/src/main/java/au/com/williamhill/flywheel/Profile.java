@@ -16,8 +16,9 @@ public final class Profile {
           .when("properties").then(properties -> {
             properties.asMap().entrySet().forEach(e -> {
               final Object value = e.getValue().map(Object.class);
-              if (Masked.unmask(value) == null) throw new IllegalArgumentException("No resolved value for property " + e.getKey());
-              p.properties.put(e.getKey(), value);
+              if (value != null) {
+                p.properties.put(e.getKey(), value);
+              }
             });
           })
           .mapReflectively(p);
@@ -34,10 +35,10 @@ public final class Profile {
   
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
     return new MappingContext()
-        .withMapper(Object.class, new RuntimeMapper().withTypeFormatter("au.com.williamhill."::concat))
         .withDomTransform(new ELTransform()
                           .withVariable("env", System.getenv())
-                          .withFunction("flywheel", "mask", Masked.class.getMethod("mask", String.class)))
+                          .withFunction("f", "secret", Secret.class.getMethod("of", String.class))
+                          .withFunction("f", "notNull", NotNull.class.getMethod("of", Object.class, String.class)))
         .fromReader(new FileReader(file), Profile.class);
   }
 }

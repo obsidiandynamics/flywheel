@@ -40,7 +40,7 @@ else
   
   CMD="java $JVM_OPTS \
        $LOG4J_OPTS \
-       -cp flywheel-standalone-full-*jar \
+       -cp flywheel-*jar \
        au.com.williamhill.flywheel.Launchpad \
        $@"
   echo "> Starting $CMD"
