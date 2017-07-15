@@ -7,6 +7,8 @@ import java.util.*;
 
 import org.slf4j.*;
 
+import com.obsidiandynamics.indigo.util.*;
+
 import au.com.williamhill.flywheel.yconf.*;
 
 public final class Launchpad {
@@ -40,14 +42,24 @@ public final class Launchpad {
       throw new LaunchpadException("Error reading profile", e);
     }
     
-    final StringBuilder sb = new StringBuilder("\nproperties:");
+    final StringBuilder sb = new StringBuilder();
+    
+    try {
+      sb.append("\n  Flywheel version: ").append(FlywheelVersion.get());
+      sb.append("\n  Indigo version: ").append(IndigoVersion.get());
+    } catch (IOException e) {
+      throw new LaunchpadException("Error retrieving version", e);
+    }
+    
+    sb.append("\n  Properties:");
     for (Map.Entry<String, ?> entry : profile.properties.entrySet()) {
-      sb.append("\n  ").append(entry.getKey()).append(": ").append(entry.getValue());
+      sb.append("\n    ").append(entry.getKey()).append(": ").append(entry.getValue());
       final String unmasked = Masked.unmask(entry.getValue());
       System.setProperty(entry.getKey(), unmasked);
     }
     
-    sb.append("\nlauncher: ").append(profile.launcher);
+    sb.append("\n  Launcher: ").append(profile.launcher);
+    sb.append("\n  Backplane: ").append(profile.backplane);
     
     final Logger log = LoggerFactory.getLogger(Launchpad.class);
     log.info(sb.toString());

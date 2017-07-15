@@ -10,12 +10,14 @@ import org.apache.kafka.common.*;
 import org.apache.kafka.common.serialization.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.edge.backplane.kafka.KafkaReceiver.*;
 import au.com.williamhill.flywheel.frame.*;
 
+@Y
 public final class KafkaBackplane implements Backplane, RecordHandler<String, KafkaData> {
   private final KafkaBackplaneConfig config;
   
@@ -38,7 +40,9 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
     return r < 0 ? r - Long.MIN_VALUE : r;
   }
 
-  public KafkaBackplane(KafkaBackplaneConfig config, String clusterId, String brokerId) {
+  public KafkaBackplane(@YInject(name="backplaneConfig") KafkaBackplaneConfig config, 
+                        @YInject(name="clusterId") String clusterId, 
+                        @YInject(name="brokerId") String brokerId) {
     this.config = config;
     this.clusterId = clusterId;
     this.brokerId = brokerId;
@@ -49,14 +53,14 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
     final Properties props = new Properties();
     props.setProperty("group.id", source);
     props.setProperty("key.deserializer", StringDeserializer.class.getName());
-    props.setProperty("value.deserializer", config.deserializerClass.getName());
+    props.setProperty("value.deserializer", config.deserializer.getName());
     return props;
   }
   
   private Properties getProducerProps() {
     final Properties props = new Properties();
     props.setProperty("key.serializer", StringSerializer.class.getName());
-    props.setProperty("value.serializer", config.serializerClass.getName());
+    props.setProperty("value.serializer", config.serializer.getName());
     return props;
   }
 

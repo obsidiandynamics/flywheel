@@ -13,5 +13,5 @@ import java.lang.annotation.*;
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface Y {
-  Class<? extends YMapper> value();
+  Class<? extends YMapper> value() default YReflectiveMapper.class;
 }

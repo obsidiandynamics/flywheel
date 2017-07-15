@@ -28,10 +28,11 @@ public final class YContextTest {
     assertEquals(expected, fb);
   }
   
-  @Test(expected=YException.class)
   public void testWithoutMapper() throws IOException {
-    new YContext()
+    final Object obj = new YContext()
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream("context-test.yaml"), YFooBar.class);
+    assertNotNull(obj);
+    assertEquals(LinkedHashMap.class, obj.getClass());
   }
   
   public void testWithoutMapperAttribute() throws IOException {

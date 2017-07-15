@@ -38,8 +38,8 @@ public class ScramjetKafkaBackplaneTest extends BackplaneTest {
   protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
     final KafkaBackplaneConfig config = new KafkaBackplaneConfig() {{
       kafka = ScramjetKafkaBackplaneTest.this.kafka;
-      serializerClass = ScramjetSerializer.class;
-      deserializerClass = ScramjetDeserializer.class;
+      serializer = ScramjetSerializer.class;
+      deserializer = ScramjetDeserializer.class;
       pollTimeoutMillis = 1;
     }};
     return Keyed.getOrSet(backplanes, backplanes, brokerId, () -> new KafkaBackplane(config, clusterId, brokerId));

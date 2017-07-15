@@ -2,14 +2,32 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import java.util.*;
 
+import com.obsidiandynamics.yconf.*;
+
+@Y
 public class KafkaClusterConfig {
+  @YInject
   public String bootstrapServers;
+
+  @YInject
   public String prodAcks = "all";
+  
+  @YInject
   public int prodRetries = 0;
+  
+  @YInject
   public int prodBatchSize = 16_384;
+  
+  @YInject
   public int prodLingerMillis = 1;
+  
+  @YInject
   public int prodBufferMemory = 33_554_432;
+  
+  @YInject
   public boolean consAutoCommit = true;
+  
+  @YInject
   public int consAutoCommitIntervalMillis = 100;
   
   void init() {

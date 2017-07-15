@@ -11,8 +11,6 @@ repositories {
 
 dependencies {
   compile project(':')
-  compile project(':flywheel-yconf')
-  compile 'org.yaml:snakeyaml:1.18'
   compile 'de.odysseus.juel:juel-api:2.2.7'
   compile 'de.odysseus.juel:juel-impl:2.2.7'
   

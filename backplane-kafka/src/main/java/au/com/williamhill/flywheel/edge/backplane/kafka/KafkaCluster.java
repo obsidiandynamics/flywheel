@@ -5,10 +5,13 @@ import java.util.*;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
 
+import com.obsidiandynamics.yconf.*;
+
+@Y
 public final class KafkaCluster<K, V> implements Kafka<K, V> {
   private final KafkaClusterConfig config;
   
-  public KafkaCluster(KafkaClusterConfig config) {
+  public KafkaCluster(@YInject(name="clusterConfig") KafkaClusterConfig config) {
     config.init();
     this.config = config;
   }

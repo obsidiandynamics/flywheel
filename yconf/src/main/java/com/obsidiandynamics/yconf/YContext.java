@@ -87,15 +87,17 @@ public final class YContext {
     return (T) obj;
   }
   
-  private static YMapper instantiateMapper(Class<?> type) {
+  private YMapper instantiateMapper(Class<?> type) {
     final Y y = type.getAnnotation(Y.class);
-    if (y == null) throw new YException("No mapper defined for class " + type.getName() + 
-                                        "; check that an @" + Y.class.getSimpleName() + " annotation is present", null);
-    try {
-      return cast(y.value().newInstance());
-    } catch (Exception e) {
-      throw new YException("Error instantiating mapper " + y.value().getName() + " for type " +
-          type.getName(), e);
+    if (y != null) {
+      try {
+        return cast(y.value().newInstance());
+      } catch (Exception e) {
+        throw new YException("Error instantiating mapper " + y.value().getName() + " for type " +
+            type.getName(), e);
+      }
+    } else {
+      return mappers.get(Object.class);
     }
   }
   

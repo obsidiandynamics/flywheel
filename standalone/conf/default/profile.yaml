@@ -1,5 +1,8 @@
 properties:
-  flywheel.logging.splunk.url: ${env.FLYWHEEL_SPLUNK_URL}
-  flywheel.logging.splunk.token: ${flywheel:mask(env.FLYWHEEL_SPLUNK_TOKEN)}
+  log4j.configuration: file:conf/default/log4j-default.properties
+  
 launcher: 
   type: flywheel.BeaconLauncher
+  
+backplane:
+  type: flywheel.edge.backplane.NoOpBackplane

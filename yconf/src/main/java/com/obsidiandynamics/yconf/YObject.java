@@ -121,11 +121,13 @@ public final class YObject {
           final String name = ! inj.name().isEmpty() ? inj.name() : field.getName();
           final Class<?> type = inj.type() != Void.class ? inj.type() : field.getType();
           final Object value = getAttribute(name).map(type);
-          field.setAccessible(true);
-          try {
-            field.set(target, value);
-          } catch (IllegalArgumentException | IllegalAccessException e) {
-            throw new YException("Unable to assign to field " + field.getName() + " of class " + cls, e);
+          if (value != null) {
+            field.setAccessible(true);
+            try {
+              field.set(target, value);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+              throw new YException("Unable to assign to field " + field.getName() + " of class " + cls, e);
+            }
           }
         }
       }

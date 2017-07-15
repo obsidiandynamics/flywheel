@@ -1,6 +1,7 @@
 package au.com.williamhill.flywheel.logging;
 
 import java.util.*;
+import java.util.function.*;
 
 import org.apache.log4j.*;
 import org.apache.log4j.spi.*;
@@ -26,6 +27,11 @@ public final class SplunkHECAppender extends AppenderSkeleton {
   public SplunkHECAppender(Layout layout) {
     this.layout = layout;
   }
+  
+  private static void setPropertyConditional(String key, Consumer<String> setter) {
+    final String value = System.getProperty(key);
+    if (value != null) setter.accept(value);
+  }
 
   /**
    *  Log the message.
@@ -36,11 +42,10 @@ public final class SplunkHECAppender extends AppenderSkeleton {
   protected void append(LoggingEvent event) {
     try {
       if (shi == null) {
-        final String token = System.getProperty("flywheel.logging.splunk.token");
-        if (token != null) setToken(token);
-        
-        final String url = System.getProperty("flywheel.logging.splunk.url");
-        if (url != null) setUrl(url);
+        setPropertyConditional("flywheel.logging.splunk.token", this::setToken);
+        setPropertyConditional("flywheel.logging.splunk.url", this::setUrl);
+        setPropertyConditional("flywheel.logging.splunk.index", this::setIndex);
+        setPropertyConditional("flywheel.logging.splunk.source", this::setSource);
         
         synchronized (this) {
           if (shi == null) {

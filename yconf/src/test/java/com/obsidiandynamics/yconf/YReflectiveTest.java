@@ -234,4 +234,19 @@ public final class YReflectiveTest {
         .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
                     AnnotatedConstructorIllegalArg.class);
   }
+
+  @Y
+  public static final class AttributeDefaultValue extends Mid {
+    @YInject(name="nonExistent")
+    String defStr = "defaultValue";
+  }
+
+  @Test
+  public void testAttributeDefaultValue() throws IOException {
+    final AttributeDefaultValue t = new YContext()
+        .fromStream(YContextTest.class.getClassLoader().getResourceAsStream(FILE), 
+                    AttributeDefaultValue.class);
+    checkAssertions(t);
+    assertEquals("defaultValue", t.defStr);
+  }
 }
