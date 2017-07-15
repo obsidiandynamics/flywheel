@@ -2,8 +2,6 @@ package au.com.williamhill.flywheel.edge.backplane;
 
 import org.junit.*;
 
-import au.com.williamhill.flywheel.edge.*;
-
 public final class NoOpClusterTest extends ClusterTest {
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
