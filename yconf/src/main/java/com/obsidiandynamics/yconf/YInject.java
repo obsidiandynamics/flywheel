@@ -7,7 +7,11 @@ import java.lang.annotation.*;
 
 /**
  *  Instruction to reflectively assign an attribute value or a constructor
- *  parameter.
+ *  parameter.<p>
+ *  
+ *  When injecting a field, both {@code name} and {@code type} are optional, and
+ *  can be inferred from the field being injected. However, when injecting a constructor
+ *  parameter, the {@code name} must be supplied.
  */
 @Documented
 @Retention(RUNTIME)

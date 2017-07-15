@@ -3,6 +3,14 @@ package com.obsidiandynamics.yconf;
 import java.util.*;
 import java.util.function.*;
 
+/**
+ *  A {@link TypeMapper} implementation that relies on an attribute named 'type' in
+ *  YAML DOM to indicate the true type of the serialized data, delegating to the
+ *  appropriate {@link TypeMapper} for the type hint.<p>
+ *  
+ *  Note: the name of the attribute can be configured using 
+ *  {@link #withTypeAttribute(String)}.
+ */
 public final class RuntimeMapper implements TypeMapper {
   private String typeAttribute = "type";
   

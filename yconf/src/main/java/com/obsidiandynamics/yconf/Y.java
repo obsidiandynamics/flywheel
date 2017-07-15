@@ -7,7 +7,10 @@ import java.lang.annotation.*;
 
 /**
  *  Explicitly provides a {@link TypeMapper}, specifying how to construct the annotated
- *  class from an {@link YObject} wrapping a DOM fragment.
+ *  class from an {@link YObject} wrapping a DOM fragment.<p>
+ *  
+ *  If a {@link TypeMapper} class is unspecified, the {@code ReflectiveMapper} will
+ *  be used by default.
  */
 @Documented
 @Retention(RUNTIME)

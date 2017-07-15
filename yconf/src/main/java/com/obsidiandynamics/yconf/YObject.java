@@ -6,7 +6,7 @@ import java.util.function.*;
 import java.util.stream.*;
 
 /**
- *  Encapsulates a DOM fragment, as well as the current deserialization context.
+ *  Encapsulates a DOM fragment, as well as the current {@link MappingContext}.
  */
 public final class YObject {
   private final Object dom;
@@ -106,7 +106,11 @@ public final class YObject {
   /**
    *  Reflectively maps this DOM to the fields of the given target object, assigning
    *  all declared fields across the entire class hierarchy that have been annotated
-   *  with {@link YInject}.
+   *  with {@link YInject}.<p>
+   *  
+   *  This method will attempt to map only non-null attributes in the DOM. If an attribute
+   *  is null, the field of the target object will not be assigned (preserving its default
+   *  value). 
    *  
    *  @param <T> The target type.
    *  @param target The target object to populate.
