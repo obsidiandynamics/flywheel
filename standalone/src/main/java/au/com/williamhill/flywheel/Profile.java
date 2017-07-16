@@ -5,9 +5,6 @@ import java.util.*;
 
 import com.obsidiandynamics.yconf.*;
 
-import au.com.williamhill.flywheel.edge.backplane.*;
-import au.com.williamhill.flywheel.socketx.*;
-
 @Y(Profile.Mapper.class)
 public final class Profile {
   public static final class Mapper implements TypeMapper {
@@ -32,12 +29,6 @@ public final class Profile {
   @YInject
   public Launcher launcher;
   
-  @YInject
-  public Backplane backplane;
-  
-  @YInject
-  public XServerConfig serverConfig;
-  
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
     final Profile profile = new MappingContext()
         .withDomTransform(new ELTransform()
@@ -60,7 +51,6 @@ public final class Profile {
   }
   
   private void init() {
-    if (launcher == null) launcher = new ProfileLauncher();
-    if (backplane == null) backplane = new NoOpBackplane();
+    if (launcher == null) launcher = new ConfigLauncher();
   }
 }

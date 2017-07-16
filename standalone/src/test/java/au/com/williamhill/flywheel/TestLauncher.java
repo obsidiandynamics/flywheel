@@ -7,7 +7,7 @@ public final class TestLauncher implements Launcher {
   boolean launched;
   
   @Override
-  public void launch(String[] args, Profile profile) throws Exception {
+  public void launch(String[] args) throws Exception {
     launched = true;
   }
 }
