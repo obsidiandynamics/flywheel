@@ -30,3 +30,13 @@ jar {
   baseName packageName + '-full'
   finalizedBy copyStandaloneScripts
 }
+
+/*
+task dockerBuild(type: Exec) {
+  dependsOn ':flywheel-wha:jar'
+  doLast {
+    def dockerRepo = System.getProperty('flywheel.wha.repo', 'flywheel-wha')
+    println "Building image $dockerRepo"
+    commandLine 'sh', '-c', "docker build -t $dockerRepo ."
+  }
+}*/

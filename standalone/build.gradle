@@ -28,6 +28,15 @@ jar {
   baseName packageName + '-full'
 }
 
+task dockerBuild(type: Exec) {
+  dependsOn jar
+  def dockerRepo = System.getProperty('flywheel.standalone.repo', 'flywheel')
+  commandLine 'sh', '-c', "docker build -t $dockerRepo ."
+  doLast {
+    println "Built image $dockerRepo"
+  }
+}
+
 def perfJvmArgs = '-server -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking -Xms1G -Xmx4G -Xss1M -XX:+UseParallelGC'
 
 task beaconEdge(type: JavaExec) {
