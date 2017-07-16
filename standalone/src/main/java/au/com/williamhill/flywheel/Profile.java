@@ -42,8 +42,8 @@ public final class Profile {
     final Profile profile = new MappingContext()
         .withDomTransform(new ELTransform()
                           .withVariable("env", System.getenv())
-                          .withFunction("f", "maxInt", Profile.class.getMethod("maxInt"))
-                          .withFunction("f", "maxLong", Profile.class.getMethod("maxLong"))
+                          .withVariable("maxInt", Integer.MAX_VALUE)
+                          .withVariable("maxLong", Long.MAX_VALUE)
                           .withFunction("f", "secret", Secret.class.getMethod("of", String.class))
                           .withFunction("f", "notNull", NotNull.class.getMethod("of", Object.class, String.class)))
         .fromReader(new FileReader(file), Profile.class);
