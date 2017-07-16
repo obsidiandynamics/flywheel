@@ -29,9 +29,6 @@ public final class BeaconEdge extends Thread implements TopicListener {
     filter("flywheel.beacon", PROPS).entrySet().stream()
     .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG::info);
     
-    LOG.info("Flywheel version: {}", FlywheelVersion.get());
-    LOG.info("Indigo version:   {}", IndigoVersion.get());
-    
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig()
                           .withPath(PATH)

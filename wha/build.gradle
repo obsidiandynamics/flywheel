@@ -16,9 +16,9 @@ dependencies {
   runtime project(':flywheel-logging-splunk')
 }
 
-task copyDocker(type: Copy) {
-  from '../standalone/docker'
-  into 'build/docker'
+task copyStandaloneScripts(type: Copy) {
+  from '../standalone/scripts'
+  into 'build/scripts'
 }
 
 jar {
@@ -28,5 +28,5 @@ jar {
     configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
   }   
   baseName packageName + '-full'
-  finalizedBy copyDocker
+  finalizedBy copyStandaloneScripts
 }

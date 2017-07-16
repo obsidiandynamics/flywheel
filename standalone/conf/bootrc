@@ -1,0 +1,4 @@
+# Additional init commands, run at the beginning of flywheel-launch.sh, prior to
+# launching the broker JVM process.
+
+export JVM_OPTS="-Xms128M -Xmx4G"

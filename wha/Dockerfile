@@ -1,8 +1,8 @@
 FROM openjdk:8u131-jdk-alpine
 LABEL maintainer "Emil Koutanov <ekoutanov@gmail.com>"
 
-COPY build/libs/flywheel-*jar /
-COPY build/docker/* /
+COPY build/libs/flywheel-*jar /build/libs/
+COPY build/scripts/* /
 RUN mkdir conf
 COPY conf/ /conf/
 RUN chmod +x flywheel-*.sh
