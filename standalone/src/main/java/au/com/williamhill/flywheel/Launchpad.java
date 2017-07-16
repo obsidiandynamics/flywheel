@@ -54,7 +54,10 @@ public final class Launchpad {
       sb.append("\n    ").append(entry.getKey()).append(": ").append(entry.getValue());
     }
     
-    sb.append("\n  Launcher: ").append(profile.launchers);
+    sb.append("\n  Launchers:");
+    for (Launcher launcher : profile.launchers) {
+      sb.append("\n    ").append(launcher);
+    }
     
     final Logger log = LoggerFactory.getLogger(Launchpad.class);
     log.info(sb.toString());
