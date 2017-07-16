@@ -5,8 +5,8 @@ properties:
   flywheel.logging.splunk.index: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk index cannot be null")}
   flywheel.logging.splunk.source: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk source cannot be null")}
   
-launcher: 
-  type: au.com.williamhill.flywheel.BeaconLauncher
+launchers: 
+- type: au.com.williamhill.flywheel.BeaconLauncher
   backplane:
     type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaBackplane
     clusterId: default

@@ -27,7 +27,7 @@ public final class Profile {
   public final Map<String, Object> properties = new LinkedHashMap<>();
   
   @YInject
-  public Launcher launcher;
+  public Launcher launchers[];
   
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
     final Profile profile = new MappingContext()
@@ -51,6 +51,6 @@ public final class Profile {
   }
   
   private void init() {
-    if (launcher == null) launcher = new ConfigLauncher();
+    if (launchers == null) launchers = new Launcher[] {new ConfigLauncher()};
   }
 }

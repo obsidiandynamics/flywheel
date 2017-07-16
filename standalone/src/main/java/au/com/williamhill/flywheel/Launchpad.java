@@ -54,7 +54,7 @@ public final class Launchpad {
       sb.append("\n    ").append(entry.getKey()).append(": ").append(entry.getValue());
     }
     
-    sb.append("\n  Launcher: ").append(profile.launcher);
+    sb.append("\n  Launcher: ").append(profile.launchers);
     
     final Logger log = LoggerFactory.getLogger(Launchpad.class);
     log.info(sb.toString());
@@ -69,10 +69,12 @@ public final class Launchpad {
   }
   
   public void launch(String[] args) throws LaunchpadException {
-    try {
-      profile.launcher.launch(args);
-    } catch (Exception e) {
-      throw new LaunchpadException("Failed to launch " + profile.launcher, e);
+    for (Launcher launcher : profile.launchers) {
+      try {
+        launcher.launch(args);
+      } catch (Exception e) {
+        throw new LaunchpadException("Failed to launch " + launcher, e);
+      }
     }
   }
   

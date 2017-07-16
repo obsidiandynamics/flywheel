@@ -43,9 +43,9 @@ public final class LaunchpadTest {
   public void testDefault() throws LaunchpadException {
     final Launchpad launchpad = new Launchpad(new File("conf/test"));
     launchpad.launch(new String[0]);
-    assertNotNull(launchpad.getProfile().launcher);
-    assertEquals(TestLauncher.class, launchpad.getProfile().launcher.getClass());
-    assertTrue(((TestLauncher) launchpad.getProfile().launcher).launched);
+    assertNotNull(launchpad.getProfile().launchers);
+    assertEquals(TestLauncher.class, launchpad.getProfile().launchers[0].getClass());
+    assertTrue(((TestLauncher) launchpad.getProfile().launchers[0]).launched);
     assertEquals("a", System.getProperty("TestLauncher.a"));
     assertEquals("b", System.getProperty("TestLauncher.b"));
   }

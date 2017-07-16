@@ -1,8 +1,8 @@
 properties:
   log4j.configuration: file:conf/default/log4j-default.properties
 
-launcher: 
-  type: au.com.williamhill.flywheel.ConfigLauncher
+launchers: 
+- type: au.com.williamhill.flywheel.ConfigLauncher
   backplane:
     type: au.com.williamhill.flywheel.edge.backplane.NoOpBackplane
   serverConfig:
