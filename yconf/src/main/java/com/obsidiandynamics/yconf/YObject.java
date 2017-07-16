@@ -124,7 +124,22 @@ public final class YObject {
         if (inj != null) {
           final String name = ! inj.name().isEmpty() ? inj.name() : field.getName();
           final Class<?> type = inj.type() != Void.class ? inj.type() : field.getType();
-          final Object value = getAttribute(name).map(type);
+          final Object value;
+          if (type.isArray()) {
+            final YObject attValue = getAttribute(name);
+            if (attValue.isNull()) {
+              value = null;
+            } else {
+              final Class<?> componentType = type.getComponentType();
+              final List<?> list = attValue.asList().stream()
+                  .map(i -> i.map(componentType)).collect(Collectors.toList());
+              final T[] array = MappingContext.cast(Array.newInstance(componentType, list.size()));
+              value = list.toArray(array);
+            }
+          } else {
+            value = getAttribute(name).map(type);
+          }
+          
           if (value != null) {
             field.setAccessible(true);
             try {

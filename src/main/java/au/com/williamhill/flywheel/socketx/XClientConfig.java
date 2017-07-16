@@ -1,10 +1,16 @@
 package au.com.williamhill.flywheel.socketx;
 
+import com.obsidiandynamics.yconf.*;
+
+@Y
 public class XClientConfig {
+  @YInject
   public int idleTimeoutMillis = 300_000;
   
+  @YInject
   public int scanIntervalMillis = 1_000;
   
+  @YInject
   public XEndpointConfig endpointConfig = new XEndpointConfig();
   
   public boolean hasIdleTimeout() {

@@ -4,6 +4,9 @@ import java.util.*;
 
 import javax.servlet.*;
 
+import com.obsidiandynamics.yconf.*;
+
+@Y
 public final class XMappedServlet {
   private final String path;
   
@@ -19,7 +22,9 @@ public final class XMappedServlet {
     return servletClass.getSimpleName() + "_" + UUID.randomUUID().toString();
   }
 
-  public XMappedServlet(String path, String name, Class<? extends Servlet> servletClass) {
+  public XMappedServlet(@YInject(name="path") String path, 
+                        @YInject(name="name") String name, 
+                        @YInject(name="servletClass") Class<? extends Servlet> servletClass) {
     this.path = path;
     this.name = name;
     this.servletClass = servletClass;
@@ -39,6 +44,6 @@ public final class XMappedServlet {
 
   @Override
   public String toString() {
-    return path + " -> " + servletClass;
+    return path + " -> " + servletClass.getSimpleName();
   }
 }

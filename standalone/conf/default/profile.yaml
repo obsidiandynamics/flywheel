@@ -2,7 +2,20 @@ properties:
   log4j.configuration: file:conf/default/log4j-default.properties
 
 launcher: 
-  type: au.com.williamhill.flywheel.BeaconLauncher
+  type: au.com.williamhill.flywheel.ProfileLauncher
   
 backplane:
   type: au.com.williamhill.flywheel.edge.backplane.NoOpBackplane
+
+serverConfig:
+  port: 8080
+  path: /broker
+  idleTimeoutMillis: 300000
+  pingIntervalMillis: 60000
+  scanIntervalMillis: 1000
+  servlets:
+  - path: /health/*
+    name: health
+    servletClass: au.com.williamhill.flywheel.health.HealthServlet  
+  endpointConfig:
+    highWaterMark: 500400300200100

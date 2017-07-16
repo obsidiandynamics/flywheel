@@ -1,110 +1,0 @@
-Script started on Sun Jul 16 13:46:23 2017
-]7;file://Users-MBP/Users/emil/code/flywheel/standalone[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;32m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hsscripts/flywheel-launch.sh[1m [0m[0m --cmd[?1l>[?2004l
-]2;scripts/flywheel-launch.sh --cmd]1;scripts/flywheel-launch.sh
-[0;36m ____  _     _     _       _     ____  ____  _   [0m
-[0;36m| |_  | |   \ \_/ \ \    /| |_| | |_  | |_  | |  [0m
-[0;36m|_|   |_|__  |_|   \_\/\/ |_| | |_|__ |_|__ |_|__[0m
-
-
-[0;36m ___ _           _           _ [0m
-[0;36m|  _| |_ _ _ _ _| |_ ___ ___| |[0m
-[0;36m|  _| | | | | | |   | -_| -_| |[0m
-[0;36m|_| |_|_  |_____|_|_|___|___|_|[0m
-[0;36m      |___|                    [0m
-
-[?1034hsh-3.2$ exit
-exit
-[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;32m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hscripts/flywheel-launch.sh --cmd[26D                          [26Ds/flywheel-launch.sh --cmd[?1l>[?2004l
-]2;scripts/flywheel-launch.sh --cmd]1;scripts/flywheel-launch.sh
-[0;36m ____  _     _     _       _   _ ____  ____  _   [0m
-[0;36m| |_  | |   \ \_/ \ \    /| |_| | |_  | |_  | |  [0m
-[0;36m|_|   |_|__  |_|   \_\/\/ |_| |_|_|__ |_|__ |_|__[0m
-
-[?1034hsh-3.2$ f[Kexit
-exit
-[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;32m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hscripts/flywheel-launch.sh --cmd     [?1l>[?2004l
-]2;scripts/flywheel-launch.sh]1;scripts/flywheel-launch.sh
-[0;36m ____  _    _     _       _     ____  ____  _   [0m
-[0;36m| |_  | |  \ \_/ \ \    /| |_| | |_  | |_  | |  [0m
-[0;36m|_|   |_|__ |_|   \_\/\/ |_| | |_|__ |_|__ |_|__[0m
-
-> Using default Log4j configuration
-> Starting java -Xms128M -Xmx4G                -cp build/libs/flywheel-*jar        au.com.williamhill.flywheel.Launchpad        
-INFO  main Launchpad.<init>(): 
-  Flywheel version: 0.1.1-SNAPSHOT_1034
-  Indigo version: 0.9.4_1437
-  Properties:
-    log4j.configuration: file:conf/default/log4j-default.properties
-  Launcher: au.com.williamhill.flywheel.BeaconLauncher@5a01ccaa
-  Backplane: au.com.williamhill.flywheel.edge.backplane.NoOpBackplane@71c7db30
-INFO  main ForEachOps$ForEachOp$OfRef.accept(): flywheel.beacon.port          : 8080
-INFO  main ForEachOps$ForEachOp$OfRef.accept(): flywheel.beacon.interval      : 1000
-INFO  main ForEachOps$ForEachOp$OfRef.accept(): flywheel.beacon.path          : /beacon
-^C[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;31m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hccelar[?1l>[?2004l
-]2;celar]1;celarzsh: command not found: celar
-[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;31m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hcclear[?1l>[?2004l
-]2;clear]1;clear[H[2J[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;32m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hclearcel[2Cscripts/flywheel-launch.sh[?1l>[?2004l
-]2;scripts/flywheel-launch.sh]1;scripts/flywheel-launch.sh
-[0;36m ____  _    _     _       _     ____  ____  _   [0m
-[0;36m| |_  | |  \ \_/ \ \    /| |_| | |_  | |_  | |  [0m
-[0;36m|_|   |_|__ |_|   \_\/\/ |_| | |_|__ |_|__ |_|__[0m
-
-> Using default Log4j configuration
-> Starting java -Xms128M -Xmx4G                -cp build/libs/flywheel-*jar        au.com.williamhill.flywheel.Launchpad        
-INFO  main Launchpad.<init>(): 
-  Flywheel version: 0.1.1-SNAPSHOT_1034
-  Indigo version: 0.9.4_1437
-  Properties:
-    log4j.configuration: file:conf/default/log4j-default.properties
-  Launcher: au.com.williamhill.flywheel.BeaconLauncher@5a01ccaa
-  Backplane: au.com.williamhill.flywheel.edge.backplane.NoOpBackplane@71c7db30
-INFO  main ForEachOps$ForEachOp$OfRef.accept(): flywheel.beacon.port          : 8080
-INFO  main ForEachOps$ForEachOp$OfRef.accept(): flywheel.beacon.interval      : 1000
-INFO  main ForEachOps$ForEachOp$OfRef.accept(): flywheel.beacon.path          : /beacon
-^C[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;31m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hppwd[?1l>[?2004l
-]2;pwd]1;pwd/Users/emil/code/flywheel/standalone
-[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;..el/standalone]7;file://Users-MBP/Users/emil/code/flywheel/standalone[0m[27m[24m[J[01;32m➜  [36mstandalone[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hccd ..[?1l>[?2004l
-]2;cd ..]1;cd[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;~/code/flywheel]7;file://Users-MBP/Users/emil/code/flywheel[0m[27m[24m[J[01;32m➜  [36mflywheel[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hggradle clean build[?1l>[?2004l
-]2;gradle clean build]1;gradle[0m
-
-[2A[1m<-------------> 0% CONFIGURING [0s][m[35D[1B[1m> :flywheel-wha[m[15D[1B[2A[1m<-------------> 0% EXECUTING [0s][m[0K[33D[1B[1m> :clean[m[0K[8D[1B[2A[1m<-------------> 6% EXECUTING [0s][m[33D[1B[1m> :flywheel-yconf:clean[m[23D[1B[2A[1m<-------------> 7% EXECUTING [0s][m[33D[1B[1m> :flywheel-yconf:compileJava[m[29D[1B[2A[1m<=------------> 12% EXECUTING [0s][m[34D[1B[1m> :flywheel-yconf:compileTestJava[m[33D[1B[2A[1m<==-----------> 16% EXECUTING [0s][m[34D[1B[1m> :flywheel-yconf:test > 0 tests completed[m[42D[1B[2A[1m<==-----------> 16% EXECUTING [1s][m[34D[2B[1A[1m> :flywheel-yconf:test > 15 tests completed[m[43D[1B[2A[1m<==-----------> 16% EXECUTING [2s][m[34D[1B[1m> :flywheel-yconf:test > 33 tests completed[m[43D[1B[1A[1m> :flywheel-yconf:test > 47 tests completed[m[43D[1B[2A[0K
-[1m> Task :flywheel-yconf:test[m[0K
-objc[7128]: Class JavaLaunchHelper is implemented in both /Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/bin/java (0x102af14c0) and /Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/jre/lib/libinstrument.dylib (0x102bb94e0). One of the two will be used. Which one is undefined.
-[0K
-[0K
-[2A[1m<==-----------> 17% EXECUTING [2s][m[34D[1B[1m> :flywheel-yconf:jacocoTestReport[m[34D[1B[2A[1m<==-----------> 18% EXECUTING [2s][m[34D[1B[1m> :compileJava[m[0K[14D[1B[2A[1m<==-----------> 18% EXECUTING [3s][m[34D[2B[2A[1m<===----------> 24% EXECUTING [3s][m[34D[1B[1m> :compileTestJava[m[18D[1B[2A[1m<===----------> 24% EXECUTING [4s][m[34D[2B[2A[1m<===----------> 27% EXECUTING [4s][m[34D[1B[1m> :test > 0 tests completed[m[27D[1B[2A[1m<===----------> 27% EXECUTING [5s][m[34D[2B[2A[1m<===----------> 27% EXECUTING [6s][m[34D[2B[2A[1m<===----------> 27% EXECUTING [7s][m[34D[2B[1A[1m> :test > 3 tests completed[m[27D[1B[1A[1m> :test > 5 tests completed[m[27D[1B[2A[1m<===----------> 27% EXECUTING [8s][m[34D[2B[1A[1m> :test > 6 tests completed[m[27D[1B[2A[1m<===----------> 27% EXECUTING [9s][m[34D[2B[1A[1m> :test > 7 tests completed[m[27D[1B[2A[0K
-[1m> Task :test[m[0K
-objc[7129]: Class JavaLaunchHelper is implemented in both /Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/bin/java (0x1037af4c0) and /Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/jre/lib/libinstrument.dylib (0x1038774e0). One of the two will be used. Which one is undefined.
-[0K
-[0K
-[2A[1m<===----------> 27% EXECUTING [9s][m[34D[1B[1m> :test > 7 tests completed[m[27D[1B[1A[1m> :test > 8 tests completed[m[27D[1B[2A[1m<===----------> 27% EXECUTING [10s][m[35D[2B[1A[1m> :test > 9 tests completed[m[27D[1B[2A[1m<===----------> 27% EXECUTING [11s][m[35D[2B[1A[1m> :test > 10 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [12s][m[35D[2B[1A[1m> :test > 11 tests completed[m[28D[1B[1A[1m> :test > 12 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [13s][m[35D[2B[1A[1m> :test > 13 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [14s][m[35D[1B[1m> :test > 14 tests completed[m[28D[1B[1A[1m> :test > 33 tests completed[m[28D[1B[1A[1m> :test > 34 tests completed[m[28D[1B[1A[1m> :test > 35 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [15s][m[35D[2B[1A[1m> :test > 36 tests completed[m[28D[1B[1A[1m> :test > 41 tests completed[m[28D[1B[1A[1m> :test > 42 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [16s][m[35D[2B[1A[1m> :test > 43 tests completed[m[28D[1B[1A[1m> :test > 44 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [17s][m[35D[1B[1m> :test > 45 tests completed[m[28D[1B[1A[1m> :test > 46 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [18s][m[35D[2B[1A[1m> :test > 47 tests completed[m[28D[1B[1A[1m> :test > 48 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [19s][m[35D[1B[1m> :test > 49 tests completed[m[28D[1B[1A[1m> :test > 50 tests completed[m[28D[1B[1A[1m> :test > 51 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [20s][m[35D[2B[1A[1m> :test > 52 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [21s][m[35D[2B[1A[1m> :test > 53 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [22s][m[35D[2B[1A[1m> :test > 54 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [23s][m[35D[1B[1m> :test > 55 tests completed[m[28D[1B[1A[1m> :test > 56 tests completed[m[28D[1B[1A[1m> :test > 57 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [24s][m[35D[2B[1A[1m> :test > 58 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [25s][m[35D[2B[2A[1m<===----------> 27% EXECUTING [26s][m[35D[1B[1m> :test > 59 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [27s][m[35D[1B[1m> :test > 60 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [28s][m[35D[1B[1m> :test > 61 tests completed[m[28D[1B[1A[1m> :test > 62 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [29s][m[35D[2B[1A[1m> :test > 63 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [30s][m[35D[2B[1A[1m> :test > 64 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [31s][m[35D[2B[2A[1m<===----------> 27% EXECUTING [32s][m[35D[1B[1m> :test > 65 tests completed[m[28D[1B[1A[1m> :test > 66 tests completed[m[28D[1B[1A[1m> :test > 67 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [33s][m[35D[1B[1m> :test > 68 tests completed[m[28D[1B[1A[1m> :test > 69 tests completed[m[28D[1B[1A[1m> :test > 70 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [34s][m[35D[2B[1A[1m> :test > 71 tests completed[m[28D[1B[1A[1m> :test > 72 tests completed[m[28D[1B[1A[1m> :test > 73 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [35s][m[35D[2B[1A[1m> :test > 74 tests completed[m[28D[1B[1A[1m> :test > 75 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [36s][m[35D[1B[1m> :test > 76 tests completed[m[28D[1B[1A[1m> :test > 77 tests completed[m[28D[1B[2A[1m<===----------> 27% EXECUTING [37s][m[35D[1B[1m> :test > 79 tests completed[m[28D[1B[1A[1m> :test > 107 tests completed[m[29D[1B[1A[1m> :test > 115 tests completed[m[29D[1B[1A[1m> :test > 137 tests completed[m[29D[1B[1A[1m> :test > 152 tests completed[m[29D[1B[1A[1m> :test[m[0K[7D[1B[2A[1m<===----------> 29% EXECUTING [37s][m[35D[1B[1m> :jacocoTestReport[m[19D[1B[2A[1m<===----------> 29% EXECUTING [38s][m[35D[2B[2A[1m<===----------> 30% EXECUTING [38s][m[35D[1B[1m> :flywheel-yconf:javadoc[m[25D[1B[2A[1m<===----------> 30% EXECUTING [39s][m[35D[2B[2A[1m<====---------> 31% EXECUTING [39s][m[35D[1B[1m> :javadoc[m[0K[10D[1B[2A[1m<====---------> 31% EXECUTING [40s][m[35D[2B[2A[1m<====---------> 31% EXECUTING [41s][m[35D[2B[2A[1m<====---------> 31% EXECUTING [42s][m[35D[2B[2A[1m<====---------> 34% EXECUTING [42s][m[35D[1B[1m> :sourcesJar[m[13D[1B[2A[1m<=====--------> 39% EXECUTING [42s][m[35D[1B[1m> :flywheel-backplane-kafka:compileJava[m[39D[1B[2A[1m<=====--------> 45% EXECUTING [42s][m[35D[1B[1m> :flywheel-backplane-kafka:compileTestJava[m[43D[1B[2A[1m<======-------> 49% EXECUTING [42s][m[35D[1B[1m> :flywheel-backplane-kafka:test > 0 tests completed[m[52D[1B[2A[1m<======-------> 49% EXECUTING [43s][m[35D[2B[2A[1m<======-------> 49% EXECUTING [44s][m[35D[2B[2A[1m<======-------> 49% EXECUTING [45s][m[35D[2B[1A[1m> :flywheel-backplane-kafka:test > 1 test completed[m[0K[51D[1B[2A[1m<======-------> 49% EXECUTING [46s][m[35D[2B[1A[1m> :flywheel-backplane-kafka:test > 2 tests completed[m[52D[1B[1A[1m> :flywheel-backplane-kafka:test > 16 tests completed[m[53D[1B[2A[1m<======-------> 53% EXECUTING [46s][m[35D[1B[1m> :flywheel-logging-splunk:compileJava[m[0K[38D[1B[2A[1m<=======------> 56% EXECUTING [47s][m[35D[1B[1m> :flywheel-logging-splunk:jar[m[0K[30D[1B[2A[1m<========-----> 63% EXECUTING [47s][m[35D[1B[1m> :flywheel-logging-splunk:test > 0 tests completed[m[51D[1B[2A[1m<========-----> 67% EXECUTING [48s][m[35D[1B[1m> :flywheel-standalone:compileJava[m[0K[34D[1B[2A[1m<=========----> 70% EXECUTING [48s][m[35D[1B[1m> :flywheel-standalone:jar[m[0K[26D[1B[2A[1m<=========----> 70% EXECUTING [49s][m[35D[2B[2A[1m<==========---> 77% EXECUTING [49s][m[35D[1B[1m> :flywheel-standalone:test > 0 tests completed[m[47D[1B[2A[1m<==========---> 77% EXECUTING [50s][m[35D[2B[1A[1m> :flywheel-standalone:test > 2 tests completed[m[47D[1B[2A[1m<===========--> 84% EXECUTING [50s][m[35D[1B[1m> :flywheel-wha:jar[m[0K[19D[1B[2A[1m<===========--> 84% EXECUTING [51s][m[35D[2B[2A[1m<===========--> 84% EXECUTING [52s][m[35D[2B[2A[1m<===========--> 84% EXECUTING [53s][m[35D[2B[2A[1m<===========--> 84% EXECUTING [54s][m[35D[2B[2A[1m<===========--> 88% EXECUTING [54s][m[35D[1B[1m> :flywheel-wha:compileTestJava[m[31D[1B[2A[1m<===========--> 88% EXECUTING [55s][m[35D[2B[2A[1m<============-> 92% EXECUTING [55s][m[35D[1B[1m> :flywheel-wha:test[m[0K[20D[1B[2A[0K
-[0K
-[32;1mBUILD SUCCESSFUL[0;39m in 56s
-40 actionable tasks: 40 executed
-[2K[0m[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;~/code/flywheel]7;file://Users-MBP/Users/emil/code/flywheel[0m[27m[24m[J[01;32m➜  [36mflywheel[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hggit status[?1l>[?2004l
-]2;git status]1;gitOn branch master
-Your branch is up-to-date with 'origin/master'.
-Changes to be committed:
-  (use "git reset HEAD <file>..." to unstage)
-
-	[32mrenamed:    standalone/docker/flywheel-launch.sh -> standalone/scripts/flywheel-launch.sh[m
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	[31mmodified:   src/main/java/au/com/williamhill/flywheel/beacon/BeaconEdge.java[m
-	[31mmodified:   standalone/Dockerfile[m
-	[31mmodified:   standalone/scripts/flywheel-launch.sh[m
-	[31mmodified:   wha/Dockerfile[m
-	[31mmodified:   wha/build.gradle[m
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-	[31mstandalone/conf/bootrc[m
-	[31mstandalone/typescript[m
-	[31mwha/conf/bootrc[m
-
-[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;~/code/flywheel]7;file://Users-MBP/Users/emil/code/flywheel[0m[27m[24m[J[01;32m➜  [36mflywheel[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hggit add .[?1l>[?2004l
-]2;git add .]1;git[1m[7m%[27m[1m[0m                                                                                                                                                                                      ]2;emil@Users-MBP]1;~/code/flywheel]7;file://Users-MBP/Users/emil/code/flywheel[0m[27m[24m[J[01;32m➜  [36mflywheel[00m [01;34mgit:([31mmaster[34m) [33m✗[00m [K[?1h=[?2004hggit commit -am"  

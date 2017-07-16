@@ -9,6 +9,8 @@ import org.slf4j.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
+import au.com.williamhill.flywheel.socketx.*;
+
 public final class Launchpad {
   private static final String DEF_PROFILE = "conf/default";
   
@@ -52,12 +54,25 @@ public final class Launchpad {
     sb.append("\n  Properties:");
     for (Map.Entry<String, ?> entry : profile.properties.entrySet()) {
       sb.append("\n    ").append(entry.getKey()).append(": ").append(entry.getValue());
-      final String unmasked = Secret.unmask(entry.getValue());
-      System.setProperty(entry.getKey(), unmasked);
     }
     
     sb.append("\n  Launcher: ").append(profile.launcher);
     sb.append("\n  Backplane: ").append(profile.backplane);
+    
+    sb.append("\n  Server config:")
+    .append("\n    port: ").append(profile.serverConfig.port)
+    .append("\n    path: ").append(profile.serverConfig.path)
+    .append("\n    idle timeout: ").append(profile.serverConfig.idleTimeoutMillis).append(" ms")
+    .append("\n    ping interval: ").append(profile.serverConfig.pingIntervalMillis).append(" ms")
+    .append("\n    scan interval: ").append(profile.serverConfig.scanIntervalMillis).append(" ms");
+
+    sb.append("\n    servlets:");
+    for (XMappedServlet mappedServlet : profile.serverConfig.servlets) {
+      sb.append("\n      ").append(mappedServlet);
+    }
+    
+    sb.append("\n    endpoint config:")
+    .append("\n      high-water mark: ").append(profile.serverConfig.endpointConfig.highWaterMark);
     
     final Logger log = LoggerFactory.getLogger(Launchpad.class);
     log.info(sb.toString());

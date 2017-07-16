@@ -3,3 +3,5 @@ properties:
   TestLauncher.b: b
 launcher: 
   type: au.com.williamhill.flywheel.TestLauncher
+serverConfig:
+  _:

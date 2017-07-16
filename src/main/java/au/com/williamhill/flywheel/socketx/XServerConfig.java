@@ -2,19 +2,29 @@ package au.com.williamhill.flywheel.socketx;
 
 import java.util.*;
 
+import com.obsidiandynamics.yconf.*;
+
+@Y
 public class XServerConfig {
+  @YInject
   public int port = 8080;
   
+  @YInject
   public String path = "/";
   
+  @YInject
   public int idleTimeoutMillis = 300_000;
   
+  @YInject
   public int pingIntervalMillis = 60_000;
   
+  @YInject
   public int scanIntervalMillis = 1_000;
   
+  @YInject
   public XMappedServlet[] servlets = new XMappedServlet[0];
   
+  @YInject
   public XEndpointConfig endpointConfig = new XEndpointConfig();
   
   public XServerConfig withPort(int port) {

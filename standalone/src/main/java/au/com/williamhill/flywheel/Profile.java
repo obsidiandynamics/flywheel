@@ -6,6 +6,7 @@ import java.util.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.backplane.*;
+import au.com.williamhill.flywheel.socketx.*;
 
 @Y(Profile.Mapper.class)
 public final class Profile {
@@ -18,6 +19,7 @@ public final class Profile {
               final Object value = e.getValue().map(Object.class);
               if (value != null) {
                 p.properties.put(e.getKey(), value);
+                System.setProperty(e.getKey(), Secret.unmask(value));
               }
             });
           })
@@ -33,12 +35,22 @@ public final class Profile {
   @YInject
   public Backplane backplane;
   
+  @YInject
+  public XServerConfig serverConfig;
+  
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
-    return new MappingContext()
+    final Profile profile = new MappingContext()
         .withDomTransform(new ELTransform()
                           .withVariable("env", System.getenv())
                           .withFunction("f", "secret", Secret.class.getMethod("of", String.class))
                           .withFunction("f", "notNull", NotNull.class.getMethod("of", Object.class, String.class)))
         .fromReader(new FileReader(file), Profile.class);
+    profile.init();
+    return profile;
+  }
+  
+  private void init() {
+    if (launcher == null) launcher = new ProfileLauncher();
+    if (backplane == null) backplane = new NoOpBackplane();
   }
 }

@@ -29,3 +29,6 @@ backplane:
     deserializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetDeserializer
     pollTimeoutMillis: 100
     ttlMillis: 300000
+    
+serverConfig:
+  _:

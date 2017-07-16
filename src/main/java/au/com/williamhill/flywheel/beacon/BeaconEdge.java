@@ -6,8 +6,6 @@ import java.util.*;
 
 import org.slf4j.*;
 
-import com.obsidiandynamics.indigo.util.*;
-
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
