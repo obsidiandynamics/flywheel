@@ -42,11 +42,21 @@ public final class Profile {
     final Profile profile = new MappingContext()
         .withDomTransform(new ELTransform()
                           .withVariable("env", System.getenv())
+                          .withFunction("f", "maxInt", Profile.class.getMethod("maxInt"))
+                          .withFunction("f", "maxLong", Profile.class.getMethod("maxLong"))
                           .withFunction("f", "secret", Secret.class.getMethod("of", String.class))
                           .withFunction("f", "notNull", NotNull.class.getMethod("of", Object.class, String.class)))
         .fromReader(new FileReader(file), Profile.class);
     profile.init();
     return profile;
+  }
+  
+  public static long maxLong() {
+    return Long.MAX_VALUE;
+  }
+  
+  public static int maxInt() {
+    return Integer.MAX_VALUE;
   }
   
   private void init() {

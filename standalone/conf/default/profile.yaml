@@ -18,4 +18,4 @@ serverConfig:
     name: health
     servletClass: au.com.williamhill.flywheel.health.HealthServlet  
   endpointConfig:
-    highWaterMark: 500400300200100
+    highWaterMark: ${f:maxLong()}
