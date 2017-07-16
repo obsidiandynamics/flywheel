@@ -1,6 +1,7 @@
 package com.obsidiandynamics.yconf;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
 
@@ -105,9 +106,21 @@ public final class MappingContext {
     if (dom instanceof YObject) throw new IllegalArgumentException("Cannot map an instance of " + YObject.class.getSimpleName());
 
     if (dom == null) return null;
-    final TypeMapper mapper = getMapper(type != null ? type : Object.class);
-    final YObject y = new YObject(dom, this);
-    return cast(mapper.map(y, type));
+    
+    if (type.isArray()) {
+      final Class<?> componentType = type.getComponentType();
+      final List<?> items = (List<?>) dom;
+      final List<Object> list = new ArrayList<>(items.size());
+      for (Object i : items) {
+        list.add(new YObject(i, this).map(componentType));
+      }
+      final Object[] array = MappingContext.cast(Array.newInstance(componentType, list.size()));
+      return cast(list.toArray(array));
+    } else {
+      final TypeMapper mapper = getMapper(type);
+      final YObject y = new YObject(dom, this);
+      return cast(mapper.map(y, type));
+    }
   }
   
   public <T> T fromStream(InputStream stream, Class<? extends T> type) throws IOException {

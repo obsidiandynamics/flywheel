@@ -22,7 +22,7 @@ public final class CoercingMapper implements TypeMapper {
 
   @Override
   public Object map(YObject y, Class<?> type) {
-    if (y.isNull() || y.is(coercedType)) {
+    if (y.is(coercedType)) {
       return y.value();
     } else {
       final String str = String.valueOf(y.<Object>value());

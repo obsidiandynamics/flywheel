@@ -228,7 +228,7 @@ public final class MappingContextTest {
   @Test(expected=MappingException.class)
   public void testExplicitTypeNotFound() {
     final String yaml = "type: java.Foo";
-    new MappingContext().fromString(yaml, null);
+    new MappingContext().fromString(yaml, Object.class);
   }
   
   @Test

@@ -1,0 +1,14 @@
+emptyObjArray: []
+nullIntArray: #null
+stringArray:
+- alpha
+- bravo
+- charlie
+string2DArray:
+- - aa
+  - ab
+- - ba
+  - bb
+fooArray:
+- num: 0
+- num: 1

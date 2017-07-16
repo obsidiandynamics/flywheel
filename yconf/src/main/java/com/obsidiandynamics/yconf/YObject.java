@@ -3,7 +3,6 @@ package com.obsidiandynamics.yconf;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
-import java.util.stream.*;
 
 /**
  *  Encapsulates a DOM fragment, as well as the current {@link MappingContext}.
@@ -37,29 +36,22 @@ public final class YObject {
   
   public List<YObject> asList() {
     checkNotNull();
-    return this.<List<?>>value().stream()
-        .map(v -> new YObject(v, context))
-        .collect(Collectors.toList());
+    final List<?> items = (List<?>) dom;
+    final List<YObject> list = new ArrayList<>(items.size());
+    for (Object i : items) {
+      list.add(new YObject(i, context));
+    }
+    return list;
   }
   
   public Map<String, YObject> asMap() {
     checkNotNull();
-    class Tuple<K, V> {
-      final K k;
-      final V v;
-      
-      Tuple(K k, V v) {
-        this.k = k;
-        this.v = v;
-      }
+    final Map<?, ?> items = (Map<?, ?>) dom;
+    final Map<String, YObject> map = new LinkedHashMap<>(items.size());
+    for (Map.Entry<?, ?> i : items.entrySet()) {
+      map.put((String) i.getKey(), new YObject(i.getValue(), context));
     }
-    return this.<Map<String, ?>>value().entrySet().stream()
-        .map(e -> new Tuple<>(e.getKey(), new YObject(e.getValue(), context)))
-        .collect(Collectors.toMap(t -> t.k, t -> t.v, throwingMerger(), LinkedHashMap::new));
-  }
-  
-  private static <T> BinaryOperator<T> throwingMerger() {
-    return (u, v) -> { throw new IllegalStateException(String.format("Duplicate key %s", u)); };
+    return map;
   }
   
   public <T> T map(Class<? extends T> type) { 
@@ -124,21 +116,7 @@ public final class YObject {
         if (inj != null) {
           final String name = ! inj.name().isEmpty() ? inj.name() : field.getName();
           final Class<?> type = inj.type() != Void.class ? inj.type() : field.getType();
-          final Object value;
-          if (type.isArray()) {
-            final YObject attValue = getAttribute(name);
-            if (attValue.isNull()) {
-              value = null;
-            } else {
-              final Class<?> componentType = type.getComponentType();
-              final List<?> list = attValue.asList().stream()
-                  .map(i -> i.map(componentType)).collect(Collectors.toList());
-              final T[] array = MappingContext.cast(Array.newInstance(componentType, list.size()));
-              value = list.toArray(array);
-            }
-          } else {
-            value = getAttribute(name).map(type);
-          }
+          final Object value = getAttribute(name).map(type);
           
           if (value != null) {
             field.setAccessible(true);

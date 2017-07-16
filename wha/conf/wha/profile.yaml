@@ -30,5 +30,4 @@ backplane:
     pollTimeoutMillis: 100
     ttlMillis: 300000
     
-serverConfig:
-  _:
+serverConfig: {}
