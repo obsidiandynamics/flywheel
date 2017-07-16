@@ -1,4 +1,5 @@
-
+Building and Running with Docker
+===
 
 # Building the Docker image
 ```sh
@@ -9,14 +10,14 @@ Where `user` is the dockerhub user.
 
 # Running the image
 ```sh
-$ docker run -it -p 8080:8080 <user>/flywheel -v ~/src/flywheel/standalone/ext:/ext [flywheel args]
+$ docker run -it -p 8080:8080 <user>/flywheel [flywheel args]
 ```
 
-Where `flywheel args` are optional args to the Flywheel bootstrapper.
+Where `flywheel args` are optional args to the Flywheel launcher.
 
 ## Running the image in command mode
 ```sh
-$ docker run -it -p 8080:8080 <user>/flywheel -v ~/src/flywheel/standalone/ext:/ext --cmd [sh args]
+$ docker run -it -p 8080:8080 <user>/flywheel --cmd [sh args]
 ```
 
 If the optional `sh args` are omitted, the image will start with an interactive shell.
@@ -24,5 +25,5 @@ If the optional `sh args` are omitted, the image will start with an interactive 
 To run Flywheel within the shell:
 
 ```sh
-$ docker-flywheel.sh [flywheel args]
+$ flywheel-launch.sh [flywheel args]
 ```
