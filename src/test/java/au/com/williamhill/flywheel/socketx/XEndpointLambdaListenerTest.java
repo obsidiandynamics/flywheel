@@ -7,6 +7,16 @@ import org.mockito.*;
 
 import au.com.williamhill.flywheel.socketx.XEndpointLambdaListener.*;
 
+/**
+ *  Allows for incremental composition of a {@link XEndpointListener} by including
+ *  the necessary Lambda functions corresponding to the callbacks of interest.<p>
+ *  
+ *  This is a functional analogue of implementing the {@link XEndpointListener} interface, 
+ *  which would otherwise require implementing each and every method.<p>
+ *  
+ *  As an alternative, one can subclass {@link XEndpointLambdaListener} directly, and 
+ *  override only the necessary callback methods.
+ */
 public final class XEndpointLambdaListenerTest {
   private XEndpointLambdaListener<XEndpoint> listener;
   
@@ -15,7 +25,7 @@ public final class XEndpointLambdaListenerTest {
   @Before
   public void setup() {
     listener = new XEndpointLambdaListener<>();
-    testEndpoint = Mockito.mock(XEndpoint.class);
+    testEndpoint = mock(XEndpoint.class);
   }
 
   @Test

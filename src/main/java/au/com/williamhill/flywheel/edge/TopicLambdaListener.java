@@ -2,6 +2,16 @@ package au.com.williamhill.flywheel.edge;
 
 import au.com.williamhill.flywheel.frame.*;
 
+/**
+ *  Allows for incremental composition of a {@link TopicListener} by including
+ *  the necessary Lambda functions corresponding to the callbacks of interest.<p>
+ *  
+ *  This is a functional analogue of implementing the {@link TopicListener} interface, 
+ *  which would otherwise require implementing each and every method.<p>
+ *  
+ *  As an alternative, one can subclass {@link TopicLambdaListener} directly, and 
+ *  override only the necessary callback methods.
+ */
 public class TopicLambdaListener implements TopicListener {
   @FunctionalInterface public interface OnOpen {
     void onOpen(EdgeNexus nexus);
