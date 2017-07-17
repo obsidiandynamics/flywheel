@@ -90,7 +90,7 @@ public abstract class AbstractAuthTest {
         .withSubAuthChain(subAuthChain)
         .build();
     edge.setLoggingEnabled(! SUPPRESS_LOGGING || TestSupport.LOG);
-    edge.addTopicListener(new TopicListenerBase() {
+    edge.addTopicListener(new TopicLambdaListener() {
       @Override public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
         if (pub.getTopic().endsWith("/tx")) {
           edge.publish(Flywheel.getRxTopicPrefix(nexus.getSession().getSessionId()), pub.getPayload());

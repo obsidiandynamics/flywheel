@@ -91,42 +91,42 @@ public class XEndpointLambdaListener<E extends XEndpoint> implements XEndpointLi
     if (onError != null) onError.onError(endpoint, cause);
   }
 
-  public XEndpointLambdaListener<E> onConnect(OnConnect<? super E> onConnect) {
+  public final XEndpointLambdaListener<E> onConnect(OnConnect<? super E> onConnect) {
     this.onConnect = onConnect;
     return this;
   }
 
-  public XEndpointLambdaListener<E> onText(OnText<? super E> onText) {
+  public final XEndpointLambdaListener<E> onText(OnText<? super E> onText) {
     this.onText = onText;
     return this;
   }
 
-  public XEndpointLambdaListener<E> onBinary(OnBinary<? super E> onBinary) {
+  public final XEndpointLambdaListener<E> onBinary(OnBinary<? super E> onBinary) {
     this.onBinary = onBinary;
     return this;
   }
 
-  public XEndpointLambdaListener<E> onPing(OnPing<? super E> onPing) {
+  public final XEndpointLambdaListener<E> onPing(OnPing<? super E> onPing) {
     this.onPing = onPing;
     return this;
   }
 
-  public XEndpointLambdaListener<E> onPong(OnPong<? super E> onPong) {
+  public final XEndpointLambdaListener<E> onPong(OnPong<? super E> onPong) {
     this.onPong = onPong;
     return this;
   }
 
-  public XEndpointLambdaListener<E> onDisconnect(OnDisconnect<? super E> onDisconnect) {
+  public final XEndpointLambdaListener<E> onDisconnect(OnDisconnect<? super E> onDisconnect) {
     this.onDisconnect = onDisconnect;
     return this;
   }
 
-  public XEndpointLambdaListener<E> onClose(OnClose<? super E> onClose) {
+  public final XEndpointLambdaListener<E> onClose(OnClose<? super E> onClose) {
     this.onClose = onClose;
     return this;
   }
 
-  public XEndpointLambdaListener<E> onError(OnError<? super E> onError) {
+  public final XEndpointLambdaListener<E> onError(OnError<? super E> onError) {
     this.onError = onError;
     return this;
   }
