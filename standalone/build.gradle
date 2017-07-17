@@ -20,6 +20,8 @@ dependencies {
 }
 
 jar {
+  dependsOn configurations.compile
+  dependsOn configurations.runtime
   from sourceSets.main.output
   from { // bundle all dependencies
     configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }

@@ -22,6 +22,8 @@ task copyStandaloneScripts(type: Copy) {
 }
 
 jar {
+  dependsOn configurations.compile
+  dependsOn configurations.runtime
   from sourceSets.main.output
   from { // bundle all dependencies
     configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
@@ -31,12 +33,11 @@ jar {
   finalizedBy copyStandaloneScripts
 }
 
-/*
 task dockerBuild(type: Exec) {
   dependsOn ':flywheel-wha:jar'
+  def dockerRepo = System.getProperty('flywheel.wha.repo', 'flywheel-wha')
+  commandLine 'sh', '-c', "docker build -t $dockerRepo ."
   doLast {
-    def dockerRepo = System.getProperty('flywheel.wha.repo', 'flywheel-wha')
-    println "Building image $dockerRepo"
-    commandLine 'sh', '-c', "docker build -t $dockerRepo ."
+    println "Built image $dockerRepo"
   }
-}*/
+}
