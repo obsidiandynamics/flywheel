@@ -44,8 +44,7 @@ Some brief terminology first.
 
 The diagram below describes a typical Flywheel topology.
 
-<img src="https://raw.githubusercontent.com/wiki/William-Hill-Community/flywheel/images/flywheel-architecture-simple.png" alt="logo" width="800"/>
-
+<img src="https://raw.githubusercontent.com/wiki/William-Hill-Community/flywheel/images/flywheel-architecture-simple.png" alt="architecture"/>
 
 # Getting Started
 The first step is deciding on which of the two modes - embedded or standalone - is best-suited to your messaging scenario.
@@ -82,7 +81,7 @@ EdgeNode.builder()
 .build();
 ```
 
-That's all there is to it. You should now have a WebSocket broker listening on `ws://localhost:8080/`. Try it out with this [sample WebSocket client](http://websocket.org/echo.html). 
+That's all there is to it. You should now have a WebSocket broker listening on `ws://localhost:8080/`. Try it out with this [sample WebSocket client](http://websocket.org/echo.html). It should say 'CONNECTED', and not much else at this stage.
 
 The above snippet will return an instance of `EdgeNode`, which you can use to publish messages directly. Simply call one of `EdgeNode.publish(String topic, String payload)` or `EdgeNode.publish(String topic, byte[] payload)` to publish a text or binary message respectively on the given topic.
 
@@ -108,3 +107,128 @@ edge.addTopicListener(new TopicLambdaListener()
 ```
 
 Alternatively, you can you can subclass `TopicLambdaListener` directly, overriding just the methods you need.
+
+# Protocol
+The next logical step is to connect to our broker to publish messages and subscribe to message topics. This requires a basic understanding of the Flywheel wire protocol, which comes in two variants - text and binary. As we're just getting started, let's keep it simple and stick to text.
+
+Flywheel adds a lightweight frame structure on top of the basic WebSocket text and binary frames. The text protocol has only three frame types. Every frame starts with a single character - upper-case `B`, `P` or `R`, depending on the frame type, followed by a single space character (`0x20`). The rest of the payload is specific to the frame type and is an UTF-8 string, as per the WebSocket standard for encoding text frames.
+
+## Bind
+This is typically the first frame sent by the remote node to the edge after opening the nexus, disclosing information about itself and indicating which topic(s) to subscribe to. A bind frame may also contain an `auth` section, attesting its identity. A bind frame can be sent at any point in time, multiple times if necessary. A remote may send a bind frame each time it wishes to change its subscription, or simply to refresh its security credentials, particularly when using short-lived bearer tokens.
+
+A B-frame has two types of payloads - a request (sent by the remote) and a response (sent by the edge). Below is an example of a bind request frame.
+
+```json
+B {
+  "sessionId": "123456789",
+  "auth": {
+    "type": "Bearer",
+    "token": "8db7752d-7d94-407e-8636-87d912de81b7"
+  },
+  "subscribe": [
+    "quotes/forex/#",
+    "quotes/shares/AAPL"
+  ],
+  "unsubscribe": [
+    "quotes/shares/DELL"
+  ],
+  "metadata": {
+    "osType": "Android",
+    "osVersion": "6.1"
+  },
+  "messageId": "123e4567-e89b-12d3-a456-426655440000"
+}
+```
+
+The request payload must be a valid JSON document with the following fields, all of which are optional:
+
+|Field|Type|Description|
+|-----|----|-----------|
+|`sessionId`|`string`|A remote-supplied identifier, typically a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier), uniquely identifying the nexus. If the remote node fails to supply a `sessionId`, one will be generated automatically by the edge node and fed back in a bind response.|
+|`auth`|`object`|Encapsulates the remote's credentials, for access to secured topics - both for publishing and subscribing. The exact schema of the `auth` object varies with the authentication scheme. See [Auth types](#user-content-auth-types) for more details.|
+|`subscribe`|`string[]`|An array of topic filters, indicating _additions_ to the set of subscribed topics for the current session. The topic filter syntax is identical to that of [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106).|
+|`unsubscribe`|`string[]`|An array of topic filters, indicating _deletions_ from the set of subscribed topics for the current session. Note: the `unsubscribe` topic filters must much exactly the filters used in a prior `subscribe`; subsets and supersets aren't supported. For example, one cannot subscribe to `quotes/shares/AAPL` and then later unsubscribe from `quotes/shares/#` and expect the earlier subscription to be revoked. Again, this behaviour is [identical to MQTT](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718076).|
+|`metadata`|`object`|A schema-less JSON object, providing a free-form conduit for a remote to supply additional parameters during the bind flow. By convention, this data is purely informatory. However, it can also be used to extend the protocol.|
+|`messageId`|`string`|Uniquely identifies this message, for correlating the response frame back to the original request. If omitted, an all-zero UUID `00000000-0000-0000-0000-000000000000` is assumed in its place.|
+
+### Auth types
+The two currently supported auth types are `Basic` and `Bearer`, semantically equivalent to their HTTP counterparts.
+
+```json
+{
+  "type": "Basic",
+  "username": "string",
+  "password": "string"
+}
+```
+
+```json
+{
+  "type": "Bearer",
+  "token": "string"
+}
+```
+
+The following is an example of the response payload.
+
+```json
+B {
+  "type": "BindResponse",
+  "errors": [
+    {
+      "type": "General",
+      "description": "some-error"
+    }
+  ],
+  "messageId": "00000000-0000-0000-0000-000000000000"
+}
+```
+
+|Field|Type|Description|
+|-----|----|-----------|
+|`type`|`string`|The string literal `BindResponse`.|
+|`errors`|`object[]`|An array of error objects, populated if one or more aspects of the bind request resulted in an error. See [Error types](#user-content-error-types).|
+|`messageId`|`string`|The `messageId` from the request frame, or `00000000-0000-0000-0000-000000000000` if no `messageId` was supplied in the request.|
+
+### Error types
+The two currently supported error types `General` and `TopicAccess`.
+
+```json
+{
+  "type": "General",
+  "description": "string"
+}
+```
+
+```json
+{
+  "type": "TopicAccess",
+  "description": "string",
+  "topic": "string"
+}
+```
+
+## Receive
+A receive frame is sent from the edge node to the remote, typically containing a broadcast message that matches a subscription filter. An edge node may also send an unsolicited direct message to the remote. See [Direct messaging](#user-content-direct-messaging) for more details on the latter.
+
+The payload of an R-frame comprises two segments, separated by a space character. The first segment corresponds to the topic name. The second segment is the message body.
+
+The following is an example of a receive frame.
+
+```
+R quotes/AAPL {"bid":148.82,"ask":148.84}
+```
+
+Note: the message body has no particular structure. In the example above it's a JSON document, but it is really up to your application to define how the body is structured.
+
+## Publish
+A publish frame is sent from the remote node to the edge, containing a message to be delivered to all subscribers with a matching topic filter.
+
+The structure of a P-frame is identical to that of an R-frame; two segments separated by a space. The first - the topic name; the second - the message body, as shown in the example below.
+
+```
+P quotes/AAPL {"bid":148.82,"ask":148.84}
+```
+
+## Direct messaging
+Direct messaging allows for discrete communication between the remote node and the edge node, without incurring a broadcast.
