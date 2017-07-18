@@ -31,14 +31,22 @@ Flywheel was born out of a need for proper configurability and extensibility, pa
 * Plugins: a general purpose extension, hosting custom code within the broker without altering the broker implementation. Plugins can be used to enhance the capabilities of the broker, for example, adding metrics and monitoring support.
 
 ## Messaging @ scale
-Flywheel is built on an active-active, scale-out architecture, utilising multiple stateless broker nodes to achieve very high throughput over a large number of connections. It's architected around the cloud, favouring containerised deployments, immutability and PaaS. It's efficient too, utilising asynchronous I/O it can accommodate between 10K-100K connections on a single broker node (depending on the H/W specs). The message router uses the [Indigo](https://github.com/obsidiandynamics/indigo) actor system for parallelism, utilising all available CPU cores.
+Flywheel is built on an active-active, scale-out architecture, utilising multiple stateless broker nodes to achieve very high throughput over a large number of connections. It's architected around the cloud, favouring containerised deployments, immutability and PaaS. It's efficient too, utilising asynchronous I/O it can accommodate between 10K-100K connections on a single broker node (depending on the H/W specs). Message routing is fully parallel, utilising all available CPU cores.
 
-## Standards compliance
-Flywheel sticks to the WebSocket standard, as defined in [RFC-6455](https://tools.ietf.org/html/rfc6455) and, thus, will work with any compliant client implementation.
-
-For message filtering, Flywheel's topic structure is compliant with [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106). 
 
 # Architecture
+Some brief terminology first.
+
+* **Remote Node** - A client of the broker that can publish messages and receive messages (the latter requiring a prior subscription to one or more topics). The remote node may connect to any **Edge Node** in a broker cluster via a WebSocket connection.
+* **Edge Node** - A single broker instance that can be deployed in a centralised cluster (close to its peer edge nodes) or in geographically distributed locations (close to the remote nodes).
+* **Backplane** - A high throughput interconnect between the edge nodes, making messages uniformly available to all edge nodes in a cluster, irrespective of which edge node they were published to.
+* **Nexus** - A single connection between a remote node and an edge node.
+
+The diagram below describes a typical Flywheel topology.
+
+[[/images/flywheel-architecture-simple.svg]]
+
+
 
 # Getting Started
 The first step is deciding on which of the two modes - embedded or standalone - is best-suited to your messaging scenario.
