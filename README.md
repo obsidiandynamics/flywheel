@@ -144,7 +144,7 @@ The request payload must be a valid JSON document with the following fields, all
 
 |Field|Type|Description|
 |-----|----|-----------|
-|`sessionId`|`string`|A remote-supplied identifier, typically a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier), uniquely identifying the nexus. If the remote node fails to supply a `sessionId`, one will be generated automatically by the edge node and fed back in a bind response.|
+|`sessionId`|`string`|A remote-supplied identifier, typically a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier), uniquely identifying the nexus. While a `sessionId` isn't strictly required, it simplifies the task of matching the remote-end nexus socket to the edge-end socket.|
 |`auth`|`object`|Encapsulates the remote's credentials, for access to secured topics - both for publishing and subscribing. The exact schema of the `auth` object varies with the authentication scheme. See [Auth types](#user-content-auth-types) for more details.|
 |`subscribe`|`string[]`|An array of topic filters, indicating _additions_ to the set of subscribed topics for the current session. The topic filter syntax is identical to that of [MQTT 3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718106).|
 |`unsubscribe`|`string[]`|An array of topic filters, indicating _deletions_ from the set of subscribed topics for the current session. Note: the `unsubscribe` topic filters must much exactly the filters used in a prior `subscribe`; subsets and supersets aren't supported. For example, one cannot subscribe to `quotes/shares/AAPL` and then later unsubscribe from `quotes/shares/#` and expect the earlier subscription to be revoked. Again, this behaviour is [identical to MQTT](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718076).|
@@ -231,4 +231,10 @@ P quotes/AAPL {"bid":148.82,"ask":148.84}
 ```
 
 ## Direct messaging
-Direct messaging allows for discrete communication between the remote node and the edge node, without incurring a broadcast.
+Direct messaging allows for discrete communication between the remote node and the edge node, without incurring a broadcast. The built-in direct messaging scheme uses a topic hierarchy in the form `$remote/{sessionId}|anon/rx|tx/...`. Let's dissect this.
+
+At the top level we have the special `$remote` topic container. This topic and all of its subtopics are locked out by default; remotes are not allowed to subscribe to arbitrary topics within the `$remote` catchment. The next level is either the session ID, if the remote has supplied one in an earlier B-frame, or the literal `anon`. The next level is from the perspective of the remote node - either the literal `rx` - if the message is being received by the remote node, or `tx` if it is being sent by the remote. There may be zero or more additional levels, depending on the type of message.
+
+The most common use case for direct messaging is communicating errors back to the remote node based on an earlier publish that couldn't be processed. Because publishing is purely asynchronous, the publisher wouldn't ordinarily wait for a response; besides, it is very unlikely that a publish operation would fail. But the remote may have attempted to publish on a topic to which it has no access. In this case the edge node will send an array of `TopicAccess` errors back to the remote node, on the topic `$remote/{sessionId}|anon/rx/errors`.
+
+**Note:** The above describes the built-in scheme, which is minimalistic by design - a requirement to accommodate asynchronous error handling. The combination of a flexible topic hierarchy and pluggable auth modules allows you to create secure topics that support bespoke routing behaviour, ranging from direct messaging, to P2P, to DL/groups, and so on.

@@ -32,7 +32,7 @@ public final class TopicTest {
   
   @Test
   public void testParts() {
-    assertArrayEquals(new String[]{"a", "b", "c"}, Topic.of("a/b/c").getParts());
+    assertArrayEquals(new String[]{"a", "b o b", "c"}, Topic.of("a/b o b/c").getParts());
   }
   
   @Test
