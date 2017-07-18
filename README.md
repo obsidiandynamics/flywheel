@@ -44,8 +44,7 @@ Some brief terminology first.
 
 The diagram below describes a typical Flywheel topology.
 
-[[/images/flywheel-architecture-simple.svg]]
-
+<img src="https://raw.githubusercontent.com/wiki/William-Hill-Community/flywheel/images/flywheel-architecture-simple.svg" alt="logo" width="500"/>
 
 
 # Getting Started
