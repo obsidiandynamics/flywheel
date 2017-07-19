@@ -38,6 +38,8 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   private final List<TopicListener> topicListeners = new ArrayList<>();
   
   private boolean loggingEnabled = true;
+  
+  private Plugin[] plugins;
 
   public <E extends XEndpoint> EdgeNode(XServerFactory<E> serverFactory,
                                         XServerConfig config,
@@ -45,7 +47,8 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
                                         Interchange interchange,
                                         AuthChain pubAuthChain,
                                         AuthChain subAuthChain,
-                                        Backplane backplane) throws Exception {
+                                        Backplane backplane,
+                                        Plugin[] plugins) throws Exception {
     pubAuthChain.validate();
     subAuthChain.validate();
     this.wire = wire;
@@ -53,6 +56,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
     this.pubAuthChain = pubAuthChain;
     this.subAuthChain = subAuthChain;
     this.backplane = backplane;
+    this.plugins = plugins;
     server = serverFactory.create(config, new XEndpointListener<E>() {
       @Override public void onConnect(E endpoint) {
         handleOpen(endpoint);
@@ -134,6 +138,10 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
         }
       }
     });
+    
+    for (Plugin plugin : plugins) {
+      plugin.onRun(this);
+    }
   }
   
   public XServer<?> getServer() {
@@ -342,6 +350,9 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
 
   @Override
   public void close() throws Exception {
+    for (Plugin plugin : plugins) {
+      plugin.close();
+    }
     backplane.close();
     server.close();
     interchange.close();

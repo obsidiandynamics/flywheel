@@ -14,6 +14,7 @@ public final class EdgeNodeBuilder {
   private AuthChain pubAuthChain = AuthChain.createPubDefault();
   private AuthChain subAuthChain = AuthChain.createSubDefault();
   private Backplane backplane = new NoOpBackplane();
+  private Plugin[] plugins = new Plugin[0];
   
   private void init() throws Exception {
     if (serverFactory == null) {
@@ -59,9 +60,18 @@ public final class EdgeNodeBuilder {
     this.backplane = backplane;
     return this;
   }
+  
+  public EdgeNodeBuilder withPlugins(Plugin... plugins) {
+    this.plugins = plugins;
+    return this;
+  }
 
   public EdgeNode build() throws Exception {
     init();
-    return new EdgeNode(serverFactory, serverConfig, wire, interchange, pubAuthChain, subAuthChain, backplane);
+    for (Plugin plugin : plugins) {
+      plugin.onBuild(this);
+    }
+    return new EdgeNode(serverFactory, serverConfig, wire, interchange, 
+                        pubAuthChain, subAuthChain, backplane, plugins);
   }
 }

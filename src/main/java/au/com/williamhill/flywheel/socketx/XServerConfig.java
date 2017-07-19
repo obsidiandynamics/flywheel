@@ -52,7 +52,7 @@ public class XServerConfig {
     return this;
   }
   
-  public XServerConfig withServlets(XMappedServlet ... servlets) {
+  public XServerConfig withServlets(XMappedServlet... servlets) {
     this.servlets = servlets;
     return this;
   }
