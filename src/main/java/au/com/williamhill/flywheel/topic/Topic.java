@@ -3,8 +3,16 @@ package au.com.williamhill.flywheel.topic;
 import java.util.*;
 
 import com.obsidiandynamics.indigo.*;
+import com.obsidiandynamics.yconf.*;
 
+@Y(Topic.Mapper.class)
 public final class Topic {
+  public static final class Mapper implements TypeMapper {
+    @Override public Object map(YObject y, Class<?> type) {
+      return Topic.of(y.value());
+    }
+  }
+  
   public static final String SEPARATOR = "/";
   public static final String SL_WILDCARD = "+";
   public static final String ML_WILDCARD = "#";

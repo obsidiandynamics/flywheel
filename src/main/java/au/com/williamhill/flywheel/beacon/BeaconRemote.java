@@ -7,6 +7,7 @@ import java.util.*;
 
 import org.slf4j.*;
 
+import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 
 public final class BeaconRemote {
@@ -15,7 +16,7 @@ public final class BeaconRemote {
   private static final Properties PROPS = new Properties(System.getProperties());
   private static final String HOST = getOrSet(PROPS, "flywheel.beacon.host", String::valueOf, "localhost");
   private static final int PORT = getOrSet(PROPS, "flywheel.beacon.port", Integer::valueOf, 8080);
-  private static final String PATH = getOrSet(PROPS, "flywheel.beacon.path", String::valueOf, "/beacon");
+  private static final String PATH = getOrSet(PROPS, "flywheel.beacon.path", String::valueOf, "/broker");
 
   public BeaconRemote() throws Exception {
     filter("flywheel.beacon", PROPS).entrySet().stream()
@@ -26,6 +27,7 @@ public final class BeaconRemote {
       @Override
       public void onOpen(RemoteNexus nexus) {
         LOG.info("{}: opened", nexus);
+        nexus.bind(new BindFrame().withSubscribe("time"));
       }
 
       @Override

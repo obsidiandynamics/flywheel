@@ -4,28 +4,27 @@ properties:
   flywheel.logging.splunk.token: ${f:secret(f:notNull(env.FLYWHEEL_SPLUNK_TOKEN, "Splunk token cannot be null"))}
   flywheel.logging.splunk.index: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk index cannot be null")}
   flywheel.logging.splunk.source: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk source cannot be null")}
-  
+
 launchers: 
-- type: au.com.williamhill.flywheel.BeaconLauncher
+- type: au.com.williamhill.flywheel.ConfigLauncher
   backplane:
-    type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaBackplane
-    clusterId: default
-    brokerId: 0
-    backplaneConfig:
-      kafka:
-        type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaCluster
-        clusterConfig:
-          bootstrapServers: localhost:9092
-          prodAcks: all
-          prodRetries: 0
-          prodBatchSize: 16384
-          prodLingerMillis: 1
-          prodBufferMemory: 33554432
-          consAutoCommit: true
-          consAutoCommitIntervalMillis: 100
-      topic: flywheel.backplane.v1
-      serializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetSerializer
-      deserializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetDeserializer
-      pollTimeoutMillis: 100
-      ttlMillis: 300000
-  serverConfig: {}
+    type: au.com.williamhill.flywheel.edge.backplane.NoOpBackplane
+  serverConfig:
+    port: 8080
+    path: /broker
+    idleTimeoutMillis: 300000
+    pingIntervalMillis: 60000
+    scanIntervalMillis: 1000
+    servlets:
+    - path: /health/*
+      name: health
+      servletClass: au.com.williamhill.flywheel.health.HealthServlet  
+    endpointConfig:
+      highWaterMark: ${maxLong}
+  plugins:
+  - type: au.com.williamhill.flywheel.beacon.Beacon
+    topic: time
+    intervalMillis: 1000
+    format: "yyyy-MM-dd'T'HH:mm:ssZ"
+  logExcludeTopics:
+  - time

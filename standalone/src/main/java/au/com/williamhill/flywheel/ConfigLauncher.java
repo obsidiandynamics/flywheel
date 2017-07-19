@@ -10,6 +10,7 @@ import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.socketx.*;
+import au.com.williamhill.flywheel.topic.*;
 
 @Y
 public final class ConfigLauncher implements Launcher, TopicListener  {
@@ -20,7 +21,13 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
   
   @YInject
   public XServerConfig serverConfig = new XServerConfig();
-
+  
+  @YInject
+  public Plugin[] plugins = new Plugin[0];
+  
+  @YInject
+  private Topic[] logExcludeTopics = new Topic[0];
+  
   @Override
   public void launch(String[] args) throws Exception {
     final StringBuilder sb = new StringBuilder();
@@ -41,12 +48,23 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
     
     sb.append("\n    endpoint config:")
     .append("\n      high-water mark: ").append(serverConfig.endpointConfig.highWaterMark);
+
+    sb.append("\n  Plugins:");
+    for (Plugin plugin : plugins) {
+      sb.append("\n    ").append(plugin);
+    }
+    
+    sb.append("\n  Log-excluded topic filters:");
+    for (Topic logExcludeTopic : logExcludeTopics) {
+      sb.append("\n    ").append(logExcludeTopic);
+    }
     
     LOG.info(sb.toString());
     
     final EdgeNode edge = EdgeNode.builder()
         .withServerConfig(serverConfig)
         .withBackplane(backplane)
+        .withPlugins(plugins)
         .build();
     edge.addTopicListener(this);
   }
@@ -68,11 +86,23 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
 
   @Override
   public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
-    LOG.info("{}: publish {}", nexus, pub);
+    if (shouldLog(pub.getTopic())) LOG.info("{}: publish {}", nexus, pub);
   }
 
   @Override
   public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
-    LOG.info("{}: publish {}", nexus, pub);
+    if (shouldLog(pub.getTopic())) LOG.info("{}: publish {}", nexus, pub);
+  }
+  
+  private boolean shouldLog(String topic) {
+    if (logExcludeTopics.length == 0) return true;
+    
+    final Topic published = Topic.of(topic);
+    for (Topic logExcludeTopic : logExcludeTopics) {
+      if (logExcludeTopic.accepts(published)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

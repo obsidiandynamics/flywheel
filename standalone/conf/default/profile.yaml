@@ -17,3 +17,10 @@ launchers:
       servletClass: au.com.williamhill.flywheel.health.HealthServlet  
     endpointConfig:
       highWaterMark: ${maxLong}
+  plugins:
+  - type: au.com.williamhill.flywheel.beacon.Beacon
+    topic: time
+    intervalMillis: 1000
+    format: "yyyy-MM-dd'T'HH:mm:ssZ"
+  logExcludeTopics:
+  - time
