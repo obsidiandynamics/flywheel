@@ -15,7 +15,7 @@ Given the simplicity of the protocol, you can connect to Flywheel directly over 
 * Only the text protocol is currently supported.
 
 # Usage
-The example below instantiates a remote node and opens a nexus to `ws://localhost:8080/broker`, with the reconnection option set. It then subscribes to the `time` and `communal` topics, and after binding will publishes a single `Hello world!` text message over the `communal` topic. After ten seconds of messaging activity, the remote node will permanently close the nexus.
+The example below instantiates a remote node and opens a nexus to `ws://localhost:8080/broker`, with the reconnection option set. It then subscribes to the `time` and `communal` topics, and after binding will publish a single `Hello world!` text message over the `communal` topic. After ten seconds of messaging activity, the remote node will permanently close the nexus.
 
 Note: this assumes that `flywheel-remote.js` has been imported into your project.
 
