@@ -3,7 +3,7 @@ Flywheel - Remote SDK for JavaScript
 JavaScript SDK for HTML5 compliant web browsers.
 
 # About
-Given the simplicity of the protocol, you don't need to use a library when connecting to Flywheel - as long as you're willing to deal with the HTML5 `WebSocket` and perform some trivial string manipulation to handle `B`, `P` and `R` frames. This library saves you the hassle, providing -
+Given the simplicity of the protocol, you can connect to Flywheel directly over a stock HTML5 `WebSocket` - as long as you're willing to perform some trivial string manipulation to handle `B`, `P` and `R` frames, and handle socket events. This library saves you the hassle, providing -
 
 * A convenient wrapper around the HTML5 `WebSocket` object;
 * Event logging of `WebSocket` life-cycle events and message receival;
