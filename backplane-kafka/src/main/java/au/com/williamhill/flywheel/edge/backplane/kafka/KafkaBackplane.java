@@ -81,16 +81,12 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   
   private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
     final List<PartitionInfo> infos = consumer.partitionsFor(topic);
-    if (infos != null) {
-      final List<TopicPartition> partitions = infos.stream()
-          .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
-      final Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
-      consumer.assign(partitions);
-      for (Map.Entry<TopicPartition, Long> entry : endOffsets.entrySet()) {
-        consumer.seek(entry.getKey(), entry.getValue());
-      }
-    } else {
-      consumer.subscribe(Arrays.asList(topic));
+    final List<TopicPartition> partitions = infos.stream()
+        .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
+    final Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
+    consumer.assign(partitions);
+    for (Map.Entry<TopicPartition, Long> entry : endOffsets.entrySet()) {
+      consumer.seek(entry.getKey(), entry.getValue());
     }
   }
 

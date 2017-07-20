@@ -129,6 +129,27 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
           }
         }
       }
+      
+      @Override
+      public List<PartitionInfo> partitionsFor(String topic) {
+        final List<PartitionInfo> superInfos = super.partitionsFor(topic);
+        if (superInfos != null) {
+          return superInfos;
+        } else {
+          final List<PartitionInfo> newInfos = new ArrayList<>(maxPartitions);
+          final Map<TopicPartition, Long> offsets = new HashMap<>(maxPartitions);
+          
+          for (int i = 0; i < maxPartitions; i++) {
+            newInfos.add(new PartitionInfo(topic, i, null, new Node[0], new Node[0]));
+            offsets.put(new TopicPartition(topic, i), 0L);
+          }
+          synchronized (lock) {
+            updateBeginningOffsets(offsets);
+            updateEndOffsets(offsets);
+          }
+          return newInfos;
+        }
+      }
     };
     synchronized (lock) {
       consumers.add(consumer);
