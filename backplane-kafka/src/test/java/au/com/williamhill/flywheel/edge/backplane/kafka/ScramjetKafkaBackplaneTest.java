@@ -8,6 +8,7 @@ import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.util.*;
 
 public class ScramjetKafkaBackplaneTest extends BackplaneTest {
+  private static final String TOPIC_NAME = "flywheel.backplane.v1";
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
   
@@ -37,6 +38,7 @@ public class ScramjetKafkaBackplaneTest extends BackplaneTest {
   @Override
   protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
     final KafkaBackplaneConfig config = new KafkaBackplaneConfig() {{
+      topic = TOPIC_NAME;
       kafka = ScramjetKafkaBackplaneTest.this.kafka;
       serializer = ScramjetSerializer.class;
       deserializer = ScramjetDeserializer.class;

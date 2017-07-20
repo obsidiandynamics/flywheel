@@ -52,6 +52,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   private Properties getConsumerProps() {
     final Properties props = new Properties();
     props.setProperty("group.id", source);
+    props.setProperty("enable.auto.commit", String.valueOf(false));
     props.setProperty("key.deserializer", StringDeserializer.class.getName());
     props.setProperty("value.deserializer", config.deserializer.getName());
     return props;
@@ -80,16 +81,12 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   
   private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
     final List<PartitionInfo> infos = consumer.partitionsFor(topic);
-    if (infos != null) {
-      final List<TopicPartition> partitions = infos.stream()
-          .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
-      final Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
-      consumer.assign(partitions);
-      for (Map.Entry<TopicPartition, Long> entry : endOffsets.entrySet()) {
-        consumer.seek(entry.getKey(), entry.getValue());
-      }
-    } else {
-      consumer.subscribe(Arrays.asList(topic));
+    final List<TopicPartition> partitions = infos.stream()
+        .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
+    final Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
+    consumer.assign(partitions);
+    for (Map.Entry<TopicPartition, Long> entry : endOffsets.entrySet()) {
+      consumer.seek(entry.getKey(), entry.getValue());
     }
   }
 
