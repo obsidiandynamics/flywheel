@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.beacon;
+package au.com.williamhill.flywheel.edge.plugin.beacon;
 
 public final class RunBeaconRemote {
   public static void main(String[] args) throws Exception {

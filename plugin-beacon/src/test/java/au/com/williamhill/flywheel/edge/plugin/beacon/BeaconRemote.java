@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.beacon;
+package au.com.williamhill.flywheel.edge.plugin.beacon;
 
 import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
 

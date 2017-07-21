@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.beacon;
+package au.com.williamhill.flywheel.edge.plugin.beacon;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.socketx.*;

@@ -8,24 +8,20 @@ import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
-import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.socketx.*;
 
 @Y
-public final class ConfigLauncher implements Launcher, TopicListener  {
+public final class ConfigLauncher implements Launcher  {
   private static final Logger LOG = LoggerFactory.getLogger(ConfigLauncher.class);
   
   @YInject
-  public Backplane backplane = new NoOpBackplane();
+  private final Backplane backplane = new NoOpBackplane();
   
   @YInject
-  public XServerConfig serverConfig = new XServerConfig();
+  private final XServerConfig serverConfig = new XServerConfig();
   
   @YInject
-  public Plugin[] plugins = new Plugin[0];
-  
-  @YInject
-  private String[] logExcludeTopics = new String[0];
+  private final Plugin[] plugins = new Plugin[0];
   
   @Override
   public void launch(String[] args) throws Exception {
@@ -53,54 +49,12 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
       sb.append("\n    ").append(plugin);
     }
     
-    sb.append("\n  Log-excluded topic prefixes:");
-    for (String logExcludeTopic : logExcludeTopics) {
-      sb.append("\n    ").append(logExcludeTopic);
-    }
-    
     LOG.info(sb.toString());
     
-    final EdgeNode edge = EdgeNode.builder()
+    EdgeNode.builder()
         .withServerConfig(serverConfig)
         .withBackplane(backplane)
         .withPlugins(plugins)
         .build();
-    edge.addTopicListener(this);
-  }
-  
-  @Override
-  public void onOpen(EdgeNexus nexus) {
-    if (LOG.isInfoEnabled()) LOG.info("{}: opened", nexus);
-  }
-
-  @Override
-  public void onClose(EdgeNexus nexus) {
-    if (LOG.isInfoEnabled()) LOG.info("{}: closed", nexus);
-  }
-
-  @Override
-  public void onBind(EdgeNexus nexus, BindFrame bind, BindResponseFrame bindRes) {
-    if (LOG.isDebugEnabled()) LOG.debug("{}: bind {} -> {}", nexus, bind, bindRes);
-  }
-
-  @Override
-  public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
-    if (LOG.isDebugEnabled() && shouldLog(pub.getTopic())) LOG.debug("{}: publish {}", nexus, pub);
-  }
-
-  @Override
-  public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
-    if (LOG.isDebugEnabled() && shouldLog(pub.getTopic())) LOG.debug("{}: publish {}", nexus, pub);
-  }
-  
-  private boolean shouldLog(String topic) {
-    if (logExcludeTopics.length == 0) return true;
-    
-    for (String logExcludeTopic : logExcludeTopics) {
-      if (topic.startsWith(logExcludeTopic)) {
-        return false;
-      }
-    }
-    return true;
   }
 }

@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.beacon;
+package au.com.williamhill.flywheel.edge.plugin.beacon;
 
 import java.text.*;
 import java.util.*;
@@ -120,6 +120,6 @@ public final class Beacon implements Plugin {
 
   @Override
   public String toString() {
-    return "Beacon [interval: " + intervalMillis + " ms, topic: " + topic + ", format: " + format + "]";
+    return "Beacon {interval: " + intervalMillis + " ms, topic: " + topic + ", format: " + format + "}";
   }
 }

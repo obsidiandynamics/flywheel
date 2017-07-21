@@ -22,9 +22,9 @@ launchers:
     endpointConfig:
       highWaterMark: ${maxLong}
   plugins:
-  - type: au.com.williamhill.flywheel.beacon.Beacon
+  - type: au.com.williamhill.flywheel.edge.plugin.beacon.Beacon
     topic: time
     intervalMillis: 1000
     format: "yyyy-MM-dd'T'HH:mm:ssZ"
-  logExcludeTopics:
-  - time
+  - type: au.com.williamhill.flywheel.edge.plugin.toplog.TopicLogger
+    logExcludeTopics: ['time']

@@ -6,6 +6,12 @@ project(':flywheel-backplane-kafka').projectDir = new File(settingsDir, 'backpla
 include 'flywheel-logging-splunk'
 project(':flywheel-logging-splunk').projectDir = new File(settingsDir, 'logging-splunk')
 
+include 'flywheel-plugin-beacon'
+project(':flywheel-plugin-beacon').projectDir = new File(settingsDir, 'plugin-beacon')
+
+include 'flywheel-plugin-toplog'
+project(':flywheel-plugin-toplog').projectDir = new File(settingsDir, 'plugin-toplog')
+
 include 'flywheel-standalone'
 project(':flywheel-standalone').projectDir = new File(settingsDir, 'standalone')
 
