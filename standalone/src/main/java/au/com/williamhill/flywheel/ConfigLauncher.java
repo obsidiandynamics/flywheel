@@ -70,27 +70,27 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
   
   @Override
   public void onOpen(EdgeNexus nexus) {
-    LOG.info("{}: opened", nexus);
+    if (LOG.isInfoEnabled()) LOG.info("{}: opened", nexus);
   }
 
   @Override
   public void onClose(EdgeNexus nexus) {
-    LOG.info("{}: closed", nexus);
+    if (LOG.isInfoEnabled()) LOG.info("{}: closed", nexus);
   }
 
   @Override
   public void onBind(EdgeNexus nexus, BindFrame bind, BindResponseFrame bindRes) {
-    LOG.info("{}: bind {} -> {}", nexus, bind, bindRes);
+    if (LOG.isDebugEnabled()) LOG.debug("{}: bind {} -> {}", nexus, bind, bindRes);
   }
 
   @Override
   public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
-    if (shouldLog(pub.getTopic())) LOG.info("{}: publish {}", nexus, pub);
+    if (LOG.isDebugEnabled() && shouldLog(pub.getTopic())) LOG.debug("{}: publish {}", nexus, pub);
   }
 
   @Override
   public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
-    if (shouldLog(pub.getTopic())) LOG.info("{}: publish {}", nexus, pub);
+    if (LOG.isDebugEnabled() && shouldLog(pub.getTopic())) LOG.debug("{}: publish {}", nexus, pub);
   }
   
   private boolean shouldLog(String topic) {
