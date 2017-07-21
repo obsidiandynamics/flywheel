@@ -1,6 +1,4 @@
-package au.com.williamhill.flywheel;
-
-import com.obsidiandynamics.yconf.*;
+package com.obsidiandynamics.yconf;
 
 /**
  *  Obfuscates secrets from general logging operations that typically 

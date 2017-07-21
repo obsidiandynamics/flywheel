@@ -51,15 +51,64 @@ INFO  main ConfigLauncher.launch():
 
 The broker's WebSocket endpoint will now be served on `ws://localhost:8080/broker`. The built-in configuration also includes the Beacon module, which continuously broadcasts the current date and time on the `time` topic - useful for testing.
 
-In addition, the built-in configuration will serve a health check on `/health`, which is often required when running Flywheel behind a load balancer or a gateway. See [Configuration](#user-content-configuration) for changing the configuration.
+In addition, the built-in configuration will serve a health check on `/health`, which is often required when running Flywheel behind a load balancer or a gateway. See [Configuration](#user-content-configuration) for more details.
 
 # JAR
 `//TODO`
 
 # Configuration
-Standalone deployments are configured through a _profile_.
+Standalone deployments are configured through a mechanism called a _profile_. A profile is encapsulated in a YAML file comprising -
 
+* System properties that will be loaded prior to the bootstrapping process; and
+* One or more `Launcher` instances that perform the actual bootstrapping, using a supplied configuration.
 
+Below is a sample `profile.yaml`, based on the [built-in](https://raw.githubusercontent.com/William-Hill-Community/flywheel/master/standalone/conf/default/profile.yaml) default.
+
+```yaml
+properties:
+  log4j.configuration: file:conf/default/log4j-default.properties
+  flywheel.logging.splunk.url: ${mandatory(env.FLYWHEEL_SPLUNK_URL, "Splunk URL cannot be null")}
+  flywheel.logging.splunk.token: ${secret(mandatory(env.FLYWHEEL_SPLUNK_TOKEN, "Splunk token cannot be null"))}
+  flywheel.logging.splunk.index: ${mandatory(env.FLYWHEEL_SPLUNK_INDEX, "Splunk index cannot be null")}
+  flywheel.logging.splunk.source: ${env.FLYWHEEL_SPLUNK_INDEX}
+
+launchers: 
+- type: au.com.williamhill.flywheel.ConfigLauncher
+  backplane:
+    type: au.com.williamhill.flywheel.edge.backplane.NoOpBackplane
+  serverConfig:
+    port: 8080
+    path: /broker
+    idleTimeoutMillis: 300000
+    pingIntervalMillis: 60000
+    scanIntervalMillis: 1000
+    servlets:
+    - path: /health/*
+      name: health
+      servletClass: au.com.williamhill.flywheel.health.HealthServlet  
+    endpointConfig:
+      highWaterMark: ${maxLong}
+  plugins:
+  - type: au.com.williamhill.flywheel.beacon.Beacon
+    topic: time
+    intervalMillis: 1000
+    format: "yyyy-MM-dd'T'HH:mm:ssZ"
+  logExcludeTopics:
+  - time
+```
+
+## Parametrised configuration
+Flywheel uses the [EL](https://en.wikipedia.org/wiki/Unified_Expression_Language) standard to evaluate values in the YAML file. Thus, a profile need not be concrete; but rather a template that is bound to the actual values during application startup. This makes it convenient for working with build pipelines and a multi-environment set-up, where the configuration artefacts aren't coupled to the build process. Simply use the `${...}` notation to evaluate EL expressions in any YAML scalar or array. (EL cannot be present in a key.)
+
+The following variables and functions are available to use with EL:
+
+|Name|Type/Signature|Description|
+|----|----------------------------------|-----------|
+|`env`|`Map<String, String>`|Environment variables.|
+|`maxInt`|`int`|The result of `Integer.MAX_VALUE`.|
+|`maxLong`|`long`|The result of `Long.MAX_VALUE`.|
+|`secret`|`(String value) -> Secret`|Wraps the given value in an instance of `Secret`, such that calling `Secret.toString()` returns the constant `<masked>`, rather than the actual value. This prevents a configured value from being logged during application start-up.|
+|`mandatory`|`(Object value, String errorMessage) -> Object`|Ensures that the given `value` cannot be null, throwing a `MissingValueException` otherwise with the given `errorMessage`. This forces a configuration to have a value bound to it, rejecting cases where a value is omitted.|
 
 
 
