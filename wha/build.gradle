@@ -1,13 +1,7 @@
-apply plugin: 'java'
-
 group = project(':').group
 version = project(':').version
 
 def packageName = 'flywheel-wha'
-
-repositories {
-  jcenter()
-}
 
 dependencies {
   compile project(':flywheel-standalone')

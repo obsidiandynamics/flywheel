@@ -1,14 +1,7 @@
-apply plugin: 'java'
-apply plugin: 'jacoco'
-
 group = project(':').group
 version = project(':').version
 
 def packageName = 'flywheel-backplane-kafka'
-
-repositories {
-  jcenter()
-}
 
 dependencies {
   compile project(':')
@@ -28,19 +21,6 @@ task integrationTest(type: Test, description: 'Runs integration tests.', group: 
   include '**/*IT.class'
 }
 
-jacoco {
-  toolVersion = "0.7.9"
-}
-
-jacocoTestReport {
-  dependsOn test
-  reports {
-    xml.enabled false
-    html.enabled true
-  }
-}
-
 jar {
   baseName packageName
-  finalizedBy jacocoTestReport
 }
