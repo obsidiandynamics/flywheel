@@ -1,4 +1,4 @@
-Flywheel
+<img src="https://raw.githubusercontent.com/wiki/william-hill-community/flywheel/images/flywheel-logo.png" alt="logo" width="80"/> Flywheel
 ===
 [ ![Download](https://api.bintray.com/packages/william-hill-community/flywheel/flywheel-core/images/download.svg) ](https://bintray.com/william-hill-community/flywheel/flywheel-core/_latestVersion)
 
@@ -10,7 +10,7 @@ With the already excellent MQTT we're spoiled for choice when it comes to high-s
 ## Security
 These solutions work well when the _client_ controls what data they wish to receive. If you need to enforce control at the broker level, you're after _authorization_. This is where things get really complicated, really fast. MQTT, AWS IoT and others allow you to define static auth'z policies, specifying up-front which _devices_ can access which topics (usually through some sort of ACLs and pattern matching). If you can't control how end-users map to physical devices, or if you have to re-evaluate an end-user's privileges at an arbitrary point in time (for example, when allowing for initially anonymous connections that can optionally authenticate later to gain more subscriptions), you're out of luck.
 
-Flywheel auth'z model is dynamic, allowing you to define the behaviour by writing a little bit of code. This gives the broker control over when the security policy is evaluated and gives the client the ability to present their credentials in a variety of ways. Flywheel has equivalents for HTTP Basic Auth and Bearer Auth, supporting anything from a basic username/password combo to a JWT tokens, Kerberos tickets, and so on.
+Flywheel auth'z model is dynamic, allowing you to define the behaviour by writing a little bit of code. This gives the broker control over when the security policy is evaluated and gives the client the ability to present their credentials in a variety of ways. Flywheel has equivalents for HTTP Basic Auth and Bearer Auth, supporting anything from a basic username/password combo to JWT tokens, Kerberos tickets, and so on.
 
 ## Simplicity
 If you've used MQTT before, you're probably used to dealing with 3rd party client libraries and pushing bytes around, even though most of IoT-style messaging tends to revolve around simple, concise text strings. And if you need to use HTTP(S), then most brokers will simply tunnel MQTT over WebSockets anyway. So why not use WebSockets directly?
