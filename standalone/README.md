@@ -97,12 +97,22 @@ launchers:
   - time
 ```
 
+## Properties
+The properties are loaded before all other elements of the configuration, appended directly to the system properties. The example above uses system properties to initialise the logging subsystem.
+
+## Launcher
+A launcher is used to start a single instance of an edge node. A `ConfigLauncher` is the built-in `Launcher` implementation that draws from the provided configuration to construct an `EdgeNode`. The configuration comprises the following elements:
+
+* `backplane` - The interconnect used between the edge instances. The default is a `NoOpBackplane`, used in single-node deployments. When setting up a cluster of edge nodes, use a `KafkaBackplane` to distribute messages among all nodes in the cluster.
+* `serverConfig` - Configures [Socket.x](https://github.com/obsidiandynamics/socketx) - the library used behind the scenes for asynchronous WebSocket I/O. This section states how the socket endpoint is to be published, and bundles additional HTTP servlets, such as a health check. Socket.x also allows you to set a high-water mark, which the number of WebSocket frames that may be buffered on any given connection before frame dropping will occur. This allows the broker to accommodate slow consumers, placing an upper limit on the number of buffered messages.
+* `plugins` - A list of plugins to load. The list is in priority order, meaning that the item at the head of the list gets loaded first.
+
 ## Parametrised configuration
-Flywheel uses the [EL](https://en.wikipedia.org/wiki/Unified_Expression_Language) standard to evaluate values in the YAML file. Thus, a profile need not be concrete; but rather a template that is bound to the actual values during application startup. This makes it convenient for working with build pipelines and a multi-environment set-up, where the configuration artefacts aren't coupled to the build process. Simply use the `${...}` notation to evaluate EL expressions in any YAML scalar or array. (EL cannot be present in a key.)
+Flywheel uses the [EL](https://en.wikipedia.org/wiki/Unified_Expression_Language) standard to evaluate values in the YAML file. Thus, a profile need not be concrete; but rather a template that is bound to the actual values during application startup. This makes it convenient for working with build pipelines and a multi-environment set-up, where the configuration artefacts aren't coupled to the build process. Simply use the `${...}` notation to evaluate EL expressions in any YAML scalar value or array. (EL cannot be present in a key.)
 
 The following variables and functions are available to use with EL:
 
-|Name|Type/Signature|Description|
+|Name|Type/Signature                    |Description|
 |----|----------------------------------|-----------|
 |`env`|`Map<String, String>`|Environment variables.|
 |`maxInt`|`int`|The result of `Integer.MAX_VALUE`.|
