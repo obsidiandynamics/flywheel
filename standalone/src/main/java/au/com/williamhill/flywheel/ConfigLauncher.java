@@ -10,7 +10,6 @@ import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.socketx.*;
-import au.com.williamhill.flywheel.topic.*;
 
 @Y
 public final class ConfigLauncher implements Launcher, TopicListener  {
@@ -26,7 +25,7 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
   public Plugin[] plugins = new Plugin[0];
   
   @YInject
-  private Topic[] logExcludeTopics = new Topic[0];
+  private String[] logExcludeTopics = new String[0];
   
   @Override
   public void launch(String[] args) throws Exception {
@@ -54,8 +53,8 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
       sb.append("\n    ").append(plugin);
     }
     
-    sb.append("\n  Log-excluded topic filters:");
-    for (Topic logExcludeTopic : logExcludeTopics) {
+    sb.append("\n  Log-excluded topic prefixes:");
+    for (String logExcludeTopic : logExcludeTopics) {
       sb.append("\n    ").append(logExcludeTopic);
     }
     
@@ -97,9 +96,8 @@ public final class ConfigLauncher implements Launcher, TopicListener  {
   private boolean shouldLog(String topic) {
     if (logExcludeTopics.length == 0) return true;
     
-    final Topic published = Topic.of(topic);
-    for (Topic logExcludeTopic : logExcludeTopics) {
-      if (logExcludeTopic.accepts(published)) {
+    for (String logExcludeTopic : logExcludeTopics) {
+      if (topic.startsWith(logExcludeTopic)) {
         return false;
       }
     }
