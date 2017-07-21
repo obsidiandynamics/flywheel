@@ -35,8 +35,8 @@ public final class Profile {
                           .withVariable("env", System.getenv())
                           .withVariable("maxInt", Integer.MAX_VALUE)
                           .withVariable("maxLong", Long.MAX_VALUE)
-                          .withFunction("f", "secret", Secret.class.getMethod("of", String.class))
-                          .withFunction("f", "notNull", NotNull.class.getMethod("of", Object.class, String.class)))
+                          .withFunction("secret", Secret.class.getMethod("of", String.class))
+                          .withFunction("notNull", NotNull.class.getMethod("of", Object.class, String.class)))
         .fromReader(new FileReader(file), Profile.class);
     profile.init();
     return profile;

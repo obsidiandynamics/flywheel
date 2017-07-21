@@ -12,6 +12,10 @@ public final class ELTransform implements Function<Object, Object> {
   private final ExpressionFactory factory = new ExpressionFactoryImpl();
   private final SimpleContext context = new SimpleContext();
   
+  public ELTransform withFunction(String name, Method method) {
+    return withFunction("", name,  method);
+  }
+  
   public ELTransform withFunction(String namespace, String name, Method method) {
     context.setFunction(namespace, name, method);
     return this;

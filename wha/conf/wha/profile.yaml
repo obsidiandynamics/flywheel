@@ -1,9 +1,9 @@
 properties:
   log4j.configuration: file:conf/wha/log4j-wha.properties
-  flywheel.logging.splunk.url: ${f:notNull(env.FLYWHEEL_SPLUNK_URL, "Splunk URL cannot be null")}
-  flywheel.logging.splunk.token: ${f:secret(f:notNull(env.FLYWHEEL_SPLUNK_TOKEN, "Splunk token cannot be null"))}
-  flywheel.logging.splunk.index: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk index cannot be null")}
-  flywheel.logging.splunk.source: ${f:notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk source cannot be null")}
+  flywheel.logging.splunk.url: ${notNull(env.FLYWHEEL_SPLUNK_URL, "Splunk URL cannot be null")}
+  flywheel.logging.splunk.token: ${secret(notNull(env.FLYWHEEL_SPLUNK_TOKEN, "Splunk token cannot be null"))}
+  flywheel.logging.splunk.index: ${notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk index cannot be null")}
+  flywheel.logging.splunk.source: ${notNull(env.FLYWHEEL_SPLUNK_INDEX, "Splunk source cannot be null")}
 
 launchers: 
 - type: au.com.williamhill.flywheel.ConfigLauncher
