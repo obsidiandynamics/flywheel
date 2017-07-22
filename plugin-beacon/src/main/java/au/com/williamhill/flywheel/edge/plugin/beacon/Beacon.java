@@ -24,7 +24,7 @@ public final class Beacon implements Plugin {
     BeaconRunner(EdgeNode edge) throws Exception {
       super("BeaconRunner");
       this.edge = edge;
-      if (logger.isDebugEnabled()) logger.debug("Starting plugin Beacon:\n" +
+      logger.debug("Starting plugin Beacon:\n" +
           "  interval {} ms\n" +
           "  topic: {}\n" +
           "  format: {}",
@@ -46,7 +46,7 @@ public final class Beacon implements Plugin {
     }
 
     void dispose() throws InterruptedException {
-      if (logger.isDebugEnabled()) logger.debug("Stopping plugin Beacon");
+      logger.debug("Stopping plugin Beacon");
       running = false;
       interrupt();
       join();
