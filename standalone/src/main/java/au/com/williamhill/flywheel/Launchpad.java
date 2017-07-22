@@ -30,7 +30,7 @@ public final class Launchpad {
     }
     
     final File profileYaml = new File(profilePath.getPath() + "/profile.yaml");
-    if (! profileYaml.exists() || ! profileYaml.isFile()) {
+    if (! profileYaml.exists()) {
       throw new LaunchpadException("Profile configuration " + profileYaml + " is missing", null);
     }
     
@@ -76,7 +76,7 @@ public final class Launchpad {
       try {
         launcher.launch(args);
       } catch (Exception e) {
-        throw new LaunchpadException("Failed to launch " + launcher, e);
+        throw new LaunchpadException("Failed to launch " + launcher, getUltimateCause(e));
       }
     }
   }
@@ -85,7 +85,7 @@ public final class Launchpad {
     return profile;
   }
   
-  public static void main(String[] args) {
+  public static void main(String... args) {
     final String propertyName = "flywheel.launchpad.profile";
     final String envName = "FLYWHEEL_PROFILE";
     
@@ -107,7 +107,7 @@ public final class Launchpad {
     } catch (LaunchpadException e) {
       err.format("Error:\n");
       e.printStackTrace(err);
-      System.exit(1);;
+      System.exit(1);
     }
   }
 }
