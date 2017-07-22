@@ -27,4 +27,4 @@ launchers:
     intervalMillis: 1000
     format: "yyyy-MM-dd'T'HH:mm:ssZ"
   - type: au.com.williamhill.flywheel.edge.plugin.toplog.TopicLogger
-    logExcludeTopics: ['time']
+    excludeTopics: ['time']
