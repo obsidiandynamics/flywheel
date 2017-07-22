@@ -30,7 +30,7 @@ public final class Profile {
   public Launcher launchers[];
   
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
-    final Profile profile = new MappingContext()
+    return new MappingContext()
         .withDomTransform(new ELTransform()
                           .withVariable("env", System.getenv())
                           .withVariable("maxInt", Integer.MAX_VALUE)
@@ -38,19 +38,5 @@ public final class Profile {
                           .withFunction("secret", Secret.class.getMethod("of", String.class))
                           .withFunction("mandatory", Mandatory.class.getMethod("of", Object.class, String.class)))
         .fromReader(new FileReader(file), Profile.class);
-    profile.init();
-    return profile;
-  }
-  
-  public static long maxLong() {
-    return Long.MAX_VALUE;
-  }
-  
-  public static int maxInt() {
-    return Integer.MAX_VALUE;
-  }
-  
-  private void init() {
-    if (launchers == null) launchers = new Launcher[] {new ConfigLauncher()};
   }
 }
