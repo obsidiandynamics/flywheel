@@ -6,6 +6,8 @@ import java.io.*;
 
 import org.junit.*;
 
+import com.obsidiandynamics.indigo.util.*;
+
 public final class FlywheelVersionTest {
   @Test
   public void testValid() throws IOException {
@@ -17,5 +19,10 @@ public final class FlywheelVersionTest {
   @Test(expected=IOException.class)
   public void testInvalid() throws IOException {
     FlywheelVersion.get("wrong.file");
+  }
+  
+  @Test
+  public void testConformance() throws Exception {
+    TestSupport.assertUtilityClassWellDefined(FlywheelVersion.class);
   }
 }
