@@ -44,9 +44,8 @@ INFO  main ConfigLauncher.launch():
     endpoint config:
       high-water mark: 9223372036854775807
   Plugins:
-    Beacon [interval: 1000 ms, topic: time, format: yyyy-MM-dd'T'HH:mm:ssZ]
-  Log-excluded topic filters:
-    time
+    Beacon {interval: 1000 ms, topic: time, format: yyyy-MM-dd'T'HH:mm:ssZ}
+    TopicLogger {exclude topics: [time]}
 ```
 
 The broker's WebSocket endpoint will now be served on `ws://localhost:8080/broker`. The built-in configuration also includes the Beacon module, which continuously broadcasts the current date and time on the `time` topic - useful for testing.
@@ -89,12 +88,12 @@ launchers:
     endpointConfig:
       highWaterMark: ${maxLong}
   plugins:
-  - type: au.com.williamhill.flywheel.beacon.Beacon
+  - type: au.com.williamhill.flywheel.edge.plugin.beacon.Beacon
     topic: time
     intervalMillis: 1000
     format: "yyyy-MM-dd'T'HH:mm:ssZ"
-  logExcludeTopics:
-  - time
+  - type: au.com.williamhill.flywheel.edge.plugin.toplog.TopicLogger
+    excludeTopics: ['time']
 ```
 
 ## Properties
