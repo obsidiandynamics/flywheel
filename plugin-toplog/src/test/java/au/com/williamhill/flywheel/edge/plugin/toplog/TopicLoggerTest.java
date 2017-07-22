@@ -38,7 +38,7 @@ public final class TopicLoggerTest {
   }
   
   @Test
-  public void test() throws Exception {
+  public void testOverNexus() throws Exception {
     @SuppressWarnings("resource")
     final TopicLogger logger = new TopicLogger().withExcludeTopics(Topic.of("t"));
     edge = EdgeNode.builder()
