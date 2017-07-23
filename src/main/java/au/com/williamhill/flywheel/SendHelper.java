@@ -49,7 +49,7 @@ public final class SendHelper {
     endpoint.send(encoded, wrapCallback(callback));
   }
   
-  private static XSendCallback wrapFuture(CompletableFuture<SendOutcome> f) {
+  static XSendCallback wrapFuture(CompletableFuture<SendOutcome> f) {
     return new XSendCallback() {
       @Override public void onComplete(XEndpoint endpoint) {
         f.complete(SendOutcome.SENT);
@@ -60,12 +60,12 @@ public final class SendHelper {
       }
 
       @Override public void onSkip(XEndpoint endpoint) {
-        f.complete(SendOutcome.ERROR);
+        f.complete(SendOutcome.SKIPPED);
       }
     };
   }
   
-  private static XSendCallback wrapCallback(SendCallback callback) {
+  static XSendCallback wrapCallback(SendCallback callback) {
     if (callback != null) {
       return new XSendCallback() {
         @Override public void onComplete(XEndpoint endpoint) {
@@ -73,7 +73,7 @@ public final class SendHelper {
         }
   
         @Override public void onError(XEndpoint endpoint, Throwable cause) {
-          callback.onCallback(SendOutcome.ERROR, null);
+          callback.onCallback(SendOutcome.ERROR, cause);
         }
 
         @Override public void onSkip(XEndpoint endpoint) {
