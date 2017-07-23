@@ -176,3 +176,11 @@ This mapper was used in our initial examples, to reflectively populate with fiel
 Coercing is the process of 'forcing' one type to another (not to be confused with casting), and is normally used with scalar values. A `CoercingMapper` performs an optional conversion by first comparing the type of the original value in the DOM with the target type, passing the value unchanged if the target type is assignable from the original. Otherwise, if the types are incompatible, coercion will occur by first reducing the original to a `String` (by calling its `toString()` method) and then invoking a supplied converter `Function`, taking in a `String` value and outputting a subclass of the target type. (`null` objects are always passed through uncoerced.)
 
 Coercion is typically used where the original type is somewhat similar to the target type, but cannot be converted through a conventional cast or a(n) (un)boxing operation. For example, a string literal containing a sequence of digits appears to be a number, but isn't. In this case, coercion will run the original string through `Long::parseLong` (or another parser, as appropriate) to get the desired outcome.
+
+Type boxing is another area where YConf uses coercion. For example, an object's properties are typically represented using a `Map<String, Object>` in the DOM. For number types, document parsers typically output the wider of the possible forms (e.g. `long` in place of `int`, `double` over `float`, etc.). Because values in a map must be of a reference type, a narrowing type cast cannot be used if the target (primitive or reference) type is narrower than the original reference type.
+
+Finally, we can use coercion to translate strings to a more complex type. For example, a string containing a fully qualified class name can be coerced to a `Class` type. You can easily add your own coercions, by supplying a lambda that takes in a `String` and outputs the target type. The example below demonstrates this technique using the `URL` class (supplying the `URL(String)` constructor).
+
+```java
+new MappingContext().withMapper(URL.class, new CoercingMapper(URL.class, URL::new))...
+```
