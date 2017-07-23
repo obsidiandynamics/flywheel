@@ -1,6 +1,5 @@
 package au.com.williamhill.flywheel;
 
-@FunctionalInterface
-public interface Launcher {
+public interface Launcher extends AutoCloseable {
   void launch(String[] args) throws Exception;
 }

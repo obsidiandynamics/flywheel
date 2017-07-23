@@ -12,6 +12,7 @@ dependencies {
   
   runtime project(':flywheel-logging-splunk')
   
+  testCompile project(':').sourceSets.test.output
   testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
 }
 

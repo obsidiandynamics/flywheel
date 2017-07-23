@@ -12,19 +12,40 @@ import au.com.williamhill.flywheel.socketx.*;
 
 @Y
 public final class ConfigLauncher implements Launcher  {
-  private static final Logger LOG = LoggerFactory.getLogger(ConfigLauncher.class);
+  private Logger logger = LoggerFactory.getLogger(ConfigLauncher.class);
   
   @YInject
-  private final Backplane backplane = new NoOpBackplane();
+  private Backplane backplane = new NoOpBackplane();
   
   @YInject
-  private final XServerConfig serverConfig = new XServerConfig();
+  private XServerConfig serverConfig = new XServerConfig();
   
   @YInject
-  private final Plugin[] plugins = new Plugin[0];
+  private Plugin[] plugins = new Plugin[0];
   
-  @Override
-  public void launch(String[] args) throws Exception {
+  private EdgeNode edge;
+  
+  public ConfigLauncher withBackplane(Backplane backplane) {
+    this.backplane = backplane;
+    return this;
+  }
+
+  public ConfigLauncher withServerConfig(XServerConfig serverConfig) {
+    this.serverConfig = serverConfig;
+    return this;
+  }
+
+  public ConfigLauncher withPlugins(Plugin... plugins) {
+    this.plugins = plugins;
+    return this;
+  }
+
+  public ConfigLauncher withLogger(Logger logger) {
+    this.logger = logger;
+    return this;
+  }
+  
+  private EdgeNodeBuilder makeEdge(String[] args) throws Exception {
     final StringBuilder sb = new StringBuilder();
     sb.append("\n  Args: ").append(Arrays.toString(args));
     sb.append("\n  Backplane: ").append(backplane);
@@ -49,12 +70,21 @@ public final class ConfigLauncher implements Launcher  {
       sb.append("\n    ").append(plugin);
     }
     
-    LOG.info(sb.toString());
+    logger.info(sb.toString());
     
-    EdgeNode.builder()
+    return EdgeNode.builder()
         .withServerConfig(serverConfig)
         .withBackplane(backplane)
-        .withPlugins(plugins)
-        .build();
+        .withPlugins(plugins);
+  }
+  
+  @Override
+  public void launch(String[] args) throws Exception {
+    edge = makeEdge(args).build();
+  }
+
+  @Override
+  public void close() throws Exception {
+    edge.close();
   }
 }
