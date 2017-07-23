@@ -3,6 +3,7 @@ package au.com.williamhill.flywheel;
 import static junit.framework.TestCase.*;
 
 import java.io.*;
+import java.util.*;
 
 import org.junit.*;
 import org.mockito.*;
@@ -23,6 +24,7 @@ public final class LaunchpadTest {
   private static void clearProps() {
     System.clearProperty("TestLauncher.a");
     System.clearProperty("TestLauncher.b");
+    System.clearProperty("flywheel.launchpad.profile");
   }
   
   @Test(expected=LaunchpadException.class)
@@ -52,6 +54,30 @@ public final class LaunchpadTest {
     Mockito.doThrow(new RuntimeException(new Exception("boom"))).when(launcher).launch(Mockito.any());
     launchpad.getProfile().launchers = new Launcher[] {launcher};
     launchpad.launch(new String[0]);
+  }
+  
+  @Test
+  public void testGetProfilePathProperty() {
+    System.setProperty("flywheel.launchpad.profile", "conf/test-good");
+    final File path = Launchpad.getProfilePath(new HashMap<>());
+    assertNotNull(path);
+    assertEquals("conf/test-good", path.getPath());
+  }
+  
+  @Test
+  public void testGetProfilePathEnvDefault() {
+    final File path = Launchpad.getProfilePath(new HashMap<>());
+    assertNotNull(path);
+    assertEquals("conf/default", path.getPath());
+  }
+  
+  @Test
+  public void testGetProfilePathEnvSupplied() {
+    final Map<String, String> env = new HashMap<>();
+    env.put("FLYWHEEL_PROFILE", "conf/test-good");
+    final File path = Launchpad.getProfilePath(env);
+    assertNotNull(path);
+    assertEquals("conf/test-good", path.getPath());
   }
   
   @Test

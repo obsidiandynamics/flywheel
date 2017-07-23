@@ -85,7 +85,7 @@ public final class Launchpad {
     return profile;
   }
   
-  public static void main(String... args) {
+  static File getProfilePath(Map<String, String> env) {
     final String propertyName = "flywheel.launchpad.profile";
     final String envName = "FLYWHEEL_PROFILE";
     
@@ -94,16 +94,19 @@ public final class Launchpad {
     if (profileProp != null) {
       profilePath = new File(profileProp);
     } else {
-      final String profileEnv = System.getenv(envName);
+      final String profileEnv = env.get(envName);
       if (profileEnv != null) {
         profilePath = new File(profileEnv);
       } else {
         profilePath = new File(DEF_PROFILE);
       }
     }
-    
+    return profilePath;
+  }
+  
+  public static void main(String... args) {
     try {
-      new Launchpad(profilePath).launch(args);
+      new Launchpad(getProfilePath(System.getenv())).launch(args);
     } catch (LaunchpadException e) {
       err.format("Error:\n");
       e.printStackTrace(err);
