@@ -1,0 +1,8 @@
+aString: hello
+aNumber: 3.14
+inner:
+  aBool: true
+  anArray:
+  - a
+  - b
+  - c
