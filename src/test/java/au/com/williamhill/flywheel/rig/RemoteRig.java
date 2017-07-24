@@ -1,7 +1,5 @@
 package au.com.williamhill.flywheel.rig;
 
-import static au.com.williamhill.flywheel.Flywheel.*;
-
 import java.net.*;
 import java.nio.*;
 import java.util.*;
@@ -23,6 +21,8 @@ import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
 public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunnable, RemoteNexusHandler {
+  private static final String CONTROL_TOPIC = "control";
+  
   public static class RemoteRigConfig {
     int syncFrames;
     URI uri;
@@ -74,19 +74,18 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
         final RigSubframe subframe = RigSubframe.unmarshal(payload, subframeGson);
         if (subframe instanceof Wait) {
           awaitLater(nexus, sessionId, ((Wait) subframe).getExpectedMessages());
-        } else {
-          config.log.out.format("ERROR: Unsupported subframe of type %s\n", subframe.getClass().getName());
         }
       }
     });
-    control.bind(new BindFrame(UUID.randomUUID(), sessionId, null, new String[0], new String[]{}, "control")).get();
+    control.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
+                               new String[]{getControlTopic(sessionId)}, new String[]{}, "control")).get();
   }
   
-  private void awaitLater(RemoteNexus nexus, String remoteId, long expectedMessages) {
+  private void awaitLater(RemoteNexus nexis, String remoteId, long expectedMessages) {
     Threads.asyncDaemon(() -> {
       try {
         awaitReceival(expectedMessages);
-        nexus.publish(new PublishTextFrame(getTxTopicPrefix(remoteId), new WaitResponse().marshal(subframeGson)));
+        nexis.publish(new PublishTextFrame(getControlTopic(remoteId), new WaitResponse().marshal(subframeGson)));
       } catch (InterruptedException e) {
         e.printStackTrace(config.log.out);
       }
@@ -142,7 +141,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   private void begin() throws Exception {
     if (config.initiate) { 
       if (config.log.stages) config.log.out.format("r: initiating benchmark...\n");
-      control.publish(new PublishTextFrame(getTxTopicPrefix(control.getSessionId()), 
+      control.publish(new PublishTextFrame(getControlTopic(control.getSessionId()), 
                                            new Begin().marshal(subframeGson))).get();
     } else {
       if (config.log.stages) config.log.out.format("r: awaiting initiator...\n");
@@ -153,10 +152,14 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     return Long.toHexString(Crypto.machineRandom());
   }
   
+  private static String getControlTopic(String remoteId) {
+    return CONTROL_TOPIC + "/" + remoteId;
+  }
+  
   private long calibrate() throws Exception {
     if (config.log.stages) config.log.out.format("r: time calibration...\n");
     final String sessionId = generateSessionId();
-    final String outTopic = getTxTopicPrefix(sessionId);
+    final String outTopic = getControlTopic(sessionId);
     final int discardSyncs = (int) (config.syncFrames * .25);
     final AtomicBoolean syncComplete = new AtomicBoolean();
     final AtomicInteger syncs = new AtomicInteger();
@@ -165,8 +168,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     
     final RemoteNexus nexus = node.open(config.uri, new RemoteNexusHandlerBase() {
       @Override public void onText(RemoteNexus nexus, String topic, String payload) {
-        if (! topic.endsWith("/rx")) {
-          config.log.out.format("r: unexpected frame on topic %s: %s\n", topic, payload);
+        if (! topic.contains(sessionId)) {
           return;
         }
         final long now = System.nanoTime();
@@ -196,7 +198,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
       }
     });
     nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null,
-                             new String[0], new String[]{}, null)).get();
+                             new String[]{getControlTopic(sessionId)}, new String[]{}, null)).get();
     
     lastRemoteTransmitTime.set(System.nanoTime());
     nexus.publish(new PublishTextFrame(outTopic, new Sync(lastRemoteTransmitTime.get()).marshal(subframeGson)));
@@ -266,10 +268,14 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     time(now, serverNanos);
   }
   
+  private final AtomicBoolean loggedCommencement = new AtomicBoolean();
+  
   private void ensureStartTimeSet() {
     if (startTime == 0) {
       startTime = System.currentTimeMillis();
-      if (config.log.stages) config.log.out.format("r: benchmark commenced on %s\n", new Date(startTime));
+      if (config.log.stages && loggedCommencement.compareAndSet(false, true)) {
+        config.log.out.format("r: benchmark commenced on %s\n", new Date(startTime));
+      }
     }
   }
   

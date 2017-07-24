@@ -13,7 +13,7 @@ import au.com.williamhill.flywheel.topic.*;
 public final class RemoteRigBenchmark implements TestSupport {
   private static final String HOST = get("flywheel.rig.host", String::valueOf, "localhost");
   private static final int PORT = get("flywheel.rig.port", Integer::valueOf, 8080);
-  private static final int SYNC_FRAMES = get("flywheel.rig.sincFrames", Integer::valueOf, 1000);
+  private static final int SYNC_FRAMES = get("flywheel.rig.syncFrames", Integer::valueOf, 1000);
   private static final boolean INITIATE = get("flywheel.rig.initiate", Boolean::valueOf, true);
   private static final double NORMAL_MIN = get("flywheel.rig.normalMin", Double::valueOf, 50_000d);
   
