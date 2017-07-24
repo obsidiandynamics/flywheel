@@ -12,13 +12,14 @@ import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
-import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class EdgeRig extends Thread implements TestSupport, AutoCloseable, TopicListener {
+  private static final String CONTROL_TOPIC = "control";
+  
   public static class EdgeRigConfig {
     TopicSpec topicSpec;
     int pulseDurationMillis;
@@ -154,10 +155,14 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
     awaitRemotes();
   }
   
+  private static String getControlTopic(String remoteId) {
+    return CONTROL_TOPIC + "/" + remoteId;
+  }
+  
   private void awaitRemotes() {
     for (EdgeNexus control : controlNexuses) {
       final String sessionId = control.getSession().getSessionId();
-      final String topic = Flywheel.getRxTopicPrefix(sessionId);
+      final String topic = getControlTopic(sessionId);
       final int subscribers = getSubscribers(sessionId);
       final long expectedMessages = (long) config.pulses * subscribers;
       
@@ -168,10 +173,12 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
     }
     
     try {
-      Await.perpetual(() -> completedRemotes.size() == controlNexuses.size());
+      Await.boundedTimeout(60_000, () -> completedRemotes.size() == controlNexuses.size());
     } catch (InterruptedException e) {
       e.printStackTrace(config.log.out);
       Thread.currentThread().interrupt();
+    } catch (TimeoutException e) {
+      config.log.out.format("e: timed out waiting for remote\n");
     }
     
     try {
@@ -261,30 +268,29 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   
   @Override
   public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
-    if (! nexus.isLocal() && pub.getTopic().startsWith(Flywheel.REMOTE_PREFIX)) {
+    if (! nexus.isLocal() && pub.getTopic().startsWith(CONTROL_TOPIC)) {
       final Topic t = Topic.of(pub.getTopic());
-      final String remoteId = t.getParts()[1];
+      final String sessionId = t.getParts()[1];
       final RigSubframe subframe = RigSubframe.unmarshal(pub.getPayload(), subframeGson);
-      onSubframe(nexus, remoteId, subframe);
+      onSubframe(nexus, sessionId, subframe);
     }
   }
   
-  private void onSubframe(EdgeNexus nexus, String remoteId, RigSubframe subframe) {
-    if (config.log.verbose) config.log.out.format("e: subframe %s %s\n", remoteId, subframe);
+  private void onSubframe(EdgeNexus nexus, String sessionId, RigSubframe subframe) {
+    if (config.log.verbose) config.log.out.format("e: subframe %s %s\n", sessionId, subframe);
     if (subframe instanceof Sync) {
-      pubToTX(remoteId, new Sync(System.nanoTime()));
+      pubToControl(sessionId, new Sync(System.nanoTime()));
     } else if (subframe instanceof Begin) {
       state = State.RUNNING;
     } else if (subframe instanceof WaitResponse) {
-      completedRemotes.add(remoteId);
+      completedRemotes.add(sessionId);
     } else {
       config.log.out.format("ERROR: Unsupported subframe of type %s\n", subframe.getClass().getName());
     }
   }
   
-  private void pubToTX(String sessionId, RigSubframe subframe) {
-    final String topic = Flywheel.getRxTopicPrefix(sessionId);
-    node.publish(topic, subframe.marshal(subframeGson));
+  private void pubToControl(String sessionId, RigSubframe subframe) {
+    node.publish(getControlTopic(sessionId), subframe.marshal(subframeGson));
   }
 
   @Override
