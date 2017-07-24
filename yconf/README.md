@@ -169,11 +169,32 @@ new MappingContext()
 .fromStream(...);
 ```
 
+If all your types come from the same base package, you can do one better. The `RuntimeMapper` has a `withTypeFormatter()` method, allowing you to alter the value of the type attribute. This can be used to perform any manipulation on the type name; for example, to prefix the type with a base package:
+
+```java
+new MappingContext()
+.withMapper(Object.class, new RuntimeMapper().withTypeAttribute("_type").withTypeFormatter("com.acme."::concat))
+.fromStream(...);
+```
+
+The above setting can now be used with the following document:
+
+```yaml
+animals:
+- _type: Dog
+  name: Dingo
+  breed: Labrador
+- _type: Bird
+  name: Olly
+  wingspan: 13.47
+```
+
+
 ### `ReflectiveMapper`
 This mapper was used in our initial examples, to reflectively populate with fields and parameters annotated with `@YInject`. It is also the default mapper used where an class is annotated with `@Y`, where no explicit `TypeMapper` class is specified.
 
 ### `CoercingMapper`
-Coercing is the process of 'forcing' one type to another (not to be confused with casting), and is normally used with scalar values. A `CoercingMapper` performs an optional conversion by first comparing the type of the original value in the DOM with the target type, passing the value unchanged if the target type is assignable from the original. Otherwise, if the types are incompatible, coercion will occur by first reducing the original to a `String` (by calling its `toString()` method) and then invoking a supplied converter `Function`, taking in a `String` value and outputting a subclass of the target type. (`null` objects are always passed through uncoerced.)
+Coercing is the process of 'forcing' one type to another (not to be confused with casting), and is normally used with scalar values. A `CoercingMapper` performs an optional conversion by first comparing the type of the original value in the DOM with the target type, passing the value unchanged if the target type is assignable from the original. Otherwise, if the types are incompatible, coercion will occur by first reducing the original to a `String` (by calling its `toString()` method) and then invoking a supplied `CoercingMapper.StringConverter` implementation, taking in a `String` value and outputting a subclass of the target type. (Note: `null` objects are always passed through uncoerced.)
 
 Coercion is typically used where the original type is somewhat similar to the target type, but cannot be converted through a conventional cast or a(n) (un)boxing operation. For example, a string literal containing a sequence of digits appears to be a number, but isn't. In this case, coercion will run the original string through `Long::parseLong` (or another parser, as appropriate) to get the desired outcome.
 

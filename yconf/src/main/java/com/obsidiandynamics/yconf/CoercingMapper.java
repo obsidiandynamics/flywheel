@@ -11,11 +11,16 @@ import java.util.function.*;
  *  Note: if the DOM is already of the target type, this mapper acts as a pass-through.
  */
 public final class CoercingMapper implements TypeMapper {
+  @FunctionalInterface
+  public interface StringConverter<T> {
+    T convert(String str) throws Throwable;
+  }
+  
   private final Class<?> coercedType;
   
-  private final Function<String, ?> converter;
+  private final StringConverter<?> converter;
 
-  public <T> CoercingMapper(Class<T> coercedType, Function<String, ? extends T> converter) {
+  public <T> CoercingMapper(Class<T> coercedType, StringConverter<? extends T> converter) {
     this.coercedType = coercedType;
     this.converter = converter;
   }
@@ -26,7 +31,11 @@ public final class CoercingMapper implements TypeMapper {
       return y.value();
     } else {
       final String str = String.valueOf(y.<Object>value());
-      return converter.apply(str);
+      try {
+        return converter.convert(str);
+      } catch (Throwable e) {
+        throw new MappingException(null, e);
+      }
     }
   }
 }

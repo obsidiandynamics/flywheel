@@ -2,6 +2,7 @@ package com.obsidiandynamics.yconf;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.*;
 import java.util.*;
 import java.util.function.*;
 
@@ -31,13 +32,7 @@ public final class MappingContext {
     mappers.put(Byte.class, new CoercingMapper(Byte.class, Byte::parseByte));
     mappers.put(char.class, getCharMapper());
     mappers.put(Character.class, getCharMapper());
-    mappers.put(Class.class, new CoercingMapper(Class.class, s -> {
-      try {
-        return Class.forName(s);
-      } catch (ClassNotFoundException e) {
-        throw new MappingException(null, e);
-      }
-    }));
+    mappers.put(Class.class, new CoercingMapper(Class.class, Class::forName));
     mappers.put(double.class, new CoercingMapper(Double.class, Double::parseDouble));
     mappers.put(Double.class, new CoercingMapper(Double.class, Double::parseDouble));
     mappers.put(float.class, new CoercingMapper(Float.class, Float::parseFloat));
@@ -50,6 +45,7 @@ public final class MappingContext {
     mappers.put(short.class, new CoercingMapper(Short.class, Short::parseShort));
     mappers.put(Short.class, new CoercingMapper(Short.class, Short::parseShort));
     mappers.put(String.class, new CoercingMapper(String.class, s -> s));
+    mappers.put(URL.class, new CoercingMapper(URL.class, URL::new));
     return mappers;
   }
   
