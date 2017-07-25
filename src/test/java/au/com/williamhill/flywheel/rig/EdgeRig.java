@@ -158,20 +158,19 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
     awaitRemotes();
   }
   
-  private static String getControlTopic(String remoteId) {
-    return CONTROL_TOPIC + "/" + remoteId;
+  private static String getControlRxTopic(String remoteId) {
+    return CONTROL_TOPIC + "/" + remoteId + "/rx";
   }
   
   private void awaitRemotes() {
     for (String controlSessionId : controlSessions) {
-      final String topic = getControlTopic(controlSessionId);
       final int subscribers = getSubscribers(controlSessionId);
       final long expectedMessages = (long) config.pulses * subscribers;
       
       if (config.log.stages) config.log.out.format("e: awaiting remote %s (%,d messages across %,d subscribers)...\n",
                                                    controlSessionId, expectedMessages, subscribers);
       
-      node.publish(topic, new Wait(expectedMessages).marshal(subframeGson));
+      pubToControl(controlSessionId, new Wait(expectedMessages));
     }
     
     try {
@@ -280,7 +279,7 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
         addSubscriber(announce.getControlSessionId());
       }
     } else if (subframe instanceof Sync) {
-      pubToControl(sessionId, new Sync(System.nanoTime()));
+      pubToControl(sessionId, new SyncResponse(System.nanoTime()));
     } else if (subframe instanceof Begin) {
       state = State.RUNNING;
     } else if (subframe instanceof WaitResponse) {
@@ -291,7 +290,7 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   }
   
   private void pubToControl(String sessionId, RigSubframe subframe) {
-    node.publish(getControlTopic(sessionId), subframe.marshal(subframeGson));
+    node.publish(getControlRxTopic(sessionId), subframe.marshal(subframeGson));
   }
 
   @Override

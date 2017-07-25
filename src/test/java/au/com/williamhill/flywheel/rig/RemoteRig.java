@@ -78,17 +78,17 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
         }
       }
     });
-    control.publish(new PublishTextFrame(getControlTopic(sessionId), 
+    control.publish(new PublishTextFrame(getControlTxTopic(sessionId), 
                                          new Announce(Role.CONTROL, sessionId).marshal(subframeGson)));
     control.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
-                               new String[]{getControlTopic(sessionId)}, new String[]{}, null)).get();
+                               new String[]{getControlRxTopic(sessionId)}, new String[]{}, null)).get();
   }
   
   private void awaitLater(RemoteNexus nexis, String sessionId, long expectedMessages) {
     Threads.asyncDaemon(() -> {
       try {
         awaitReceival(expectedMessages);
-        nexis.publish(new PublishTextFrame(getControlTopic(sessionId), new WaitResponse().marshal(subframeGson)));
+        nexis.publish(new PublishTextFrame(getControlTxTopic(sessionId), new WaitResponse().marshal(subframeGson)));
       } catch (InterruptedException e) {
         e.printStackTrace(config.log.out);
       }
@@ -128,7 +128,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
       for (int i = 0; i < interest.getCount(); i++) {
         final RemoteNexus nexus = node.open(config.uri, this);
         final String sessionId = generateSessionId();
-        nexus.publish(new PublishTextFrame(getControlTopic(sessionId), 
+        nexus.publish(new PublishTextFrame(getControlTxTopic(sessionId), 
                                            new Announce(Role.SUBSCRIBER, control.getSessionId()).marshal(subframeGson)));
         final CompletableFuture<BindResponseFrame> f = 
             nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null,
@@ -146,7 +146,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   private void begin() throws Exception {
     if (config.initiate) { 
       if (config.log.stages) config.log.out.format("r: initiating benchmark...\n");
-      control.publish(new PublishTextFrame(getControlTopic(control.getSessionId()), 
+      control.publish(new PublishTextFrame(getControlTxTopic(control.getSessionId()), 
                                            new Begin().marshal(subframeGson))).get();
     } else {
       if (config.log.stages) config.log.out.format("r: awaiting initiator...\n");
@@ -157,14 +157,18 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     return Long.toHexString(Crypto.machineRandom());
   }
   
-  private static String getControlTopic(String remoteId) {
-    return CONTROL_TOPIC + "/" + remoteId;
+  private static String getControlTxTopic(String remoteId) {
+    return CONTROL_TOPIC + "/" + remoteId + "/tx";
+  }
+  
+  private static String getControlRxTopic(String remoteId) {
+    return CONTROL_TOPIC + "/" + remoteId + "/rx";
   }
   
   private long calibrate() throws Exception {
     if (config.log.stages) config.log.out.format("r: time calibration...\n");
     final String sessionId = generateSessionId();
-    final String outTopic = getControlTopic(sessionId);
+    final String outTopic = getControlTxTopic(sessionId);
     final int discardSyncs = (int) (config.syncFrames * .25);
     final AtomicBoolean syncComplete = new AtomicBoolean();
     final AtomicInteger syncs = new AtomicInteger();
@@ -178,9 +182,9 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
         }
         final long now = System.nanoTime();
         if (config.log.verbose) config.log.out.format("r: sync text %s %s\n", topic, payload);
-        final Sync sync = RigSubframe.unmarshal(payload, subframeGson);
+        final SyncResponse syncResponse = RigSubframe.unmarshal(payload, subframeGson);
         final long timeTaken = now - lastRemoteTransmitTime.get();
-        final long timeDelta = now - sync.getNanoTime() - timeTaken / 2;
+        final long timeDelta = now - syncResponse.getNanoTime() - timeTaken / 2;
         if (syncs.getAndIncrement() >= discardSyncs) {
           if (config.log.verbose) config.log.out.format("r: sync round-trip: %,d, delta: %,d\n", timeTaken, timeDelta);
           timeDeltas.add(timeDelta);
@@ -203,7 +207,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
       }
     });
     nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null,
-                             new String[]{getControlTopic(sessionId)}, new String[]{}, null)).get();
+                             new String[]{getControlRxTopic(sessionId)}, new String[]{}, null)).get();
     
     lastRemoteTransmitTime.set(System.nanoTime());
     nexus.publish(new PublishTextFrame(outTopic, new Sync(lastRemoteTransmitTime.get()).marshal(subframeGson)));
