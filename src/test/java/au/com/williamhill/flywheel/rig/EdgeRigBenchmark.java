@@ -13,6 +13,7 @@ import au.com.williamhill.flywheel.topic.*;
 
 public final class EdgeRigBenchmark implements TestSupport {
   private static final int PORT = get("flywheel.rig.port", Integer::valueOf, 8080);
+  private static final String PATH = get("flywheel.rig.path", String::valueOf, "/broker");
   private static final int PULSES = get("flywheel.rig.pulses", Integer::valueOf, 300);
   private static final int PULSE_DURATION = get("flywheel.rig.pulseDuration", Integer::valueOf, 100);
   private static final float WARMUP_FRAC = get("flywheel.rig.warmupFrac", Float::valueOf, 0.10f);
@@ -22,7 +23,7 @@ public final class EdgeRigBenchmark implements TestSupport {
   
   private static Summary run(Config c) throws Exception {
     final EdgeNode edge = EdgeNode.builder()
-        .withServerConfig(new XServerConfig() {{ port = c.port; }})
+        .withServerConfig(new XServerConfig() {{ port = c.port; path = c.path; }})
         .build();
     final EdgeRig edgeRig = new EdgeRig(edge, new EdgeRigConfig() {{
       topicSpec = c.topicSpec;
@@ -58,6 +59,7 @@ public final class EdgeRigBenchmark implements TestSupport {
       new Config() {{
         runner = EdgeRigBenchmark::run;
         port = PORT;
+        path = PATH;
         pulses = PULSES;
         pulseDurationMillis = PULSE_DURATION;
         topicSpec = TopicLibrary.largeLeaves();

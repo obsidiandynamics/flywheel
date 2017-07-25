@@ -1,7 +1,5 @@
 package au.com.williamhill.flywheel.rig;
 
-import java.net.*;
-
 import org.awaitility.*;
 import org.junit.*;
 
@@ -19,6 +17,7 @@ import au.com.williamhill.flywheel.util.*;
 public final class RigBenchmark implements TestSupport {
   private static final String HOST = "localhost";
   private static final int PREFERRED_PORT = 8080;
+  private static final String PATH = "/broker";
   
   abstract static class Config implements Spec {
     static {
@@ -28,6 +27,7 @@ public final class RigBenchmark implements TestSupport {
     ThrowingFunction<Config, Summary> runner = RigBenchmark::test;
     String host;
     int port;
+    String path;
     int pulses;
     int pulseDurationMillis;
     int syncFrames;
@@ -66,6 +66,7 @@ public final class RigBenchmark implements TestSupport {
     SpecMultiplier applyDefaults() {
       host = HOST;
       port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+      path = PATH;
       warmupFrac = 0.05f;
       initiate = true;
       normalMinNanos = 50_000f;
@@ -132,7 +133,7 @@ public final class RigBenchmark implements TestSupport {
 
   private static Summary test(Config c) throws Exception {
     final EdgeNode edge = EdgeNode.builder()
-        .withServerConfig(new XServerConfig() {{ port = c.port; }})
+        .withServerConfig(new XServerConfig() {{ port = c.port; path = c.path; }})
         .build();
     final EdgeRig edgeRig = new EdgeRig(edge, new EdgeRigConfig() {{
       topicSpec = c.topicSpec;
@@ -149,7 +150,7 @@ public final class RigBenchmark implements TestSupport {
     final RemoteRig remoteRig = new RemoteRig(remote, new RemoteRigConfig() {{
       topicSpec = c.topicSpec;
       syncFrames = c.syncFrames;
-      uri = new URI(String.format("ws://%s:%d/", c.host, c.port));
+      uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
       log = c.log;
@@ -177,6 +178,7 @@ public final class RigBenchmark implements TestSupport {
     new Config() {{
       host = HOST;
       port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+      path = PATH;
       pulses = 300;
       pulseDurationMillis = 100;
       syncFrames = 0;
