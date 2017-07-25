@@ -26,6 +26,8 @@ $echo_cmd "${CYAN}| |_  | |  \ \_/ \ \    /| |_| | |_  | |_  | |  ${NC}"
 $echo_cmd "${CYAN}|_|   |_|__ |_|   \_\/\/ |_| | |_|__ |_|__ |_|__${NC}"
 echo
 
+ulimit -Sa
+
 if [ "$1" == "--cmd" ]; then
   if [ $# -eq 1 ]; then
     sh
