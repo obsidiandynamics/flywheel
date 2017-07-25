@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="flywheel-remote.js"></script>
+    <script language="javascript" type="text/javascript">
+    var remoteNode = new RemoteNode()
+      .onOpen((nexus, wsEvent) => {
+        // Called when a connection has been established (first time, or following a reconnect).
+        // Normally this is where you would bind your subscriptions, provide initial auth credentials, etc.
+        document.getElementById('wsStatus').style.backgroundColor = '#21f5b7';
+        updateLog(`Opened ${nexus}`);
+      })
+      .onClose((nexus, wsEvent) => {
+        document.getElementById('wsStatus').style.backgroundColor = '#CCC';
+        updateLog(`Closed ${nexus}, code: ${wsEvent.code}, reason: ${wsEvent.reason}`);
+      })
+      .onText((nexus, topic, message) => {
+        updateLog(`Published ${topic}, message: ${message}`);
+    });
+
+    function updateLog(res) {
+      const logArea = document.getElementById('fwResponse');
+      const currentVal = logArea.value;
+      const padding =currentVal.length == 0?'':'\n\n';
+      logArea.value = currentVal + padding + res;
+      logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    function clearLog() {
+      document.getElementById('fwResponse').value = '';
+    }
+    
+    function connect() {
+      const conf = {
+        // mandatory - the WebSocket endpoint URL 
+        url: document.getElementById('fwLnk').value,
+        // optional 
+        // - if set, the remote node will maintain the connection open with a given backoff 
+        // - otherwise the connection will be a one-off
+        reconnectBackoffMillis: 1000 
+      };
+      remoteNode.open(conf);
+    }
+
+    function disconnect() {
+      if (typeof remoteNode !== 'undefined') {
+        remoteNode.close();
+      }
+    }
+
+    function bind() {
+      var msg = JSON.parse(document.getElementById('fwBindObj').value); 
+      remoteNode.nexus.bind(msg, (bindResponse) => {
+        updateLog(JSON.stringify(bindResponse));
+      });
+    }
+
+    function publish() {
+      var topic = document.getElementById('fwTopic').value,
+          msg = document.getElementById('fwTopic').value;
+      publishText(topic, message);
+    }
+    </script>
+    <style type="text/css">
+      body, div, ul, li {
+        margin: 0;
+        padding: 0;
+        font-family: 'Helvetica', sans-serif;
+        font-size: 16px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      section.fwContainer{
+        width: 90%;
+        margin: 0 auto;
+      }
+      ul {
+        list-style-type: none;
+      }
+      .row {
+        margin-top: 20px;
+      }
+      .lg-100 {
+        width: 100%;
+      }
+      .lg-50 {
+        width: 50%;
+        float: left;
+        padding-right: 10px;
+        padding-left: 10px;
+      }
+      #fwConnect {
+        text-align: center;
+      }
+      #fwConnect li {
+        float: left;
+        margin-top: 8px;
+        margin-right: 15px;
+      }
+      button, #wsStatus {
+        padding: 5px 10px;
+        line-height: 16px;
+      }
+      #wsStatus {
+        height: 28px;
+        width: 28px;
+        border-radius: 14px;
+      }
+      button {
+        background-color: #EEE;
+        border: 1px solid #999;
+        border-radius: 3px;
+        color:#666;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        cursor: pointer;
+        font-size: 16px;
+        font-family: inherit;
+      }
+      button:hover {
+        border: 1px solid #21a0f5;
+        color:#21a0f5;
+        background-color: #FFF;
+      }
+      button:focus {
+        outline: none;
+      }
+      input[type=text], textarea {
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 4px;
+        border: 1px solid #CCC;
+        padding: 8px 5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        font-size: 16px;
+        color: #666;
+      }
+      input[type=text]:focus, textarea:focus {
+        border: 1px solid #CCC;
+        outline: none;
+      }
+      @media screen and (max-width: 768px) {
+        .sm-100, section.fwContainer {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="fwContainer">
+      <div style="overflow: hidden" class="row">
+        <div class="lg-50 sm-100">
+          <input type="text" name="fwLnk" id="fwLnk" size"80" value="ws://localhost:8080/broker">
+        </div>
+        <div class="lg-50 sm-100" id="fwConnect">
+          <ul>
+            <li><button type="button" onclick="connect()">Connect</button></li>
+            <li><button type="button" onclick="disconnect()">Disconnect</button></li>
+            <li><div id="wsStatus" style="overflow:hidden;background-color:#CCC;"></div></li>
+          </ul>
+        </div>
+      </div>
+      <div style="overflow: hidden" class="row">
+        <div class="lg-50 sm-100">
+          <div style="overflow:hidden">
+            Bind <br/>
+            <textarea id="fwBindObj" rows="10" cols="80">{"subscribe":["time"]}</textarea>
+            <div class="lg-100">
+              <span style="float:right"><button type="button" onclick="bind()">Bind</button></span>
+            </div>
+          </div>
+          <div>
+          Topic<br/>
+          <input type="text" name="fwTopic" id="fwTopic" value="communal">
+          </div>
+          <div>
+          Message<br/>
+          <input type="text" name="fwMsg" id="fwMsg" value="Hello World">
+          </div>
+          <div class="lg-100">
+            <span style="float:right"><button type="button" onclick="publish()">Publish</button></span>
+          </div>
+        </div>
+        <div class="lg-50 sm-100">
+          Received<br/>
+          <textarea id="fwResponse" rows="18" cols="80"></textarea>
+          <div class="lg-100">
+            <span style="float:right"><button type="button" onclick="clearLog()">Clear</button></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
