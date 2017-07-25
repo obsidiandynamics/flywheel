@@ -15,6 +15,7 @@ import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
+import au.com.williamhill.flywheel.rig.Announce.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.topic.TopicSpec.*;
 import au.com.williamhill.flywheel.util.*;
@@ -78,14 +79,16 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
       }
     });
     control.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
-                               new String[]{getControlTopic(sessionId)}, new String[]{}, "control")).get();
+                               new String[]{getControlTopic(sessionId)}, new String[]{}, null)).get();
+    control.publish(new PublishTextFrame(getControlTopic(sessionId), 
+                                         new Announce(Role.CONTROL, sessionId).marshal(subframeGson)));
   }
   
-  private void awaitLater(RemoteNexus nexis, String remoteId, long expectedMessages) {
+  private void awaitLater(RemoteNexus nexis, String sessionId, long expectedMessages) {
     Threads.asyncDaemon(() -> {
       try {
         awaitReceival(expectedMessages);
-        nexis.publish(new PublishTextFrame(getControlTopic(remoteId), new WaitResponse().marshal(subframeGson)));
+        nexis.publish(new PublishTextFrame(getControlTopic(sessionId), new WaitResponse().marshal(subframeGson)));
       } catch (InterruptedException e) {
         e.printStackTrace(config.log.out);
       }
@@ -124,11 +127,13 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     for (Interest interest : allInterests) {
       for (int i = 0; i < interest.getCount(); i++) {
         final RemoteNexus nexus = node.open(config.uri, this);
-        final Object metadata = control.getSessionId();
+        final String sessionId = generateSessionId();
         final CompletableFuture<BindResponseFrame> f = 
-            nexus.bind(new BindFrame(UUID.randomUUID(), generateSessionId(), null,
-                                     new String[]{interest.getTopic().toString()}, new String[]{}, metadata));
+            nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null,
+                                     new String[]{interest.getTopic().toString()}, new String[]{}, null));
         futures.add(f);
+        nexus.publish(new PublishTextFrame(getControlTopic(sessionId), 
+                                           new Announce(Role.SUBSCRIBER, control.getSessionId()).marshal(subframeGson)));
       }
     }
     

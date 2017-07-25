@@ -8,12 +8,15 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.stream.*;
 
+import org.eclipse.jetty.util.*;
+
 import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.rig.Announce.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.util.*;
 
@@ -42,9 +45,9 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   
   private final Gson subframeGson = new Gson();
   
-  private final List<EdgeNexus> controlNexuses = new CopyOnWriteArrayList<>();
+  private final Set<String> controlSessions = new ConcurrentHashSet<>();
   
-  private final Set<String> completedRemotes = new CopyOnWriteArraySet<>();
+  private final Set<String> completedControls = new ConcurrentHashSet<>();
   
   private final Map<String, AtomicInteger> subscriptionsByNode = new ConcurrentHashMap<>();
   
@@ -160,20 +163,19 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   }
   
   private void awaitRemotes() {
-    for (EdgeNexus control : controlNexuses) {
-      final String sessionId = control.getSession().getSessionId();
-      final String topic = getControlTopic(sessionId);
-      final int subscribers = getSubscribers(sessionId);
+    for (String controlSessionId : controlSessions) {
+      final String topic = getControlTopic(controlSessionId);
+      final int subscribers = getSubscribers(controlSessionId);
       final long expectedMessages = (long) config.pulses * subscribers;
       
       if (config.log.stages) config.log.out.format("e: awaiting remote %s (%,d messages across %,d subscribers)...\n",
-                                                   sessionId, expectedMessages, subscribers);
+                                                   controlSessionId, expectedMessages, subscribers);
       
       node.publish(topic, new Wait(expectedMessages).marshal(subframeGson));
     }
     
     try {
-      Await.boundedTimeout(60_000, () -> completedRemotes.size() == controlNexuses.size());
+      Await.boundedTimeout(60_000, () -> completedControls.size() == controlSessions.size());
     } catch (InterruptedException e) {
       e.printStackTrace(config.log.out);
       Thread.currentThread().interrupt();
@@ -256,14 +258,6 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   @Override
   public void onBind(EdgeNexus nexus, BindFrame bind, BindResponseFrame bindRes) {
     if (config.log.verbose) config.log.out.format("e: sub %s %s\n", nexus, bind);
-    
-    if (bind.getMetadata() != null) {
-      if (bind.getMetadata().equals("control")) {
-        controlNexuses.add(nexus);
-      } else {
-        addSubscriber(String.valueOf(bind.getMetadata()));
-      }
-    }
   }
   
   @Override
@@ -278,12 +272,19 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   
   private void onSubframe(EdgeNexus nexus, String sessionId, RigSubframe subframe) {
     if (config.log.verbose) config.log.out.format("e: subframe %s %s\n", sessionId, subframe);
-    if (subframe instanceof Sync) {
+    if (subframe instanceof Announce) {
+      final Announce announce = (Announce) subframe;
+      if (announce.getRole() == Role.CONTROL) {
+        controlSessions.add(sessionId);
+      } else {
+        addSubscriber(announce.getControlSessionId());
+      }
+    } else if (subframe instanceof Sync) {
       pubToControl(sessionId, new Sync(System.nanoTime()));
     } else if (subframe instanceof Begin) {
       state = State.RUNNING;
     } else if (subframe instanceof WaitResponse) {
-      completedRemotes.add(sessionId);
+      completedControls.add(sessionId);
     } else {
       config.log.out.format("ERROR: Unsupported subframe of type %s\n", subframe.getClass().getName());
     }
