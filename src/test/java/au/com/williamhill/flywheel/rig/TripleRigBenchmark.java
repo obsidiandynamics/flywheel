@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.rig;
 
+import java.util.*;
+
 import org.awaitility.*;
 import org.junit.*;
 
@@ -8,13 +10,13 @@ import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.rig.EdgeRig.*;
+import au.com.williamhill.flywheel.rig.InjectorRig.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.util.*;
 
-public final class RigBenchmark implements TestSupport {
+public final class TripleRigBenchmark implements TestSupport {
   private static final String HOST = "localhost";
   private static final int PREFERRED_PORT = 8080;
   private static final String PATH = "/broker";
@@ -24,7 +26,7 @@ public final class RigBenchmark implements TestSupport {
       Awaitility.doNotCatchUncaughtExceptionsByDefault();
     }
     
-    ThrowingFunction<Config, Summary> runner = RigBenchmark::test;
+    ThrowingFunction<Config, Summary> runner = TripleRigBenchmark::test;
     String host;
     int port;
     String path;
@@ -135,7 +137,11 @@ public final class RigBenchmark implements TestSupport {
     final EdgeNode edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig() {{ port = c.port; path = c.path; }})
         .build();
-    final EdgeRig edgeRig = new EdgeRig(edge, new EdgeRigConfig() {{
+    
+    final RemoteNode injectorNode = RemoteNode.builder()
+        .build();
+    final InjectorRig injectorRig = new InjectorRig(injectorNode, new InjectorRigConfig() {{
+      uri = getUri(c.host, c.port, c.path);
       topicSpec = c.topicSpec;
       pulseDurationMillis = c.pulseDurationMillis;
       pulses = c.pulses;
@@ -160,11 +166,28 @@ public final class RigBenchmark implements TestSupport {
       remoteRig.run();
       remoteRig.await();
     } finally {
-      edgeRig.close();
+      injectorRig.close();
       remoteRig.close();
+      closeEdgeNexuses(c, edge);
+      edge.close();
     }
     
     return remoteRig.getSummary();
+  }
+  
+  private static void closeEdgeNexuses(Config config, EdgeNode node) throws Exception, InterruptedException {
+    final List<EdgeNexus> nexuses = node.getNexuses();
+    if (nexuses.isEmpty()) return;
+    
+    if (config.log.stages) config.log.out.format("e: closing nexuses (%,d)...\n", nexuses.size());
+    for (EdgeNexus nexus : nexuses) {
+      nexus.close();
+    }
+    for (EdgeNexus nexus : nexuses) {
+      if (! nexus.awaitClose(60_000)) {
+        config.log.out.format("e: timed out while waiting for close of %s\n", nexus);
+      }
+    }
   }
   
   /**

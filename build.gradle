@@ -211,10 +211,16 @@ task fanOutBench(type: JavaExec) {
   main = 'au.com.williamhill.flywheel.socketx.FanOutBenchmark'
 }
 
-task rigBench(type: JavaExec) {
+task doubleRigBench(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
   jvmArgs = Arrays.asList perfJvmArgs.split(' ')
-  main = 'au.com.williamhill.flywheel.rig.RigBenchmark'
+  main = 'au.com.williamhill.flywheel.rig.DoubleRigBenchmark'
+}
+
+task tripleRigBench(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  jvmArgs = Arrays.asList perfJvmArgs.split(' ')
+  main = 'au.com.williamhill.flywheel.rig.TripleRigBenchmark'
 }
 
 task edgeRigBench(type: JavaExec) {
@@ -229,4 +235,11 @@ task remoteRigBench(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
   jvmArgs = Arrays.asList perfJvmArgs.split(' ')
   main = 'au.com.williamhill.flywheel.rig.RemoteRigBenchmark'
+}
+
+task injectorRigBench(type: JavaExec) {
+  systemProperties = System.properties
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  jvmArgs = Arrays.asList perfJvmArgs.split(' ')
+  main = 'au.com.williamhill.flywheel.rig.InjectorRigBenchmark'
 }

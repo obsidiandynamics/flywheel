@@ -2,18 +2,18 @@ package au.com.williamhill.flywheel.rig;
 
 import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
 
+import java.net.*;
+
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
-import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.rig.EdgeRig.*;
+import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.DoubleRigBenchmark.*;
-import au.com.williamhill.flywheel.socketx.*;
+import au.com.williamhill.flywheel.rig.InjectorRig.*;
 import au.com.williamhill.flywheel.topic.*;
 
-public final class EdgeRigBenchmark implements TestSupport {
-  private static final int PORT = get("flywheel.rig.port", Integer::valueOf, 8080);
-  private static final String PATH = get("flywheel.rig.path", String::valueOf, "/broker");
+public final class InjectorRigBenchmark implements TestSupport {
+  private static final String URL = get("flywheel.rig.url", String::valueOf, "ws://localhost:8080/broker");
   private static final int PULSES = get("flywheel.rig.pulses", Integer::valueOf, 300);
   private static final int PULSE_DURATION = get("flywheel.rig.pulseDuration", Integer::valueOf, 100);
   private static final float WARMUP_FRAC = get("flywheel.rig.warmupFrac", Float::valueOf, 0.10f);
@@ -22,10 +22,10 @@ public final class EdgeRigBenchmark implements TestSupport {
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   
   private static Summary run(Config c) throws Exception {
-    final EdgeNode edge = EdgeNode.builder()
-        .withServerConfig(new XServerConfig() {{ port = c.port; path = c.path; }})
+    final RemoteNode remote = RemoteNode.builder()
         .build();
-    final EdgeRig edgeRig = new EdgeRig(edge, new EdgeRigConfig() {{
+    final InjectorRig injectorRig = new InjectorRig(remote, new InjectorRigConfig() {{
+      uri = getUri(c.host, c.port, c.path);
       topicSpec = c.topicSpec;
       pulseDurationMillis = c.pulseDurationMillis;
       pulses = c.pulses;
@@ -35,18 +35,18 @@ public final class EdgeRigBenchmark implements TestSupport {
       log = c.log;
     }});
     
-    edgeRig.await();
-    edgeRig.close();
-    LOG_STREAM.println("Edge benchmark completed");
+    injectorRig.await();
+    injectorRig.close();
+    LOG_STREAM.println("Injector benchmark completed");
     
     final Summary summary = new Summary();
     summary.compute(new Elapsed() {
       @Override public long getTotalProcessed() {
-        return (long) edgeRig.getTotalSubscribers() * c.pulses;
+        return (long) injectorRig.getTotalSubscribers() * c.pulses;
       }
 
       @Override public long getTimeTaken() {
-        return edgeRig.getTimeTaken();
+        return injectorRig.getTimeTaken();
       }
     });
     return summary;
@@ -54,12 +54,14 @@ public final class EdgeRigBenchmark implements TestSupport {
   
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
+    final URI uri = new URI(URL);
     do {
-      LOG_STREAM.println("_\nEdge benchmark started; waiting for remote connections...");
+      LOG_STREAM.println("_\nInjector benchmark started; waiting for remote connections...");
       new Config() {{
-        runner = EdgeRigBenchmark::run;
-        port = PORT;
-        path = PATH;
+        runner = InjectorRigBenchmark::run;
+        host = uri.getHost();
+        port = uri.getPort();
+        path = uri.getPath();
         pulses = PULSES;
         pulseDurationMillis = PULSE_DURATION;
         topicSpec = TopicLibrary.largeLeaves();

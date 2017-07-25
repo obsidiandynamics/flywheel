@@ -9,7 +9,7 @@ import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
-import au.com.williamhill.flywheel.rig.RigBenchmark.*;
+import au.com.williamhill.flywheel.rig.DoubleRigBenchmark.*;
 import au.com.williamhill.flywheel.topic.*;
 
 public final class RemoteRigBenchmark implements TestSupport {
@@ -24,7 +24,7 @@ public final class RemoteRigBenchmark implements TestSupport {
     final RemoteRig remoteRig = new RemoteRig(remote, new RemoteRigConfig() {{
       topicSpec = c.topicSpec;
       syncFrames = c.syncFrames;
-      uri = new URI(URL);
+      uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
       log = c.log;

@@ -84,12 +84,12 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
                                new String[]{getControlRxTopic(sessionId)}, new String[]{}, null)).get();
   }
   
-  private void awaitLater(RemoteNexus nexis, String sessionId, long expectedMessages) {
+  private void awaitLater(RemoteNexus nexus, String sessionId, long expectedMessages) {
     Threads.asyncDaemon(() -> {
       try {
         awaitReceival(expectedMessages);
-        nexis.publish(new PublishTextFrame(getControlTxTopic(sessionId), new WaitResponse().marshal(subframeGson)));
-      } catch (InterruptedException e) {
+        closeNexuses();
+      } catch (Exception e) {
         e.printStackTrace(config.log.out);
       }
     }, "ControlAwait");
@@ -140,7 +140,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     for (CompletableFuture<BindResponseFrame> f : futures) {
       f.get();
     }
-    if (config.log.verbose) config.log.out.format("r: %,d remotes connected\n", allInterests.size());
+    if (config.log.verbose) config.log.out.format("r: %,d remotes connected\n", futures.size());
   }
   
   private void begin() throws Exception {
@@ -215,7 +215,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     
     final long timeDiff = timeDeltas.stream().collect(Collectors.averagingLong(l -> l)).longValue();
     if (config.log.stages) config.log.out.format("r: calibration complete; time delta: %,d ns (%s ahead)\n", 
-                                                 timeDiff, timeDiff >= 0 ? "remote" : "edge");
+                                                 timeDiff, timeDiff >= 0 ? "remote" : "source");
     return timeDiff;
   }
   
