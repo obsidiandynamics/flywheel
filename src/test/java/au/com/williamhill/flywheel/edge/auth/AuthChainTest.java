@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.rig.edge;
+package au.com.williamhill.flywheel.edge.auth;
 
 import static org.junit.Assert.*;
 
@@ -7,7 +7,6 @@ import java.util.*;
 import org.junit.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
 import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.frame.*;
