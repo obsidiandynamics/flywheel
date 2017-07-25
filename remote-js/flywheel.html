@@ -3,7 +3,7 @@
   <head>
     <script src="flywheel-remote.js"></script>
     <script language="javascript" type="text/javascript">
-    var remoteNode = new RemoteNode()
+    const remoteNode = new RemoteNode()
       .onOpen((nexus, wsEvent) => {
         // Called when a connection has been established (first time, or following a reconnect).
         // Normally this is where you would bind your subscriptions, provide initial auth credentials, etc.
@@ -29,7 +29,7 @@
     function clearLog() {
       document.getElementById('fwResponse').value = '';
     }
-    
+
     function connect() {
       const conf = {
         // mandatory - the WebSocket endpoint URL 
@@ -57,8 +57,8 @@
 
     function publish() {
       var topic = document.getElementById('fwTopic').value,
-          msg = document.getElementById('fwTopic').value;
-      publishText(topic, message);
+          msg = document.getElementById('fwMsg').value;
+      remoteNode.publishText(topic, msg);
     }
     </script>
     <style type="text/css">
