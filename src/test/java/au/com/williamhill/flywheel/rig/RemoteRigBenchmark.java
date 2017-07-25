@@ -2,18 +2,19 @@ package au.com.williamhill.flywheel.rig;
 
 import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
 
+import java.net.*;
+
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
-import au.com.williamhill.flywheel.rig.RigBenchmark.*;
+import au.com.williamhill.flywheel.rig.DoubleRigBenchmark.*;
 import au.com.williamhill.flywheel.topic.*;
 
 public final class RemoteRigBenchmark implements TestSupport {
-  private static final String HOST = get("flywheel.rig.host", String::valueOf, "localhost");
-  private static final int PORT = get("flywheel.rig.port", Integer::valueOf, 8080);
-  private static final int SYNC_FRAMES = get("flywheel.rig.sincFrames", Integer::valueOf, 1000);
+  private static final String URL = get("flywheel.rig.url", String::valueOf, "ws://localhost:8080/broker");
+  private static final int SYNC_FRAMES = get("flywheel.rig.syncFrames", Integer::valueOf, 1000);
   private static final boolean INITIATE = get("flywheel.rig.initiate", Boolean::valueOf, true);
   private static final double NORMAL_MIN = get("flywheel.rig.normalMin", Double::valueOf, 50_000d);
   
@@ -23,7 +24,7 @@ public final class RemoteRigBenchmark implements TestSupport {
     final RemoteRig remoteRig = new RemoteRig(remote, new RemoteRigConfig() {{
       topicSpec = c.topicSpec;
       syncFrames = c.syncFrames;
-      uri = getUri(c.host, c.port);
+      uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
       log = c.log;
@@ -37,12 +38,14 @@ public final class RemoteRigBenchmark implements TestSupport {
   
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
+    final URI uri = new URI(URL);
     LOG_STREAM.format("_\nRemote benchmark started (URI: %s, initiate: %b)...\n", 
-                      RemoteRigConfig.getUri(HOST, PORT), INITIATE);
+                      uri, INITIATE);
     new Config() {{
       runner = RemoteRigBenchmark::run;
-      host = HOST;
-      port = PORT;
+      host = uri.getHost();
+      port = uri.getPort();
+      path = uri.getPath();
       syncFrames = SYNC_FRAMES;
       topicSpec = TopicLibrary.largeLeaves();
       initiate = INITIATE;

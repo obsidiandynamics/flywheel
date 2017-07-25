@@ -2,6 +2,8 @@ package com.obsidiandynamics.yconf;
 
 import static org.junit.Assert.*;
 
+import java.net.*;
+
 import org.junit.*;
 
 public final class CoersingMapperTest {
@@ -72,6 +74,11 @@ public final class CoersingMapperTest {
   @Test
   public void testString() {
     test("hello", String.class, "hello");
+  }
+  
+  @Test
+  public void testUrl() throws MalformedURLException {
+    test("http://localhost:8080/text", URL.class, new URL("http://localhost:8080/text"));
   }
 
   private <T> void test(Object doc, Class<T> type, T expected) {

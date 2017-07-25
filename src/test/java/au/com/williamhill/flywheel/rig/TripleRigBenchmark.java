@@ -1,6 +1,6 @@
 package au.com.williamhill.flywheel.rig;
 
-import java.net.*;
+import java.util.*;
 
 import org.awaitility.*;
 import org.junit.*;
@@ -10,24 +10,26 @@ import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.rig.EdgeRig.*;
+import au.com.williamhill.flywheel.rig.InjectorRig.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.util.*;
 
-public final class RigBenchmark implements TestSupport {
+public final class TripleRigBenchmark implements TestSupport {
   private static final String HOST = "localhost";
   private static final int PREFERRED_PORT = 8080;
+  private static final String PATH = "/broker";
   
   abstract static class Config implements Spec {
     static {
       Awaitility.doNotCatchUncaughtExceptionsByDefault();
     }
     
-    ThrowingFunction<Config, Summary> runner = RigBenchmark::test;
+    ThrowingFunction<Config, Summary> runner = TripleRigBenchmark::test;
     String host;
     int port;
+    String path;
     int pulses;
     int pulseDurationMillis;
     int syncFrames;
@@ -66,6 +68,7 @@ public final class RigBenchmark implements TestSupport {
     SpecMultiplier applyDefaults() {
       host = HOST;
       port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+      path = PATH;
       warmupFrac = 0.05f;
       initiate = true;
       normalMinNanos = 50_000f;
@@ -132,9 +135,13 @@ public final class RigBenchmark implements TestSupport {
 
   private static Summary test(Config c) throws Exception {
     final EdgeNode edge = EdgeNode.builder()
-        .withServerConfig(new XServerConfig() {{ port = c.port; }})
+        .withServerConfig(new XServerConfig() {{ port = c.port; path = c.path; }})
         .build();
-    final EdgeRig edgeRig = new EdgeRig(edge, new EdgeRigConfig() {{
+    
+    final RemoteNode injectorNode = RemoteNode.builder()
+        .build();
+    final InjectorRig injectorRig = new InjectorRig(injectorNode, new InjectorRigConfig() {{
+      uri = getUri(c.host, c.port, c.path);
       topicSpec = c.topicSpec;
       pulseDurationMillis = c.pulseDurationMillis;
       pulses = c.pulses;
@@ -149,7 +156,7 @@ public final class RigBenchmark implements TestSupport {
     final RemoteRig remoteRig = new RemoteRig(remote, new RemoteRigConfig() {{
       topicSpec = c.topicSpec;
       syncFrames = c.syncFrames;
-      uri = new URI(String.format("ws://%s:%d/", c.host, c.port));
+      uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
       log = c.log;
@@ -159,11 +166,28 @@ public final class RigBenchmark implements TestSupport {
       remoteRig.run();
       remoteRig.await();
     } finally {
-      edgeRig.close();
+      injectorRig.close();
       remoteRig.close();
+      closeEdgeNexuses(c, edge);
+      edge.close();
     }
     
     return remoteRig.getSummary();
+  }
+  
+  private static void closeEdgeNexuses(Config config, EdgeNode node) throws Exception, InterruptedException {
+    final List<EdgeNexus> nexuses = node.getNexuses();
+    if (nexuses.isEmpty()) return;
+    
+    if (config.log.stages) config.log.out.format("e: closing nexuses (%,d)...\n", nexuses.size());
+    for (EdgeNexus nexus : nexuses) {
+      nexus.close();
+    }
+    for (EdgeNexus nexus : nexuses) {
+      if (! nexus.awaitClose(60_000)) {
+        config.log.out.format("e: timed out while waiting for close of %s\n", nexus);
+      }
+    }
   }
   
   /**
@@ -177,6 +201,7 @@ public final class RigBenchmark implements TestSupport {
     new Config() {{
       host = HOST;
       port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+      path = PATH;
       pulses = 300;
       pulseDurationMillis = 100;
       syncFrames = 0;

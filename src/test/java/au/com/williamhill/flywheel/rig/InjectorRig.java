@@ -2,6 +2,7 @@ package au.com.williamhill.flywheel.rig;
 
 import static au.com.williamhill.flywheel.util.SocketTestSupport.*;
 
+import java.net.*;
 import java.nio.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -14,16 +15,17 @@ import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
-import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.Announce.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.util.*;
 
-public final class EdgeRig extends Thread implements TestSupport, AutoCloseable, TopicListener {
+public final class InjectorRig extends Thread implements TestSupport, AutoCloseable, RemoteNexusHandler {
   private static final String CONTROL_TOPIC = "control";
   
-  public static class EdgeRigConfig {
+  public static class InjectorRigConfig {
+    URI uri;
     TopicSpec topicSpec;
     int pulseDurationMillis;
     int pulses;
@@ -31,15 +33,19 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
     boolean text;
     int bytes;
     LogConfig log;
+    
+    static URI getUri(String host, int port, String path) throws URISyntaxException {
+      return new URI(String.format("ws://%s:%d%s", host, port, path));
+    }
   }
   
   private enum State {
     CONNECT_WAIT, RUNNING, STOPPED, CLOSING, CLOSED
   }
   
-  private final EdgeNode node;
+  private final RemoteNode node;
   
-  private final EdgeRigConfig config;
+  private final InjectorRigConfig config;
   
   private final List<Topic> leafTopics;
   
@@ -49,18 +55,37 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   
   private final Map<String, AtomicInteger> subscriptionsByNode = new ConcurrentHashMap<>();
   
+  private RemoteNexus nexus;
+  
   private volatile State state = State.CONNECT_WAIT;
   
   private volatile long took;
   
-  public EdgeRig(EdgeNode node, EdgeRigConfig config) {
-    super("EdgeRig");
+  public InjectorRig(RemoteNode node, InjectorRigConfig config) {
+    super("InjectorRig");
     this.node = node;
     this.config = config;
     
     leafTopics = config.topicSpec.getLeafTopics();
-    node.addTopicListener(this);
+    try {
+      openNexus();
+    } catch (Exception e) {
+      e.printStackTrace(config.log.out);
+      throw new RuntimeException(e);
+    }
     start();
+  }
+  
+  private void openNexus() throws Exception {
+    final String sessionId = generateSessionId();
+    if (config.log.stages) config.log.out.format("i: opening nexus (%s)...\n", sessionId);
+    nexus = node.open(config.uri, this);
+    nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
+                             new String[]{CONTROL_TOPIC + "/+/tx"}, new String[]{}, null)).get();
+  }
+  
+  private String generateSessionId() {
+    return Long.toHexString(Crypto.machineRandom());
   }
   
   long getTimeTaken() {
@@ -77,7 +102,7 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   
   private void runBenchmark() {
     if (state == State.RUNNING) {
-      if (config.log.stages) config.log.out.format("e: benchmark commenced on %s\n", new Date());
+      if (config.log.stages) config.log.out.format("i: benchmark commenced on %s\n", new Date());
     } else {
       return;
     }
@@ -86,7 +111,7 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
     int interval = 1;
     
     int pulse = 0;
-    if (config.log.stages) config.log.out.format("e: warming up (%,d pulses)...\n", config.warmupPulses);
+    if (config.log.stages) config.log.out.format("i: warming up (%,d pulses)...\n", config.warmupPulses);
     boolean warmup = true;
     final byte[] binPayload = config.text ? null : randomBytes(config.bytes);
     final String textPayload = config.text ? randomString(config.bytes) : null;
@@ -99,19 +124,19 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
       for (Topic t : leafTopics) {
         if (warmup && pulse >= config.warmupPulses) {
           warmup = false;
-          if (config.log.stages) config.log.out.format("e: starting timed run (%,d pulses)...\n", 
+          if (config.log.stages) config.log.out.format("i: starting timed run (%,d pulses)...\n", 
                                                        config.pulses - config.warmupPulses);
         }
         final long timestamp = warmup ? 0 : System.nanoTime();
         if (config.text) {
           final String str = new StringBuilder().append(timestamp).append(' ').append(textPayload).toString();
-          node.publish(t.toString(), str);
+          nexus.publish(new PublishTextFrame(t.toString(), str));
         } else {
           final ByteBuffer buf = ByteBuffer.allocate(8 + config.bytes);
           buf.putLong(timestamp);
           buf.put(binPayload);
           buf.flip();
-          node.publish(t.toString(), BinaryUtils.toByteArray(buf));
+          nexus.publish(new PublishBinaryFrame(t.toString(), BinaryUtils.toByteArray(buf)));
         }
         
         if (sent++ % perInterval == 0) {
@@ -137,7 +162,7 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
           interval++;
         }
       }
-      if (config.log.verbose) config.log.out.format("e: pulse %,d took %,d (%,d every %,d ms)\n", 
+      if (config.log.verbose) config.log.out.format("i: pulse %,d took %,d (%,d every %,d ms)\n", 
                                                     pulse, cycleTook, perInterval, interval);
       
       if (config.log.progress && pulse % progressInterval == 0) {
@@ -148,7 +173,6 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
         break;
       }
     }
-    
     took = System.currentTimeMillis() - start; 
     
     state = State.STOPPED;
@@ -165,24 +189,15 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
       final int subscribers = getSubscribers(controlSessionId);
       final long expectedMessages = (long) config.pulses * subscribers;
       
-      if (config.log.stages) config.log.out.format("e: awaiting remote %s (%,d messages across %,d subscribers)...\n",
+      if (config.log.stages) config.log.out.format("i: awaiting remote %s (%,d messages across %,d subscribers)...\n",
                                                    controlSessionId, expectedMessages, subscribers);
       
       pubToControl(controlSessionId, new Wait(expectedMessages));
     }
-    
-    try {
-      Await.boundedTimeout(60_000, () -> controlSessions.isEmpty());
-    } catch (InterruptedException e) {
-      e.printStackTrace(config.log.out);
-      Thread.currentThread().interrupt();
-    } catch (TimeoutException e) {
-      config.log.out.format("e: timed out waiting for remote\n");
-    }
   }
   
   public boolean await() throws InterruptedException {
-    Await.perpetual(() -> state == State.STOPPED && node.getNexuses().isEmpty());
+    Await.perpetual(() -> state == State.STOPPED);
     return true;
   }
   
@@ -201,16 +216,16 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   }
   
   private void closeNexuses() throws Exception, InterruptedException {
-    final List<EdgeNexus> nexuses = node.getNexuses();
+    final List<RemoteNexus> nexuses = node.getNexuses();
     if (nexuses.isEmpty()) return;
     
-    if (config.log.stages) config.log.out.format("e: closing nexuses (%,d)...\n", nexuses.size());
-    for (EdgeNexus nexus : nexuses) {
+    if (config.log.stages) config.log.out.format("i: closing nexuses (%,d)...\n", nexuses.size());
+    for (RemoteNexus nexus : nexuses) {
       nexus.close();
     }
-    for (EdgeNexus nexus : nexuses) {
+    for (RemoteNexus nexus : nexuses) {
       if (! nexus.awaitClose(60_000)) {
-        config.log.out.format("e: timed out while waiting for close of %s\n", nexus);
+        config.log.out.format("i: timed out while waiting for close of %s\n", nexus);
       }
     }
   }
@@ -233,35 +248,8 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
     return subscriptionsByNode.get(sessionId).get();
   }
 
-  @Override
-  public void onOpen(EdgeNexus nexus) {
-    if (config.log.verbose) config.log.out.format("e: opened %s\n", nexus);
-  }
-
-  @Override
-  public void onClose(EdgeNexus nexus) {
-    if (config.log.verbose) config.log.out.format("e: closed %s\n", nexus);
-    final String sessionId = nexus.getSession().getSessionId();
-    controlSessions.remove(sessionId);
-  }
-
-  @Override
-  public void onBind(EdgeNexus nexus, BindFrame bind, BindResponseFrame bindRes) {
-    if (config.log.verbose) config.log.out.format("e: sub %s %s\n", nexus, bind);
-  }
-  
-  @Override
-  public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
-    if (! nexus.isLocal() && pub.getTopic().startsWith(CONTROL_TOPIC)) {
-      final Topic t = Topic.of(pub.getTopic());
-      final String sessionId = t.getParts()[1];
-      final RigSubframe subframe = RigSubframe.unmarshal(pub.getPayload(), subframeGson);
-      onSubframe(nexus, sessionId, subframe);
-    }
-  }
-  
-  private void onSubframe(EdgeNexus nexus, String sessionId, RigSubframe subframe) {
-    if (config.log.verbose) config.log.out.format("e: subframe %s %s\n", sessionId, subframe);
+  private void onSubframe(RemoteNexus nexus, String sessionId, RigSubframe subframe) {
+    if (config.log.verbose) config.log.out.format("i: subframe %s %s\n", sessionId, subframe);
     if (subframe instanceof Announce) {
       final Announce announce = (Announce) subframe;
       if (announce.getRole() == Role.CONTROL) {
@@ -279,11 +267,31 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   }
   
   private void pubToControl(String sessionId, RigSubframe subframe) {
-    node.publish(getControlRxTopic(sessionId), subframe.marshal(subframeGson));
+    nexus.publish(new PublishTextFrame(getControlRxTopic(sessionId), subframe.marshal(subframeGson)));
   }
 
   @Override
-  public void onPublish(EdgeNexus nexus, PublishBinaryFrame pub) {
-    if (config.log.verbose) config.log.out.format("e: pub %s %s\n", nexus, pub);
+  public void onOpen(RemoteNexus nexus) {
+    if (config.log.verbose) config.log.out.format("i: opened %s\n", nexus);
+  }
+
+  @Override
+  public void onClose(RemoteNexus nexus) {
+    if (config.log.verbose) config.log.out.format("i: closed %s\n", nexus);
+  }
+
+  @Override
+  public void onText(RemoteNexus nexus, String topic, String payload) {
+    if (topic.startsWith(CONTROL_TOPIC)) {
+      final Topic t = Topic.of(topic);
+      final String sessionId = t.getParts()[1];
+      final RigSubframe subframe = RigSubframe.unmarshal(payload, subframeGson);
+      onSubframe(nexus, sessionId, subframe);
+    }
+  }
+
+  @Override
+  public void onBinary(RemoteNexus nexus, String topic, byte[] payload) {
+    if (config.log.verbose) config.log.out.format("i: pub %s\n", nexus);
   }
 }
