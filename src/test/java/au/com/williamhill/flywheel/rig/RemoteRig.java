@@ -78,10 +78,10 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
         }
       }
     });
-    control.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
-                               new String[]{getControlTopic(sessionId)}, new String[]{}, null)).get();
     control.publish(new PublishTextFrame(getControlTopic(sessionId), 
                                          new Announce(Role.CONTROL, sessionId).marshal(subframeGson)));
+    control.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
+                               new String[]{getControlTopic(sessionId)}, new String[]{}, null)).get();
   }
   
   private void awaitLater(RemoteNexus nexis, String sessionId, long expectedMessages) {
@@ -128,12 +128,12 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
       for (int i = 0; i < interest.getCount(); i++) {
         final RemoteNexus nexus = node.open(config.uri, this);
         final String sessionId = generateSessionId();
+        nexus.publish(new PublishTextFrame(getControlTopic(sessionId), 
+                                           new Announce(Role.SUBSCRIBER, control.getSessionId()).marshal(subframeGson)));
         final CompletableFuture<BindResponseFrame> f = 
             nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null,
                                      new String[]{interest.getTopic().toString()}, new String[]{}, null));
         futures.add(f);
-        nexus.publish(new PublishTextFrame(getControlTopic(sessionId), 
-                                           new Announce(Role.SUBSCRIBER, control.getSessionId()).marshal(subframeGson)));
       }
     }
     
