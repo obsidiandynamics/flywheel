@@ -56,7 +56,7 @@ public final class InjectorRigBenchmark implements TestSupport {
     BashInteractor.Ulimit.main(null);
     final URI uri = new URI(URL);
     do {
-      LOG_STREAM.println("_\nInjector benchmark started; waiting for remote connections...");
+      LOG_STREAM.format("_\nInjector benchmark started (URI: %s); waiting for remote connections...\n", uri);
       new Config() {{
         runner = InjectorRigBenchmark::run;
         host = uri.getHost();

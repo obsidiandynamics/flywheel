@@ -32,8 +32,8 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     double normalMinNanos = Double.NaN;
     LogConfig log;
     
-    static URI getUri(String host, int port, String path) throws URISyntaxException {
-      return new URI(String.format("ws://%s:%d%s", host, port, path));
+    static URI getUri(String host, int port, String path) throws URISyntaxException, MalformedURLException {
+      return new URL("http", host, port, path).toURI();
     }
   }
   
