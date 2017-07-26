@@ -4,6 +4,7 @@ import static java.lang.System.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 
 import org.slf4j.*;
 
@@ -105,12 +106,69 @@ public final class Launchpad {
   }
   
   public static void main(String... args) {
+    ShInteractor.Ulimit.main(null);
     try {
       new Launchpad(getProfilePath(System.getenv())).launch(args);
     } catch (LaunchpadException e) {
       err.format("Error:\n");
       e.printStackTrace(err);
       System.exit(1);
+    }
+  }
+}
+
+final class ShInteractor {
+  private ShInteractor() {}
+  
+  public static int execute(String command, boolean waitForResponse, Consumer<String> handler) {
+    int shellExitStatus = -1;
+    final ProcessBuilder pb = new ProcessBuilder("sh", "-c", command);
+    pb.redirectErrorStream(true);
+    try {
+      final Process shell = pb.start();
+
+      if (waitForResponse) {
+        final InputStream shellIn = shell.getInputStream();
+        shellExitStatus = shell.waitFor();
+        convertStreamToStr(shellIn, handler);
+        shellIn.close();
+      }
+    } catch (IOException e) {
+      System.err.println("Error occured while executing command: " + e.getMessage());
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    return shellExitStatus;
+  }
+
+  private static String convertStreamToStr(InputStream is, Consumer<String> handler) throws IOException {
+    if (is != null) {
+      final Writer writer = new StringWriter();
+      final char[] buffer = new char[1024];
+      try {
+        final Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        int n;
+        while ((n = reader.read(buffer)) != -1) {
+          final String output = new String(buffer, 0, n);
+          writer.write(buffer, 0, n);
+
+          if (handler != null) {
+            handler.accept(output);
+          }
+        }
+      } finally {
+        is.close();
+      }
+      return writer.toString();
+    } else {
+      return "";
+    }
+  }
+
+  public static final class Ulimit {
+    public static void main(String[] args) {
+      System.out.println("$ ulimit -Sa");
+      ShInteractor.execute("ulimit -Sa", true, System.out::print);
     }
   }
 }
