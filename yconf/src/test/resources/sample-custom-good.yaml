@@ -1,0 +1,12 @@
+- name: Health check
+  protocol: http
+  host: localhost
+  port: 8080
+  path: /health
+- name: Message broker
+  protocol: ws
+  host: broker.acme.com
+  path: /broker
+- name: Service discovery
+  protocol: https
+  host: sd.acme.com

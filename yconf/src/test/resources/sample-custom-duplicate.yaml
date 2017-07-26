@@ -1,0 +1,6 @@
+- name: Health check
+  protocol: http
+  host: localhost
+  port: 8080
+  path: /health
+- name: Health check

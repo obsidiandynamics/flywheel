@@ -12,6 +12,8 @@ Parsers such as SnakeYAML, Jackson, Gson, Genson, XStream _et al._ already suppo
 
 YConf was designed to provide a parser-agnostic object mapper. With YConf you can switch from one document format to another, and your application is none the wiser. And importantly, your hand-crafted mapping code will continue to work regardless of the underlying library.
 
+YConf standardises type mappings. Your team might support multiple projects with varying configuration needs - different formats, parsers and mappings. Rather than learning the intricacies of every parser, YConf provides a uniform language that works across parsers.
+
 # Getting Started
 ## Getting YConf
 Gradle builds are hosted on JCenter. Just add the following snippet to your build file (replacing the version number in the snippet with the version shown on the Download badge at the top of this README).
@@ -138,7 +140,7 @@ This is basically constructor injection, topped off with field injection - for a
 # Custom Mappings
 The earlier examples assume that the configuration corresponds, more or less, to the resulting object graph. It's also assumed that you have some control over the underlying classes, at least to add the appropriate annotations. Sometimes this isn't the case.
 
-## Type mapper 101
+## Type mapping 101
 We need to dissect some of the underlying mechanisms before we go any further. At the heart of YConf there are three main classes:
 
 * `MappingContext` - Holds contextual data about the current mapping session, as well as settings - a registry of type mappers and DOM transforms. When you need to change YConf's behaviour, this is the class you use.
@@ -205,3 +207,77 @@ Finally, we can use coercion to translate strings to a more complex type. For ex
 ```java
 new MappingContext().withMapper(URL.class, new CoercingMapper(URL.class, URL::new))...
 ```
+
+## Writing your own
+Now we get to the crux of it. You need a way to create an arbitrary object graph that bears little resemblance to the underlying configuration file.
+
+Suppose we have the following file, containing a list of named server endpoints:
+```yaml
+- name: Health check
+  protocol: http
+  host: localhost
+  port: 8080
+  path: /health
+
+- name: Message broker
+  protocol: ws
+  host: broker.acme.com
+  path: /broker
+
+- name: Service discovery
+  protocol: https
+  host: sd.acme.com
+```
+
+We'd like to translate this to a class that contains a map of endpoint names to their `URI`s:
+```java
+public final class WebConfig {
+  final Map<String, URI> servers;
+}
+```
+
+Furthermore, we'd like to ensure that the endpoint names are unique, throwing an error if a duplicate name is encountered. We also want the `port` and `path` fields to be optional.
+
+Start by implementing a `TypeMapper` for the root object.
+```java
+public static final class Mapper implements TypeMapper {
+  @Override public Object map(YObject y, Class<?> type) {
+    final Map<String, URI> servers = new HashMap<>();
+    for (YObject server : y.asList()) {
+      final String name = server.mapAttribute("name", String.class);
+      if (servers.containsKey(name)) {
+        throw new MappingException("Duplicate server name " + name);
+      }
+      
+      final String protocol = server.mapAttribute("protocol", String.class);
+      final String host = server.mapAttribute("host", String.class);
+      final Integer port = server.mapAttribute("port", Integer.class);
+      final String path = server.mapAttribute("path", String.class);
+      final URI uri;
+      try {
+        uri = new URI(protocol, null, host, port != null ? port : -1, path, null, null);
+      } catch (URISyntaxException e) {
+        throw new MappingException("Error parsing URI", e);
+      }
+      servers.put(name, uri);
+    }
+    return new WebConfig(servers);
+  }
+}
+```
+
+This is a simple class with one _functional_ method - taking in a DOM fragment and the desired type (which we already know to be `WebConfig`) and outputting a `WebConfig` instance. But before going further, let's pause for a minute to consider how YConf actually works.
+
+Behind the scenes, all structured document parsers really deal with just three kinds of elements - **scalars**, **lists** and **maps**. (And where this mightn't be the case, it's relatively straightforward to map the parser's output to a scalar, list or a map.) The scalar is usually either a primitive type or its boxed equivalent, and sometimes simple types such as a `Date` might also be supported natively by the parser. The list is typically an `ArrayList<?>`. The map tends to be a `LinkedHashMap<?, ?>` (to preserve insertion order). 
+
+Part of YConf's value-add is the guarantee that the underlying DOM is either a scalar, a `List<YObject>`, or a `Map<String, YObject>` - irrespective of the native data types that the backing parser might emit. As far as scalars go, the value will be of the widest type and _may_ also come pre-converted, if the parser was under instruction to do so.
+
+Now that we know the fundamentals, let's take another look at the original document. To us it's now just just a list of maps.
+
+The configuration is an array at the top level, so our mapper calls the `asList()` method of the given DOM, which returns a `List<YObject>` - listing each item in the array. Each of the elements is a `Map`, so we use the `mapAttribute()` method to convert the value of an attribute to a specific target type.
+
+Note the use of recursion. The `mapAttribute()` method doesn't just return the raw value; it actually uses the underlying `MappingContext` to initiate a deeper query into the DOM, which in turn, will invoke another mapper as required. Also, `mapAttribute("name", String.class)` is another way of saying `server.asMap().get("name").map(String.class)`.
+
+After extracting the name, we check that our staging `servers` map doesn't already contain an identically-named entry. If it does, we'll throw a `MappingException` - an unchecked exception that bubble up to our ultimate caller. The rest of the code is fairly trivial; we map the remaining attributes onto local variables, which are then used to construct a `URI`. The requirement to support optional `port` and `path` fields is accommodated by the use of reference types (`Integer` in place of an `int`); the mapper will return `null` if the requested attribute value isn't present in the document, or is explicitly set to `null`.
+
+You might be wondering - why does the `map()` method need the `type` parameter, given that our mapper implementation already knows which type it should be dealing with? What else could it be? The reason is that although our custom mapper is very specific, there are other mappers (such as the `CoercingMapper`) that are generic - designed to deal with a variety of types. So knowing the type at runtime may occasionally be required.
