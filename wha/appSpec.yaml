@@ -1,6 +1,6 @@
 name: platform-flywheel
 type: service
-maxMemory: 1024
+maxMemory: 1280
 segment: internal
 tcpPorts:
   - 8080

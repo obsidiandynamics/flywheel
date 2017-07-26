@@ -53,6 +53,8 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   
   private final Set<String> controlSessions = new ConcurrentHashSet<>();
   
+  private final Set<String> confirmedWaits = new ConcurrentHashSet<>();
+  
   private final Map<String, AtomicInteger> subscriptionsByNode = new ConcurrentHashMap<>();
   
   private RemoteNexus nexus;
@@ -81,7 +83,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     if (config.log.stages) config.log.out.format("i: opening nexus (%s)...\n", sessionId);
     nexus = node.open(config.uri, this);
     nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
-                             new String[]{CONTROL_TOPIC + "/+/tx"}, new String[]{}, null)).get();
+                             new String[]{CONTROL_TOPIC + "/#"}, new String[]{}, null)).get();
   }
   
   private String generateSessionId() {
@@ -194,6 +196,15 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
       
       pubToControl(controlSessionId, new Wait(expectedMessages));
     }
+    
+    try {
+      Await.boundedTimeout(60_000, () -> controlSessions.size() == confirmedWaits.size());
+    } catch (InterruptedException e) {
+      e.printStackTrace(config.log.out);
+      Thread.currentThread().interrupt();
+    } catch (TimeoutException e) {
+      config.log.out.format("e: timed out waiting for remote\n");
+    }
   }
   
   public boolean await() throws InterruptedException {
@@ -247,24 +258,6 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   private int getSubscribers(String sessionId) {
     return subscriptionsByNode.get(sessionId).get();
   }
-
-  private void onSubframe(RemoteNexus nexus, String sessionId, RigSubframe subframe) {
-    if (config.log.verbose) config.log.out.format("i: subframe %s %s\n", sessionId, subframe);
-    if (subframe instanceof Announce) {
-      final Announce announce = (Announce) subframe;
-      if (announce.getRole() == Role.CONTROL) {
-        controlSessions.add(sessionId);
-      } else {
-        addSubscriber(announce.getControlSessionId());
-      }
-    } else if (subframe instanceof Sync) {
-      pubToControl(sessionId, new SyncResponse(System.nanoTime()));
-    } else if (subframe instanceof Begin) {
-      state = State.RUNNING;
-    } else {
-      config.log.out.format("ERROR: Unsupported subframe of type %s\n", subframe.getClass().getName());
-    }
-  }
   
   private void pubToControl(String sessionId, RigSubframe subframe) {
     nexus.publish(new PublishTextFrame(getControlRxTopic(sessionId), subframe.marshal(subframeGson)));
@@ -286,7 +279,35 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
       final Topic t = Topic.of(topic);
       final String sessionId = t.getParts()[1];
       final RigSubframe subframe = RigSubframe.unmarshal(payload, subframeGson);
-      onSubframe(nexus, sessionId, subframe);
+      if (topic.endsWith("/tx")) {
+        onTxSubframe(nexus, sessionId, subframe);
+      } else {
+        onRxSubframe(nexus, sessionId, subframe);
+      }
+    }
+  }
+
+  private void onTxSubframe(RemoteNexus nexus, String sessionId, RigSubframe subframe) {
+    if (config.log.verbose) config.log.out.format("i: subframe %s %s\n", sessionId, subframe);
+    if (subframe instanceof Announce) {
+      final Announce announce = (Announce) subframe;
+      if (announce.getRole() == Role.CONTROL) {
+        controlSessions.add(sessionId);
+      } else {
+        addSubscriber(announce.getControlSessionId());
+      }
+    } else if (subframe instanceof Sync) {
+      pubToControl(sessionId, new SyncResponse(System.nanoTime()));
+    } else if (subframe instanceof Begin) {
+      state = State.RUNNING;
+    } else {
+      config.log.out.format("ERROR: Unsupported subframe of type %s\n", subframe.getClass().getName());
+    }
+  }
+  
+  private void onRxSubframe(RemoteNexus nexus, String sessionId, RigSubframe subframe) {
+    if (subframe instanceof Wait) {
+      confirmedWaits.add(sessionId);
     }
   }
 
