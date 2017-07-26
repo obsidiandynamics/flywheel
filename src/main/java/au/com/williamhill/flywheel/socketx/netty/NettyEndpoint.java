@@ -152,7 +152,7 @@ public final class NettyEndpoint implements XEndpoint {
   }
   
   void onError(Throwable cause) {
-    manager.getListener().onError(this, cause);
+    if (isOpen()) manager.getListener().onError(this, cause);
   }
 
   @Override

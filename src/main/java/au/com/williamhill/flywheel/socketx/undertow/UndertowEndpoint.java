@@ -86,7 +86,7 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
   @Override
   protected void onError(WebSocketChannel channel, Throwable cause) {
     super.onError(channel, cause);
-    manager.getListener().onError(this, cause);
+    if (isOpen()) manager.getListener().onError(this, cause);
   }
   
   @Override

@@ -77,7 +77,7 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
   @Override 
   public void onWebSocketError(Throwable cause) {
     super.onWebSocketError(cause);
-    manager.getListener().onError(this, cause);
+    if (isOpen()) manager.getListener().onError(this, cause);
   }
   
   @Override
