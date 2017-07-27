@@ -14,8 +14,8 @@ import au.com.williamhill.flywheel.topic.*;
 public final class EdgeRigBenchmark implements TestSupport {
   private static final int PORT = get("flywheel.rig.port", Integer::valueOf, 8080);
   private static final String PATH = get("flywheel.rig.path", String::valueOf, "/broker");
-  private static final int PULSES = get("flywheel.rig.pulses", Integer::valueOf, 300);
-  private static final int PULSE_DURATION = get("flywheel.rig.pulseDuration", Integer::valueOf, 100);
+  private static final int PULSES = get("flywheel.rig.pulses", Integer::valueOf, 30);
+  private static final int PULSE_DURATION = get("flywheel.rig.pulseDuration", Integer::valueOf, 1000);
   private static final float WARMUP_FRAC = get("flywheel.rig.warmupFrac", Float::valueOf, 0.10f);
   private static final boolean TEXT = get("flywheel.rig.text", Boolean::valueOf, false);
   private static final int BYTES = get("flywheel.rig.bytes", Integer::valueOf, 128);

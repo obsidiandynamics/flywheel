@@ -198,12 +198,13 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     }
     
     try {
-      Await.boundedTimeout(60_000, () -> controlSessions.size() == confirmedWaits.size());
+      Await.boundedTimeout(300_000, () -> controlSessions.size() == confirmedWaits.size());
     } catch (InterruptedException e) {
       e.printStackTrace(config.log.out);
       Thread.currentThread().interrupt();
     } catch (TimeoutException e) {
-      config.log.out.format("e: timed out waiting for remote\n");
+      config.log.out.format("i: timed out waiting for remote (%,d/%,d sessions confirmed)\n", 
+                            confirmedWaits.size(), controlSessions.size());
     }
   }
   

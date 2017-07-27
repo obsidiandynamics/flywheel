@@ -327,7 +327,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
    *  @return List of nexuses.
    */
   public List<EdgeNexus> getNexuses() {
-    return Collections.unmodifiableList(nexuses);
+    return Collections.unmodifiableList(new ArrayList<>(nexuses));
   }
   
   @Override

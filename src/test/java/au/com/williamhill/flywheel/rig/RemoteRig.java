@@ -215,7 +215,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     
     final long timeDiff = timeDeltas.stream().collect(Collectors.averagingLong(l -> l)).longValue();
     if (config.log.stages) config.log.out.format("r: calibration complete; time delta: %,d ns (%s ahead)\n", 
-                                                 timeDiff, timeDiff >= 0 ? "remote" : "source");
+                                                 timeDiff, timeDiff >= 0 ? "sink" : "source");
     return timeDiff;
   }
   
