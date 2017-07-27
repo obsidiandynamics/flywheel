@@ -17,6 +17,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   private static final int SYNC_FRAMES = get("flywheel.rig.syncFrames", Integer::valueOf, 10);
   private static final boolean INITIATE = get("flywheel.rig.initiate", Boolean::valueOf, true);
   private static final double NORMAL_MIN = get("flywheel.rig.normalMin", RemoteRigBenchmark::doubleOrNaN, Double.NaN);
+  private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   
   private static double doubleOrNaN(String value) {
     return value.equals("NaN") ? Double.NaN : Double.parseDouble(value);
@@ -43,22 +44,24 @@ public final class RemoteRigBenchmark implements TestSupport {
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
     final URI uri = new URI(URL);
-    LOG_STREAM.format("_\nRemote benchmark started (URI: %s, initiate: %b)...\n", 
-                      uri, INITIATE);
-    new Config() {{
-      runner = RemoteRigBenchmark::run;
-      host = uri.getHost();
-      port = uri.getPort();
-      path = uri.getPath();
-      syncFrames = SYNC_FRAMES;
-      topicSpec = TopicLibrary.jumboLeaves();
-      initiate = INITIATE;
-      normalMinNanos = NORMAL_MIN;
-      log = new LogConfig() {{
-        progress = intermediateSummaries = false;
-        stages = true;
-        summary = true;
-      }};
-    }}.test();
+    do {
+      LOG_STREAM.format("_\nRemote benchmark started (URI: %s, initiate: %b)...\n", 
+                        uri, INITIATE);
+      new Config() {{
+        runner = RemoteRigBenchmark::run;
+        host = uri.getHost();
+        port = uri.getPort();
+        path = uri.getPath();
+        syncFrames = SYNC_FRAMES;
+        topicSpec = TopicLibrary.jumboLeaves();
+        initiate = INITIATE;
+        normalMinNanos = NORMAL_MIN;
+        log = new LogConfig() {{
+          progress = intermediateSummaries = false;
+          stages = true;
+          summary = true;
+        }};
+      }}.test();
+    } while (CYCLE);
   }
 }
