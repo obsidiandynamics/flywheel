@@ -105,6 +105,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   private void runBenchmark() {
     if (state == State.RUNNING) {
       if (config.log.stages) config.log.out.format("i: benchmark commenced on %s\n", new Date());
+      if (controlSessions.isEmpty()) config.log.out.format("ERROR: no control sessions\n");
     } else {
       return;
     }

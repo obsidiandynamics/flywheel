@@ -60,33 +60,39 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   
   @Override
   public void run() throws Exception {
-    openControlNexus();
+    final String controlSessionId = openControlNexus();
     timeDiff = config.syncFrames != 0 ? calibrate() : 0;
+    announce(controlSessionId);
     connectAll();
     begin();
   }
   
-  private void openControlNexus() throws Exception {
-    final String sessionId = generateSessionId();
-    if (config.log.stages) config.log.out.format("r: opening control nexus (%s)...\n", sessionId);
+  private String openControlNexus() throws Exception {
+    final String controlSessionId = generateSessionId();
+    if (config.log.stages) config.log.out.format("r: opening control nexus (%s)...\n", controlSessionId);
     control = node.open(config.uri, new RemoteNexusHandlerBase() {
       @Override public void onText(RemoteNexus nexus, String topic, String payload) {
         if (config.log.verbose) config.log.out.format("r: control received %s\n", payload);
         final RigSubframe subframe = RigSubframe.unmarshal(payload, subframeGson);
         if (subframe instanceof Wait) {
-          awaitLater(nexus, sessionId, ((Wait) subframe).getExpectedMessages());
+          awaitLater(nexus, controlSessionId, ((Wait) subframe).getExpectedMessages());
         }
       }
     });
-    control.publish(new PublishTextFrame(getControlTxTopic(sessionId), 
-                                         new Announce(Role.CONTROL, sessionId).marshal(subframeGson)));
-    control.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
-                               new String[]{getControlRxTopic(sessionId)}, new String[]{}, null)).get();
+    control.bind(new BindFrame(UUID.randomUUID(), controlSessionId, null, 
+                               new String[]{getControlRxTopic(controlSessionId)}, new String[]{}, null)).get();
+    return controlSessionId;
+  }
+  
+  private void announce(String controlSessionId) {
+    control.publish(new PublishTextFrame(getControlTxTopic(controlSessionId), 
+                                         new Announce(Role.CONTROL, controlSessionId).marshal(subframeGson)));
   }
   
   private void awaitLater(RemoteNexus nexus, String sessionId, long expectedMessages) {
     Threads.asyncDaemon(() -> {
       try {
+        if (config.log.stages) config.log.out.format("r: awaiting receival (%,d messages)...\n", expectedMessages);
         awaitReceival(expectedMessages);
         closeNexuses();
       } catch (Exception e) {
