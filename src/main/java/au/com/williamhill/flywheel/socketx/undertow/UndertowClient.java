@@ -78,8 +78,8 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
                                            .set(Options.THREAD_DAEMON, true)
                                            .set(Options.CONNECTION_HIGH_WATER, 1_000_000)
                                            .set(Options.CONNECTION_LOW_WATER, 1_000_000)
-                                           .set(Options.WORKER_TASK_CORE_THREADS, 100)
-                                           .set(Options.WORKER_TASK_MAX_THREADS, 10_000)
+                                           .set(Options.WORKER_TASK_CORE_THREADS, 16)
+                                           .set(Options.WORKER_TASK_MAX_THREADS, 64)
                                            .set(Options.TCP_NODELAY, true)
                                            .getMap());
   }
