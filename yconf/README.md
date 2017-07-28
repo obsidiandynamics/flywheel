@@ -305,7 +305,7 @@ public final class WebConfig {
 
 We've embedded the mapper into the config class for convenience, and have referenced it from `@Y`. Simple.
 
-**Note:** Classes referenced from `@Y` must be bean-instantiable. That is, they must be public, have a public no-arg constructor, and must not have an encapsulating instance. The latter is the easiest to forget when using a nested class; make sure you're declaring your mapper with the `static` modifier if nesting within another type.
+**Note:** Classes referenced from `@Y` must be bean-instantiable. That is, they must be public, have a public no-arg constructor, and must not have an encapsulating instance. The latter is easy to overlook when using a nested class; make sure you're declaring your mapper with the `static` modifier if nesting within another type.
 
 Alternatively, if you don't (or can't) add an annotation to your class, the following snippet registers the type mapper directly with the context.
 ```java
