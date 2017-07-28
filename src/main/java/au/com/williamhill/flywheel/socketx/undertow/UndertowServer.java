@@ -18,15 +18,11 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
   private UndertowServer(XServerConfig config,
                          XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
     this.config = config;
-    final int ioThreads = Runtime.getRuntime().availableProcessors();
-    final int coreWorkerThreads = 100;
-    final int maxWorkerThreads = coreWorkerThreads * 100;
-
     worker = Xnio.getInstance().createWorker(OptionMap.builder()
-                                             .set(Options.WORKER_IO_THREADS, ioThreads)
+                                             .set(Options.WORKER_IO_THREADS, Runtime.getRuntime().availableProcessors())
                                              .set(Options.THREAD_DAEMON, true)
-                                             .set(Options.WORKER_TASK_CORE_THREADS, coreWorkerThreads)
-                                             .set(Options.WORKER_TASK_MAX_THREADS, maxWorkerThreads)
+                                             .set(Options.WORKER_TASK_CORE_THREADS, 16)
+                                             .set(Options.WORKER_TASK_MAX_THREADS, 64)
                                              .set(Options.TCP_NODELAY, true)
                                              .getMap());
 

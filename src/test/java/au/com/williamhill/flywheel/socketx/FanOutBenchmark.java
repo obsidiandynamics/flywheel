@@ -482,7 +482,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
       new Config() {{
         serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
         clientHarnessFactory = clientHarnessFactory(client);
-        port = PREFERRED_PORT;
+        port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
         idleTimeout = idleTimeout_;
         n = 300_000;
         m = 100;

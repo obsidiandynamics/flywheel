@@ -46,7 +46,7 @@ public final class RemoteNode implements AutoCloseable {
    *  @return List of nexuses.
    */
   public List<RemoteNexus> getNexuses() {
-    return Collections.unmodifiableList(nexuses);
+    return Collections.unmodifiableList(new ArrayList<>(nexuses));
   }
   
   Wire getWire() {
