@@ -2,10 +2,10 @@
 
 # The application can define additional startup commands in ./conf/bootrc and/or ./ext/bootrc.
 if [ -e conf/bootrc ]; then
-  source conf/bootrc
+  . conf/bootrc
 fi
 if [ -e ext/bootrc ]; then
-  source ext/bootrc
+  . ext/bootrc
 fi
 
 CYAN='\033[0;36m'
@@ -14,7 +14,7 @@ NC='\033[0m'
 # Determine the correct use of echo on this shell and platform (MacOS and Linux 'echo' differ when
 # using /bin/sh).
 echo_out=`echo -e`
-if [ "${echo_out}" == "" ]; then
+if [ "${echo_out}" = "" ]; then
   echo_cmd="echo -e"
 else
   echo_cmd="echo"
@@ -28,7 +28,7 @@ echo
 
 ulimit -Sa
 
-if [ "$1" == "--cmd" ]; then
+if [ "$1" = "--cmd" ]; then
   if [ $# -eq 1 ]; then
     sh
   else
@@ -36,7 +36,7 @@ if [ "$1" == "--cmd" ]; then
     sh -c "$@"
   fi
 else
-  if [ "$1" == "--jvm-opts" ]; then
+  if [ "$1" = "--jvm-opts" ]; then
     if [ $# -lt 2 ]; then
       echo "> Usage --jvm-opts <jvm options>"
       exit 1
