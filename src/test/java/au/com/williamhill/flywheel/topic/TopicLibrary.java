@@ -55,6 +55,58 @@ public final class TopicLibrary {
         .build();
   }
   
+  public static TopicSpec jumboLeaves2() {
+    return TopicSpec.builder()
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(4))
+        .add(new NodeSpec(1, 0, 0).nodes(5))
+        .build();
+  }
+  
+  public static TopicSpec jumboLeaves3() {
+    return TopicSpec.builder()
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(6))
+        .add(new NodeSpec(1, 0, 0).nodes(5))
+        .build();
+  }
+  
+  public static TopicSpec jumboLeaves4() {
+    return TopicSpec.builder()
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(8))
+        .add(new NodeSpec(1, 0, 0).nodes(5))
+        .build();
+  }
+  
+  public static TopicSpec jumboLeaves5() {
+    return TopicSpec.builder()
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(2))
+        .add(new NodeSpec(0, 0, 0).nodes(5))
+        .add(new NodeSpec(0, 0, 0).nodes(10))
+        .add(new NodeSpec(1, 0, 0).nodes(5))
+        .build();
+  }
+  
   public static TopicSpec tiny() {
     return TopicSpec.builder()
         .add(new NodeSpec(1, 1, 1).nodes(1))
