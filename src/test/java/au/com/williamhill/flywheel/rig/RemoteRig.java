@@ -7,8 +7,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.stream.*;
 
-import org.awaitility.*;
-
 import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
@@ -216,8 +214,15 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
                              new String[]{getControlRxTopic(sessionId)}, new String[]{}, null)).get();
     
     lastRemoteTransmitTime.set(System.nanoTime());
-    nexus.publish(new PublishTextFrame(outTopic, new Sync(lastRemoteTransmitTime.get()).marshal(subframeGson)));
-    Awaitility.await().atMost(60, TimeUnit.SECONDS).untilTrue(syncComplete);
+    
+    for (;;) {
+      nexus.publish(new PublishTextFrame(outTopic, new Sync(lastRemoteTransmitTime.get()).marshal(subframeGson)));
+      if (Await.bounded(10_000, () -> syncComplete.get())) {
+        break;
+      } else {
+        config.log.out.format("r: calibration timed out; retrying...\n");
+      }
+    }
     
     final long timeDiff = timeDeltas.stream().collect(Collectors.averagingLong(l -> l)).longValue();
     if (config.log.stages) config.log.out.format("r: calibration complete; time delta: %,d ns (%s ahead)\n", 
