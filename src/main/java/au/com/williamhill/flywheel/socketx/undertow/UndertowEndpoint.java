@@ -172,6 +172,12 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
   
   private void fireCloseEvent() {
     if (closeFired.compareAndSet(false, true)) {
+      try {
+        channel.close();
+      } catch (IOException e) {
+        final UndertowLogger log = UndertowLogger.ROOT_LOGGER;
+        log.ioException(e);
+      }
       manager.remove(this);
       manager.getListener().onClose(this);
     }
