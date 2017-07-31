@@ -1,5 +1,5 @@
 # Additional init commands, run at the beginning of flywheel-launch.sh, prior to
 # launching the broker JVM process.
 
-export JVM_OPTS="-XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking -Xms128M -Xmx1G -Xss1M -XX:MaxDirectMemorySize=2G -XX:+UseParallelGC"
+export JVM_OPTS="-XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking -Xms128M -Xmx512M -Xss1M -XX:MaxDirectMemorySize=1280M -XX:+UseParallelGC"
 export FLYWHEEL_PROFILE=conf/wha
