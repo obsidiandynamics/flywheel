@@ -21,6 +21,7 @@ public final class InjectorRigBenchmark implements TestSupport {
   private static final boolean TEXT = get("flywheel.rig.text", Boolean::valueOf, false);
   private static final int BYTES = get("flywheel.rig.bytes", Integer::valueOf, 128);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
+  private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
   
   private static Summary run(Config c) throws Exception {
     final RemoteNode remote = RemoteNode.builder()
@@ -77,6 +78,8 @@ public final class InjectorRigBenchmark implements TestSupport {
           summary = true;
         }};
       }}.test();
+      
+      if (CYCLE) TestSupport.sleep(CYCLE_WAIT);
     } while (CYCLE);
   }
 }
