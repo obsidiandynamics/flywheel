@@ -18,6 +18,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   private static final boolean INITIATE = get("flywheel.rig.initiate", Boolean::valueOf, true);
   private static final double NORMAL_MIN = get("flywheel.rig.normalMin", RemoteRigBenchmark::doubleOrNaN, Double.NaN);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
+  private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
   
   private static double doubleOrNaN(String value) {
     return value.equals("NaN") ? Double.NaN : Double.parseDouble(value);
@@ -62,6 +63,8 @@ public final class RemoteRigBenchmark implements TestSupport {
           summary = true;
         }};
       }}.test();
+      
+      if (CYCLE) TestSupport.sleep(CYCLE_WAIT);
     } while (CYCLE);
   }
 }
