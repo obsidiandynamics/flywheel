@@ -29,6 +29,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     TopicSpec topicSpec;
     int pulseDurationMillis;
     int pulses;
+    int injectors;
     int warmupPulses;
     boolean text;
     int bytes;
@@ -57,7 +58,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   
   private final Map<String, AtomicInteger> subscriptionsByNode = new ConcurrentHashMap<>();
   
-  private RemoteNexus nexus;
+  private final List<RemoteNexus> nexuses = new CopyOnWriteArrayList<>();
   
   private volatile State state = State.CONNECT_WAIT;
   
@@ -70,7 +71,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     
     leafTopics = config.topicSpec.getLeafTopics();
     try {
-      openNexus();
+      openNexuses();
     } catch (Exception e) {
       e.printStackTrace(config.log.out);
       throw new RuntimeException(e);
@@ -78,12 +79,17 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     start();
   }
   
-  private void openNexus() throws Exception {
+  private void openNexuses() throws Exception {
     final String sessionId = generateSessionId();
     if (config.log.stages) config.log.out.format("i: opening nexus (%s)...\n", sessionId);
-    nexus = node.open(config.uri, this);
-    nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
-                             new String[]{CONTROL_TOPIC + "/#"}, new String[]{}, null)).get();
+    for (int i = 0; i < config.injectors; i++) {
+      final RemoteNexus nexus = node.open(config.uri, this);
+      nexuses.add(nexus);
+      if (i == 0) { // only the first nexus subscribes; the others are receive-only
+        nexus.bind(new BindFrame(UUID.randomUUID(), sessionId, null, 
+                                 new String[]{CONTROL_TOPIC + "/#"}, new String[]{}, null)).get();
+      }
+    }
   }
   
   private String generateSessionId() {
@@ -110,7 +116,10 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
       return;
     }
 
-    int perInterval = Math.max(1, leafTopics.size() / config.pulseDurationMillis);
+    final String[] topics = leafTopics.stream()
+        .map(t -> t.toString()).collect(Collectors.toList()).toArray(new String[leafTopics.size()]);
+    
+    int perInterval = Math.max(1, topics.length / config.pulseDurationMillis);
     int interval = 1;
     
     int pulse = 0;
@@ -120,26 +129,30 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     final String textPayload = config.text ? randomString(config.bytes) : null;
     final int progressInterval = Math.max(1, config.pulses / 25);
     final long start = System.currentTimeMillis();
-    
+
+    final RemoteNexus[] nexuses = this.nexuses.toArray(new RemoteNexus[this.nexuses.size()]);
     outer: while (state == State.RUNNING) {
       final long cycleStart = System.nanoTime();
       int sent = 0;
-      for (Topic t : leafTopics) {
+      for (String topic : topics) {
         if (warmup && pulse >= config.warmupPulses) {
           warmup = false;
           if (config.log.stages) config.log.out.format("i: starting timed run (%,d pulses)...\n", 
                                                        config.pulses - config.warmupPulses);
         }
         final long timestamp = warmup ? 0 : System.nanoTime();
+        final int width = nexuses.length;
+        final int hashMod = topic.hashCode() % width;
+        final RemoteNexus nexus = nexuses[hashMod < 0 ? hashMod + width : hashMod];
         if (config.text) {
           final String str = new StringBuilder().append(timestamp).append(' ').append(textPayload).toString();
-          nexus.publish(new PublishTextFrame(t.toString(), str));
+          nexus.publish(new PublishTextFrame(topic, str));
         } else {
           final ByteBuffer buf = ByteBuffer.allocate(8 + config.bytes);
           buf.putLong(timestamp);
           buf.put(binPayload);
           buf.flip();
-          nexus.publish(new PublishBinaryFrame(t.toString(), BinaryUtils.toByteArray(buf)));
+          nexus.publish(new PublishBinaryFrame(topic, BinaryUtils.toByteArray(buf)));
         }
         
         if (sent++ % perInterval == 0) {
@@ -262,7 +275,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   }
   
   private void pubToControl(String sessionId, RigSubframe subframe) {
-    nexus.publish(new PublishTextFrame(getControlRxTopic(sessionId), subframe.marshal(subframeGson)));
+    nexuses.get(0).publish(new PublishTextFrame(getControlRxTopic(sessionId), subframe.marshal(subframeGson)));
   }
 
   @Override

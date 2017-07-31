@@ -32,6 +32,7 @@ public final class TripleRigBenchmark implements TestSupport {
     String path;
     int pulses;
     int pulseDurationMillis;
+    int injectors;
     int syncFrames;
     TopicSpec topicSpec;
     boolean initiate;
@@ -71,6 +72,7 @@ public final class TripleRigBenchmark implements TestSupport {
       path = PATH;
       warmupFrac = 0.05f;
       initiate = true;
+      injectors = 2;
       normalMinNanos = 50_000f;
       log = new LogConfig() {{
         summary = stages = LOG;
@@ -145,6 +147,7 @@ public final class TripleRigBenchmark implements TestSupport {
       topicSpec = c.topicSpec;
       pulseDurationMillis = c.pulseDurationMillis;
       pulses = c.pulses;
+      injectors = c.injectors;
       warmupPulses = c.warmupPulses;
       text = c.text;
       bytes = c.bytes;
@@ -204,6 +207,7 @@ public final class TripleRigBenchmark implements TestSupport {
       path = PATH;
       pulses = 300;
       pulseDurationMillis = 100;
+      injectors = 10;
       syncFrames = 0;
       topicSpec = TopicLibrary.largeLeaves();
       warmupFrac = 0.20f;
