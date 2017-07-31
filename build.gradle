@@ -203,6 +203,23 @@ publishing {
   }
 }
 
+task testJar(type: Jar) {
+  dependsOn configurations.compile
+  dependsOn configurations.runtime
+  dependsOn configurations.testCompile
+  dependsOn configurations.testRuntime
+  dependsOn jar
+  from sourceSets.main.output
+  from sourceSets.test.output
+  from { // bundle all dependencies
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) }
+    configurations.testCompile.collect { it.isDirectory() ? it : zipTree(it) }
+    configurations.testRuntime.collect { it.isDirectory() ? it : zipTree(it) }
+  }   
+  baseName packageName + '-test'
+}
+
 def perfJvmArgs = '-server -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking -Xms1G -Xmx4G -Xss1M -XX:+UseParallelGC'
 
 task fanOutBench(type: JavaExec) {
