@@ -17,7 +17,6 @@ import au.com.williamhill.flywheel.rig.Announce.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.topic.TopicSpec.*;
 import au.com.williamhill.flywheel.util.*;
-import junit.framework.*;
 
 public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunnable, RemoteNexusHandler {
   private static final String CONTROL_TOPIC = "control";
@@ -99,17 +98,20 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     }, "ControlAwait");
   }
   
-  public void awaitReceival(long expectedMessages) throws InterruptedException {
-    for (;;) {
+  private void awaitReceival(long expectedMessages) throws InterruptedException {
+    for (int triesLeft = 5; ; triesLeft--) {
       final boolean complete = Await.bounded(10_000, () -> received.get() >= expectedMessages);
       if (complete) {
         break;
       } else {
-        config.log.out.format("r: received %,d/%,d\n", received.get(), expectedMessages);
+        config.log.out.format("r: received %,d/%,d (%d intervals left)\n", received.get(), expectedMessages, triesLeft);
+        if (triesLeft == 0) {
+          config.log.out.format("r: receive timed out\n");
+          break;
+        }
       }
     }
     final long took = System.currentTimeMillis() - startTime;
-    TestCase.assertEquals(expectedMessages, received.get());
     summary.stats.await();
     summary.compute(new Elapsed() {
       @Override public long getTotalProcessed() {
