@@ -3,8 +3,31 @@ package au.com.williamhill.flywheel.topic;
 import java.util.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.yconf.*;
 
+@Y(TopicSpec.Mapper.class)
 public final class TopicSpec {
+  public static final class Mapper implements TypeMapper {
+    @Override public Object map(YObject y, Class<?> type) {
+      /*
+       Sample config supported by this mapper.
+      
+       # [<exact>,<(+)wildcards>,<(#)wildcards>]
+       - {subs: [0, 0, 0], nodes: 2}
+       - {subs: [1, 0, 0], nodes: 5}      
+        
+       */
+      
+      final TopicSpecBuilder builder = new TopicSpecBuilder();
+      for (YObject topicElement : y.asList()) {
+        final Integer[] subs = topicElement.mapAttribute("subs", Integer[].class);
+        final int nodes = topicElement.mapAttribute("nodes", int.class);
+        builder.add(new NodeSpec(subs[0], subs[1], subs[2]).nodes(nodes));
+      }
+      return builder.build();
+    }
+  }
+  
   public static final class Interest {
     final Topic topic;
     final int count;

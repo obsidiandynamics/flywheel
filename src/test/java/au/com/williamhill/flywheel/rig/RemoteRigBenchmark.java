@@ -15,6 +15,7 @@ import au.com.williamhill.flywheel.topic.*;
 public final class RemoteRigBenchmark implements TestSupport {
   private static final String URL = get("flywheel.rig.url", String::valueOf, "ws://localhost:8080/broker");
   private static final int SYNC_FRAMES = get("flywheel.rig.syncFrames", Integer::valueOf, 1000);
+  private static final String SPEC = get("flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
   private static final boolean INITIATE = get("flywheel.rig.initiate", Boolean::valueOf, true);
   private static final double NORMAL_MIN = get("flywheel.rig.normalMin", RemoteRigBenchmark::doubleOrNaN, Double.NaN);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
@@ -56,7 +57,7 @@ public final class RemoteRigBenchmark implements TestSupport {
         port = uri.getPort();
         path = uri.getPath();
         syncFrames = SYNC_FRAMES;
-        topicSpec = TopicLibrary.jumboLeaves();
+        topicSpec = TopicLibrary.load(SPEC);
         initiate = INITIATE;
         normalMinNanos = NORMAL_MIN;
         statsPeriod = STATS_PERIOD;

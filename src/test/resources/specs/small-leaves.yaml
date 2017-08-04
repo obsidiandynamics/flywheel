@@ -1,0 +1,3 @@
+# [<exact>,<(+)wildcards>,<(#)wildcards>]
+- {subs: [0, 0, 0], nodes: 2}
+- {subs: [1, 0, 0], nodes: 5}

@@ -2,6 +2,8 @@ package au.com.williamhill.flywheel.topic;
 
 import static junit.framework.TestCase.*;
 
+import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -158,9 +160,19 @@ public final class TopicRouterBenchmark implements TestSupport {
   
   @Test
   public void test() throws Exception {
-    test(TopicLibrary::tiny, 1000);
-    test(TopicLibrary::small, 100);
-    test(TopicLibrary::medium, 10);
+    test(supplier("cp://specs/tiny-all.yaml"), 1000);
+    test(supplier("cp://specs/small-all.yaml"), 100);
+    test(supplier("cp://specs/medium-all.yaml"), 10);
+  }
+  
+  private static Supplier<TopicSpec> supplier(String uri) {
+    return () -> {
+      try {
+        return TopicLibrary.load(uri);
+      } catch (IOException | URISyntaxException e) {
+        throw new RuntimeException(e);
+      }
+    };
   }
   
   private void test(Supplier<TopicSpec> topicGenSupplier, int n) throws Exception {
@@ -268,7 +280,7 @@ public final class TopicRouterBenchmark implements TestSupport {
       warmupFrac = .05f;
       threads = Runtime.getRuntime().availableProcessors();
       bias = 10;
-      topicSpec = TopicLibrary.large();
+      topicSpec = TopicLibrary.load("cp://specs/large-all.yaml");
       assertTopicOnDelivery = false;
       warmupFrac = .05f;
       log = new LogConfig() {{

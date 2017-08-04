@@ -119,7 +119,7 @@ public final class TripleRigBenchmark implements TestSupport {
       pulses = 10;
       pulseDurationMillis = 1;
       syncFrames = 10;
-      topicSpec = TopicLibrary.smallLeaves();
+      topicSpec = TopicLibrary.load("cp://specs/small-leaves.yaml");
       text = true;
       bytes = 16;
     }}.applyDefaults().test();
@@ -131,7 +131,7 @@ public final class TripleRigBenchmark implements TestSupport {
       pulses = 10;
       pulseDurationMillis = 1;
       syncFrames = 10;
-      topicSpec = TopicLibrary.smallLeaves();
+      topicSpec = TopicLibrary.load("cp://specs/small-leaves.yaml");
       text = false;
       bytes = 16;
     }}.applyDefaults().test();
@@ -212,7 +212,7 @@ public final class TripleRigBenchmark implements TestSupport {
       pulseDurationMillis = 100;
       injectors = 10;
       syncFrames = 0;
-      topicSpec = TopicLibrary.largeLeaves();
+      topicSpec = TopicLibrary.load("cp://specs/large-leaves.yaml");
       warmupFrac = 0.20f;
       initiate = true;
       normalMinNanos = Double.NaN;
