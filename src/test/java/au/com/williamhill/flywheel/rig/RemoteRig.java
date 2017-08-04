@@ -61,7 +61,13 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   @Override
   public void run() throws Exception {
     final String controlSessionId = openControlNexus();
-    timeDiff = config.syncFrames != 0 ? calibrate() : 0;
+    if (config.syncFrames != 0) {
+      final CalibrationResult cal = calibrate();
+      timeDiff = cal.timeDiff;
+      if (Double.isNaN(config.normalMinNanos)) {
+        config.normalMinNanos = cal.minRoundTrip;
+      }
+    }
     announce(controlSessionId);
     connectAll();
     begin();
@@ -174,7 +180,16 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     return CONTROL_TOPIC + "/" + remoteId + "/rx";
   }
   
-  private long calibrate() throws Exception {
+  private static final class CalibrationResult {
+    final long timeDiff;
+    final long minRoundTrip;
+    CalibrationResult(long timeDiff, long minRoundTrip) {
+      this.timeDiff = timeDiff;
+      this.minRoundTrip = minRoundTrip;
+    }
+  }
+  
+  private CalibrationResult calibrate() throws Exception {
     if (config.log.stages) config.log.out.format("r: time calibration...\n");
     final String sessionId = generateSessionId();
     final String outTopic = getControlTxTopic(sessionId);
@@ -183,6 +198,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     final AtomicInteger syncs = new AtomicInteger();
     final AtomicLong lastRemoteTransmitTime = new AtomicLong();
     final List<Long> timeDeltas = new CopyOnWriteArrayList<>();
+    final AtomicLong minRoundTrip = new AtomicLong(Long.MAX_VALUE);
     
     final RemoteNexus nexus = node.open(config.uri, new RemoteNexusHandlerBase() {
       @Override public void onText(RemoteNexus nexus, String topic, String payload) {
@@ -196,6 +212,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
         final long timeDelta = now - syncResponse.getNanoTime() - timeTaken / 2;
         if (syncs.getAndIncrement() >= discardSyncs) {
           if (config.log.verbose) config.log.out.format("r: sync round-trip: %,d, delta: %,d\n", timeTaken, timeDelta);
+          if (timeTaken < minRoundTrip.get()) minRoundTrip.set(timeTaken);
           timeDeltas.add(timeDelta);
         }
         
@@ -230,9 +247,9 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     }
     
     final long timeDiff = timeDeltas.stream().collect(Collectors.averagingLong(l -> l)).longValue();
-    if (config.log.stages) config.log.out.format("r: calibration complete; time delta: %,d ns (%s ahead)\n", 
-                                                 timeDiff, timeDiff >= 0 ? "sink" : "source");
-    return timeDiff;
+    if (config.log.stages) config.log.out.format("r: calibration complete; min round trip: %,d ns, time delta: %,d ns (%s ahead)\n", 
+                                                 minRoundTrip.get(), timeDiff, timeDiff >= 0 ? "sink" : "source");
+    return new CalibrationResult(timeDiff, minRoundTrip.get());
   }
   
   public boolean await() throws InterruptedException {
