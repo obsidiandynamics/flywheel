@@ -39,6 +39,7 @@ public final class TripleRigBenchmark implements TestSupport {
     boolean text;
     int bytes;
     double normalMinNanos = Double.NaN;
+    int statsPeriod;
     float warmupFrac;
     LogConfig log;
     
@@ -74,6 +75,7 @@ public final class TripleRigBenchmark implements TestSupport {
       initiate = true;
       injectors = 2;
       normalMinNanos = 50_000f;
+      statsPeriod = 1;
       log = new LogConfig() {{
         summary = stages = LOG;
         verbose = false;
@@ -162,6 +164,7 @@ public final class TripleRigBenchmark implements TestSupport {
       uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
+      statsPeriod = c.statsPeriod;
       log = c.log;
     }});
 
@@ -213,6 +216,7 @@ public final class TripleRigBenchmark implements TestSupport {
       warmupFrac = 0.20f;
       initiate = true;
       normalMinNanos = Double.NaN;
+      statsPeriod = 1;
       text = false;
       bytes = 128;
       log = new LogConfig() {{

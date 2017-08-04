@@ -21,12 +21,15 @@ import au.com.williamhill.flywheel.util.*;
 public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunnable, RemoteNexusHandler {
   private static final String CONTROL_TOPIC = "control";
   
+  private static final int MIN_SAMPLES = 10_000;
+  
   public static class RemoteRigConfig {
     int syncFrames;
     URI uri;
     TopicSpec topicSpec;
     boolean initiate;
     double normalMinNanos = Double.NaN;
+    int statsPeriod;
     LogConfig log;
     
     static URI getUri(String host, int port, String path) throws URISyntaxException, MalformedURLException {
@@ -302,11 +305,13 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   }
   
   private void time(long now, long serverNanos) {
-    received.incrementAndGet();
+    final long count = received.incrementAndGet();
     if (serverNanos == 0) return;
+    
     final long clientNanos = serverNanos + timeDiff;
     final long taken = now - clientNanos;
     if (config.log.verbose) config.log.out.format("r: received; latency %,d\n", taken);
-    summary.stats.executor.execute(() -> summary.stats.samples.addValue(taken));
+    final boolean sample = count <= MIN_SAMPLES || count % config.statsPeriod == 0;
+    if (sample) summary.stats.executor.execute(() -> summary.stats.samples.addValue(taken));
   }
 }

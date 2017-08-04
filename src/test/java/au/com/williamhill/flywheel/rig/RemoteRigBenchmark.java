@@ -9,7 +9,7 @@ import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
-import au.com.williamhill.flywheel.rig.DoubleRigBenchmark.*;
+import au.com.williamhill.flywheel.rig.TripleRigBenchmark.*;
 import au.com.williamhill.flywheel.topic.*;
 
 public final class RemoteRigBenchmark implements TestSupport {
@@ -19,6 +19,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   private static final double NORMAL_MIN = get("flywheel.rig.normalMin", RemoteRigBenchmark::doubleOrNaN, Double.NaN);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
+  private static final int STATS_PERIOD = get("flywheel.rig.statsPeriod", Integer::valueOf, 100);
   
   private static double doubleOrNaN(String value) {
     return value.equals("NaN") ? Double.NaN : Double.parseDouble(value);
@@ -33,6 +34,7 @@ public final class RemoteRigBenchmark implements TestSupport {
       uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
+      statsPeriod = c.statsPeriod;
       log = c.log;
     }});
     
@@ -57,6 +59,7 @@ public final class RemoteRigBenchmark implements TestSupport {
         topicSpec = TopicLibrary.jumboLeaves();
         initiate = INITIATE;
         normalMinNanos = NORMAL_MIN;
+        statsPeriod = STATS_PERIOD;
         log = new LogConfig() {{
           progress = intermediateSummaries = false;
           stages = true;
