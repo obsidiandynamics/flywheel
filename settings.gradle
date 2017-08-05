@@ -17,6 +17,3 @@ project(':flywheel-standalone').projectDir = new File(settingsDir, 'standalone')
 
 include 'flywheel-wha'
 project(':flywheel-wha').projectDir = new File(settingsDir, 'wha')
-
-include 'flywheel-yconf'
-project(':flywheel-yconf').projectDir = new File(settingsDir, 'yconf')
