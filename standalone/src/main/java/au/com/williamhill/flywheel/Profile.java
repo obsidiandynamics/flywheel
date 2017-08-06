@@ -31,12 +31,11 @@ public final class Profile {
   
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
     return new MappingContext()
-        .withDomTransform(new ELTransform()
-                          .withVariable("env", System.getenv())
+        .withDomTransform(new JuelTransform()
                           .withVariable("maxInt", Integer.MAX_VALUE)
-                          .withVariable("maxLong", Long.MAX_VALUE)
-                          .withFunction("secret", Secret.class.getMethod("of", String.class))
-                          .withFunction("mandatory", Mandatory.class.getMethod("of", Object.class, String.class)))
-        .fromReader(new FileReader(file), Profile.class);
+                          .withVariable("maxLong", Long.MAX_VALUE))
+        .withParser(new SnakeyamlParser())
+        .fromReader(new FileReader(file))
+        .map(Profile.class);
   }
 }

@@ -21,7 +21,10 @@ public final class TopicLibrary {
   }
   
   public static TopicSpec load(String uri) throws FileNotFoundException, IOException, URISyntaxException {
-    return new MappingContext().fromStream(getStream(new URI(uri)), TopicSpec.class);
+    return new MappingContext()
+        .withParser(new SnakeyamlParser())
+        .fromStream(getStream(new URI(uri)))
+        .map(TopicSpec.class);
   }
   
   private static InputStream getStream(URI uri) throws FileNotFoundException {

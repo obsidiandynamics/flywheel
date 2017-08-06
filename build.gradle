@@ -101,7 +101,6 @@ repositories {
 }
 
 dependencies {
-  compile project(':flywheel-yconf')
   compile 'org.slf4j:slf4j-api:1.7.25'
   compile 'com.obsidiandynamics.indigo:indigo-core:0.9.4'
   compile 'com.obsidiandynamics.yconf:yconf-core:0.1.0'
