@@ -50,10 +50,10 @@ The diagram below describes a typical Flywheel topology.
 The first step is deciding on which of the two modes - embedded or standalone - is best-suited to your messaging scenario.
 
 ## Embedded mode
-In this example we'll start an edge node on port `8080`, serving a WebSocket on path `/`.
+In this example we'll start an edge node on port `8080`, serving a WebSocket on path `/broker`.
 
 ### Get the binaries
-Gradle builds are hosted on JCenter. Just add the following snippet to your build file (replacing the version number in the snippet with the version shown on the Download badge at the top of this README).
+Builds are hosted on JCenter. Just add the following snippet to your build file (replacing the version number in the snippet with the version shown on the Download badge at the top of this README).
 
 For Maven:
 
@@ -76,12 +76,12 @@ compile 'au.com.williamhill.flywheel:flywheel-core:0.1.0'
 ```java
 EdgeNode.builder()
 .withServerConfig(new XServerConfig()
-                  .withPath("/")
+                  .withPath("/broker")
                   .withPort(8080))
 .build();
 ```
 
-That's all there is to it. You should now have a WebSocket broker listening on `ws://localhost:8080/`. Try it out with this [sample WebSocket client](http://websocket.org/echo.html). It should say 'CONNECTED', and not much else at this stage.
+That's all there is to it. You should now have a WebSocket broker listening on `ws://localhost:8080/broker`. Try it out with this [sample WebSocket client](http://websocket.org/echo.html). It should say 'CONNECTED', and not much else at this stage.
 
 The above snippet will return an instance of `EdgeNode`, which you can use to publish messages directly. Simply call one of `EdgeNode.publish(String topic, String payload)` or `EdgeNode.publish(String topic, byte[] payload)` to publish a text or binary message respectively on the given topic.
 
@@ -107,6 +107,17 @@ edge.addTopicListener(new TopicLambdaListener()
 ```
 
 Alternatively, you can you can subclass `TopicLambdaListener` directly, overriding just the methods you need.
+
+## Standalone mode
+The standalone set-up is considerably more involved than what can be described in a quick-start guide. We recommend reading the [standalone module](https://github.com/William-Hill-Community/flywheel/tree/master/standalone) README for a much more comprehensive guide.
+
+We're going to assume that you'll be running the official Dockerhub image and already have Docker installed. Run the following command to download and launch the image in interactive mode.
+```sh
+docker run -p 8080:8080 -it whcom/flywheel
+```
+
+The WebSocket broker will be available on `ws://localhost:8080/broker`. The image also publishes a health check endpoint on `http://localhost:8080/health` - useful for running behind a gateway or a load balancer.
+
 
 # Protocol
 The next logical step is to connect to our broker to publish messages and subscribe to message topics. This requires a basic understanding of the Flywheel wire protocol, which comes in two variants - text and binary. As we're just getting started, let's keep it simple and stick to text.
@@ -215,7 +226,7 @@ The payload of an R-frame comprises two segments, separated by a space character
 
 The following is an example of a receive frame.
 
-```
+```json
 R quotes/AAPL {"bid":148.82,"ask":148.84}
 ```
 
@@ -226,7 +237,7 @@ A publish frame is sent from the remote node to the edge, containing a message t
 
 The structure of a P-frame is identical to that of an R-frame; two segments separated by a space. The first - the topic name; the second - the message body, as shown in the example below.
 
-```
+```json
 P quotes/AAPL {"bid":148.82,"ask":148.84}
 ```
 

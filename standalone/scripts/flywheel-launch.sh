@@ -41,13 +41,13 @@ else
       echo "> Usage --jvm-opts <jvm options>"
       exit 1
     fi
-    JVM_OPTS=$2
-    echo "> JVM options: ${JVM_OPTS}"
+    FLYWHEEL_JVM_OPTS=$2
+    echo "> JVM options: ${FLYWHEEL_JVM_OPTS}"
     shift
     shift
   fi
 
-  CMD="java $JVM_OPTS \
+  CMD="java $FLYWHEEL_JVM_OPTS \
        -cp build/libs/flywheel-*jar \
        au.com.williamhill.flywheel.Launchpad \
        $@"

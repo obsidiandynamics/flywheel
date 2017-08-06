@@ -36,6 +36,7 @@ public final class DoubleRigBenchmark implements TestSupport {
     boolean text;
     int bytes;
     double normalMinNanos = Double.NaN;
+    int statsPeriod;
     float warmupFrac;
     LogConfig log;
     
@@ -70,6 +71,7 @@ public final class DoubleRigBenchmark implements TestSupport {
       warmupFrac = 0.05f;
       initiate = true;
       normalMinNanos = 50_000f;
+      statsPeriod = 1;
       log = new LogConfig() {{
         summary = stages = LOG;
         verbose = false;
@@ -113,7 +115,7 @@ public final class DoubleRigBenchmark implements TestSupport {
       pulses = 10;
       pulseDurationMillis = 1;
       syncFrames = 10;
-      topicSpec = TopicLibrary.smallLeaves();
+      topicSpec = TopicLibrary.load("cp://specs/small-leaves.yaml");
       text = true;
       bytes = 16;
     }}.applyDefaults().test();
@@ -125,7 +127,7 @@ public final class DoubleRigBenchmark implements TestSupport {
       pulses = 10;
       pulseDurationMillis = 1;
       syncFrames = 10;
-      topicSpec = TopicLibrary.smallLeaves();
+      topicSpec = TopicLibrary.load("cp://specs/small-leaves.yaml");
       text = false;
       bytes = 16;
     }}.applyDefaults().test();
@@ -153,6 +155,7 @@ public final class DoubleRigBenchmark implements TestSupport {
       uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
+      statsPeriod = c.statsPeriod;
       log = c.log;
     }});
 
@@ -182,10 +185,11 @@ public final class DoubleRigBenchmark implements TestSupport {
       pulses = 300;
       pulseDurationMillis = 100;
       syncFrames = 0;
-      topicSpec = TopicLibrary.largeLeaves();
+      topicSpec = TopicLibrary.load("cp://specs/large-leaves.yaml");
       warmupFrac = 0.20f;
       initiate = true;
       normalMinNanos = Double.NaN;
+      statsPeriod = 1;
       text = false;
       bytes = 128;
       log = new LogConfig() {{

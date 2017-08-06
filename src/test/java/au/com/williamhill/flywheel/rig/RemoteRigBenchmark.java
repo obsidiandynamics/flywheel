@@ -9,16 +9,18 @@ import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
-import au.com.williamhill.flywheel.rig.DoubleRigBenchmark.*;
+import au.com.williamhill.flywheel.rig.TripleRigBenchmark.*;
 import au.com.williamhill.flywheel.topic.*;
 
 public final class RemoteRigBenchmark implements TestSupport {
   private static final String URL = get("flywheel.rig.url", String::valueOf, "ws://localhost:8080/broker");
-  private static final int SYNC_FRAMES = get("flywheel.rig.syncFrames", Integer::valueOf, 100);
+  private static final int SYNC_FRAMES = get("flywheel.rig.syncFrames", Integer::valueOf, 1000);
+  private static final String SPEC = get("flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
   private static final boolean INITIATE = get("flywheel.rig.initiate", Boolean::valueOf, true);
   private static final double NORMAL_MIN = get("flywheel.rig.normalMin", RemoteRigBenchmark::doubleOrNaN, Double.NaN);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
+  private static final int STATS_PERIOD = get("flywheel.rig.statsPeriod", Integer::valueOf, 100);
   
   private static double doubleOrNaN(String value) {
     return value.equals("NaN") ? Double.NaN : Double.parseDouble(value);
@@ -33,6 +35,7 @@ public final class RemoteRigBenchmark implements TestSupport {
       uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
+      statsPeriod = c.statsPeriod;
       log = c.log;
     }});
     
@@ -54,9 +57,10 @@ public final class RemoteRigBenchmark implements TestSupport {
         port = uri.getPort();
         path = uri.getPath();
         syncFrames = SYNC_FRAMES;
-        topicSpec = TopicLibrary.jumboLeaves();
+        topicSpec = TopicLibrary.load(SPEC);
         initiate = INITIATE;
         normalMinNanos = NORMAL_MIN;
+        statsPeriod = STATS_PERIOD;
         log = new LogConfig() {{
           progress = intermediateSummaries = false;
           stages = true;

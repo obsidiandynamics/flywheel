@@ -4,8 +4,9 @@ minMemory: 1024
 maxMemory: 4096
 cpu: 1024
 segment: internal
-tcpPorts:
+ports:
   - 8080
+  - 9090:9090
 environment:
 healthCheck:
   endpoint: /health
