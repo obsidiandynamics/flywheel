@@ -82,7 +82,7 @@ public abstract class AbstractAuthTest {
     .atMost(60, TimeUnit.SECONDS).until(() -> errors != null || text != null || binary != null);
   }
   
-  protected void setupEdgeNode(AuthChain pubAuthChain, AuthChain subAuthChain) throws Exception {
+  protected void setupEdgeNode(AuthChain<PubAuthChain> pubAuthChain, AuthChain<SubAuthChain> subAuthChain) throws Exception {
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig() {{ port = AbstractAuthTest.this.port; }})
         .withWire(wire)

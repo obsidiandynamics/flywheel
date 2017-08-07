@@ -12,15 +12,15 @@ import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 
 public final class AuthChainTest {
-  private AuthChain chain;
+  private AuthChain<?> chain;
   
   @Before
   public void setup() {
-    chain = AuthChain.createSubDefault().clear();
+    chain = new SubAuthChain().clear();
   }
   
   private void alw(String topicPrefix) {
-    chain.set(topicPrefix, Authenticator::allowAll);
+    chain.set(topicPrefix, AllowAllAuth.instance());
   }
   
   private void dny(String topicPrefix) {

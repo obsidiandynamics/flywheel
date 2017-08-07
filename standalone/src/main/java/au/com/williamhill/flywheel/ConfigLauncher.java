@@ -7,8 +7,10 @@ import org.slf4j.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.socketx.*;
+import au.com.williamhill.flywheel.topic.*;
 
 @Y
 public final class ConfigLauncher implements Launcher  {
@@ -19,6 +21,12 @@ public final class ConfigLauncher implements Launcher  {
   
   @YInject
   private XServerConfig serverConfig = new XServerConfig();
+  
+  @YInject(type=PubAuthChain.class)
+  private AuthChain<PubAuthChain> pubAuthChain = new PubAuthChain();
+  
+  @YInject(type=SubAuthChain.class)
+  private AuthChain<SubAuthChain> subAuthChain = new SubAuthChain();
   
   @YInject
   private Plugin[] plugins = new Plugin[0];
@@ -32,6 +40,16 @@ public final class ConfigLauncher implements Launcher  {
 
   public ConfigLauncher withServerConfig(XServerConfig serverConfig) {
     this.serverConfig = serverConfig;
+    return this;
+  }
+  
+  public ConfigLauncher withPubAuthChain(AuthChain<PubAuthChain> pubAuthChain) {
+    this.pubAuthChain = pubAuthChain;
+    return this;
+  }
+  
+  public ConfigLauncher withSubAuthChain(AuthChain<SubAuthChain> subAuthChain) {
+    this.subAuthChain = subAuthChain;
     return this;
   }
 
@@ -64,6 +82,12 @@ public final class ConfigLauncher implements Launcher  {
     
     sb.append("\n    endpoint config:")
     .append("\n      high-water mark: ").append(serverConfig.endpointConfig.highWaterMark);
+    
+    sb.append("\n  Pub auth chain:");
+    listChain(pubAuthChain, sb);
+
+    sb.append("\n  Sub auth chain:");
+    listChain(subAuthChain, sb);
 
     sb.append("\n  Plugins:");
     for (Plugin plugin : plugins) {
@@ -75,7 +99,15 @@ public final class ConfigLauncher implements Launcher  {
     return EdgeNode.builder()
         .withServerConfig(serverConfig)
         .withBackplane(backplane)
+        .withPubAuthChain(pubAuthChain)
+        .withSubAuthChain(subAuthChain)
         .withPlugins(plugins);
+  }
+  
+  private static void listChain(AuthChain<?> chain, StringBuilder sb) {
+    for (Map.Entry<Topic, Authenticator> entry : chain.getFilters().entrySet()) {
+      sb.append("\n    '").append(entry.getKey()).append("' -> ").append(entry.getValue());
+    }
   }
   
   @Override

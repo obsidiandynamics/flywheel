@@ -5,6 +5,7 @@ import org.mockito.*;
 import org.slf4j.*;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.health.*;
 import au.com.williamhill.flywheel.socketx.*;
@@ -32,6 +33,8 @@ public final class ConfigLauncherTest {
     .withServerConfig(new XServerConfig()
                       .withPort(SocketTestSupport.getAvailablePort(PORT))
                       .withServlets(new XMappedServlet("/health", HealthServlet.class)))
+    .withPubAuthChain(new PubAuthChain())
+    .withSubAuthChain(new SubAuthChain())
     .withPlugins(Mockito.mock(Plugin.class))
     .withLogger(logger);
     launcher.launch(new String[0]);

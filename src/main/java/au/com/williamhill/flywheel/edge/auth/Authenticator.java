@@ -16,20 +16,4 @@ public interface Authenticator {
   }
   
   void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome);
-  
-  static void allowAll(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
-    outcome.allow();
-  }
-  
-  static void allowLocal(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
-    if (nexus.isLocal()) {
-      outcome.allow();
-    } else {
-      outcome.forbidden(topic);
-    }
-  }
-  
-  static void denyAll(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
-    outcome.forbidden(topic);
-  }
 }

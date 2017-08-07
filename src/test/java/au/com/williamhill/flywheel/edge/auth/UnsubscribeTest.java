@@ -16,7 +16,7 @@ import au.com.williamhill.flywheel.remote.*;
 public final class UnsubscribeTest extends AbstractAuthTest {
   @Test
   public void testSubUnsub() throws Exception {
-    setupEdgeNode(AuthChain.createPubDefault(), AuthChain.createSubDefault());
+    setupEdgeNode(new PubAuthChain(), new SubAuthChain());
     
     final RemoteNexus remoteNexus = openNexus();
     final String sessionId = generateSessionId();

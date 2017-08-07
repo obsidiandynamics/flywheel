@@ -27,9 +27,9 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   
   private final Interchange interchange;
   
-  private final AuthChain pubAuthChain;
+  private final AuthChain<PubAuthChain> pubAuthChain;
   
-  private final AuthChain subAuthChain;
+  private final AuthChain<SubAuthChain> subAuthChain;
   
   private final Backplane backplane;
   
@@ -45,8 +45,8 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
                                         XServerConfig config,
                                         Wire wire,
                                         Interchange interchange,
-                                        AuthChain pubAuthChain,
-                                        AuthChain subAuthChain,
+                                        AuthChain<PubAuthChain> pubAuthChain,
+                                        AuthChain<SubAuthChain> subAuthChain,
                                         Backplane backplane,
                                         Plugin[] plugins) throws Exception {
     pubAuthChain.validate();

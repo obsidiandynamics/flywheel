@@ -16,7 +16,7 @@ import au.com.williamhill.flywheel.remote.*;
 public final class BindAuthTest extends AbstractAuthTest {
   @Test(expected=NoAuthenticatorException.class)
   public void testEmptySubChain() throws Exception {
-    setupEdgeNode(AuthChain.createPubDefault(), AuthChain.createSubDefault().clear());
+    setupEdgeNode(new PubAuthChain(), new SubAuthChain().clear());
 
     final RemoteNexus remoteNexus = openNexus();
 
@@ -27,7 +27,7 @@ public final class BindAuthTest extends AbstractAuthTest {
 
   @Test
   public void testDefaultSubChain() throws Exception {
-    setupEdgeNode(AuthChain.createPubDefault(), AuthChain.createSubDefault());
+    setupEdgeNode(new PubAuthChain(), new SubAuthChain());
     
     final RemoteNexus remoteNexus = openNexus();
     final String sessionId = generateSessionId();
@@ -73,8 +73,8 @@ public final class BindAuthTest extends AbstractAuthTest {
   
   @Test
   public void testCustomSubChain() throws Exception {
-    setupEdgeNode(AuthChain.createPubDefault(),
-                  AuthChain.createSubDefault()
+    setupEdgeNode(new PubAuthChain(),
+                  new SubAuthChain()
                   .set("custom/basic", Mocks.logger(createBasicAuth("user", "pass")))
                   .set("custom/bearer", Mocks.logger(createBearerAuth("token"))));
     

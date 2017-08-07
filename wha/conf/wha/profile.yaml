@@ -21,6 +21,8 @@ launchers:
       servletClass: au.com.williamhill.flywheel.health.HealthServlet  
     endpointConfig:
       highWaterMark: ${maxLong}
+  pubAuthChain:
+  subAuthChain:
   plugins:
   - type: au.com.williamhill.flywheel.edge.plugin.beacon.Beacon
     topic: time

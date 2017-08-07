@@ -9,14 +9,28 @@ import java.util.function.*;
 
 import org.slf4j.*;
 
-import au.com.williamhill.flywheel.*;
+import com.obsidiandynamics.yconf.*;
+
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.topic.*;
 
-public final class AuthChain {
+public abstract class AuthChain<A extends AuthChain<A>> {
   private static final Logger LOG = LoggerFactory.getLogger(AuthChain.class);
+  
+  abstract static class AuthChainMapper<A extends AuthChain<A>> implements TypeMapper {
+    abstract AuthChain<A> getBaseChain();
+
+    @Override
+    public Object map(YObject y, Class<?> type) {
+      final AuthChain<A> chain = getBaseChain();
+      for (Map.Entry<String, YObject> entry : y.asMap().entrySet()) {
+        chain.set(entry.getKey(), entry.getValue().map(Authenticator.class));
+      }
+      return chain;
+    }
+  }
   
   public static final class CombinedMatches {
     final static CombinedMatches EMPTY = new CombinedMatches(Collections.emptyList(), 0);
@@ -109,30 +123,14 @@ public final class AuthChain {
     }
   }
   
-  private AuthChain() {}
+  protected AuthChain() {}
   
-  public static AuthChain createSubDefault() {
-    return new AuthChain().registerSubDefaults();
+  public Map<Topic, Authenticator> getFilters() {
+    return Collections.unmodifiableMap(filters);
   }
   
-  public static AuthChain createPubDefault() {
-    return new AuthChain().registerPubDefaults();
-  }
-  
-  public AuthChain clear() {
+  public AuthChain<A> clear() {
     filters.clear();
-    return this;
-  }
-  
-  private AuthChain registerSubDefaults() {
-    set("", Authenticator::allowAll);
-    set(Flywheel.REMOTE_PREFIX, new RemoteTopicAuthenticator());
-    return this;
-  }
-  
-  private AuthChain registerPubDefaults() {
-    set("", Authenticator::allowAll);
-    set(Flywheel.REMOTE_PREFIX, new RemoteTopicAuthenticator());
     return this;
   }
   
@@ -140,7 +138,7 @@ public final class AuthChain {
     return topic.isEmpty() ? Topic.root() : Topic.of(topic);
   }
   
-  public AuthChain set(String topicPrefix, Authenticator authenticator) {
+  public AuthChain<A> set(String topicPrefix, Authenticator authenticator) {
     filters.put(create(topicPrefix), authenticator);
     return this;
   }

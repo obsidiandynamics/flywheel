@@ -11,8 +11,8 @@ public final class EdgeNodeBuilder {
   private XServerConfig serverConfig = new XServerConfig();
   private Wire wire = new Wire(false, LocationHint.EDGE);
   private Interchange interchange;
-  private AuthChain pubAuthChain = AuthChain.createPubDefault();
-  private AuthChain subAuthChain = AuthChain.createSubDefault();
+  private AuthChain<PubAuthChain> pubAuthChain = new PubAuthChain();
+  private AuthChain<SubAuthChain> subAuthChain = new SubAuthChain();
   private Backplane backplane = new NoOpBackplane();
   private Plugin[] plugins = new Plugin[0];
   
@@ -46,12 +46,12 @@ public final class EdgeNodeBuilder {
     return this;
   }
   
-  public EdgeNodeBuilder withPubAuthChain(AuthChain pubAuthChain) {
+  public EdgeNodeBuilder withPubAuthChain(AuthChain<PubAuthChain> pubAuthChain) {
     this.pubAuthChain = pubAuthChain;
     return this;
   }
   
-  public EdgeNodeBuilder withSubAuthChain(AuthChain subAuthChain) {
+  public EdgeNodeBuilder withSubAuthChain(AuthChain<SubAuthChain> subAuthChain) {
     this.subAuthChain = subAuthChain;
     return this;
   }
