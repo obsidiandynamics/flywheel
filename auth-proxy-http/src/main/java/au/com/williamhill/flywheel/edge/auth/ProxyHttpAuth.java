@@ -113,6 +113,7 @@ public final class ProxyHttpAuth implements Authenticator {
       }
     } catch (Throwable e) {
       outcome.forbidden(topic);
+      LOG.warn("Error processing response", e);
     }
   }
   
