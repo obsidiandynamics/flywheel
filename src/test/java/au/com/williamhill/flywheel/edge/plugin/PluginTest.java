@@ -1,8 +1,9 @@
-package au.com.williamhill.flywheel.edge;
+package au.com.williamhill.flywheel.edge.plugin;
 
 import org.junit.*;
 import org.mockito.*;
 
+import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 

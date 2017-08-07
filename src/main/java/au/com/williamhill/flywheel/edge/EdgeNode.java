@@ -10,6 +10,7 @@ import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
+import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Error;
 import au.com.williamhill.flywheel.remote.*;
