@@ -43,11 +43,7 @@ final class SplunkHECInput extends SplunkInput {
   
   private final Object lock = new Object();
 
-  private static final HostnameVerifier HOSTNAME_VERIFIER = new HostnameVerifier() {
-    @Override public boolean verify(String s, SSLSession sslSession) {
-      return true;
-    }
-  };
+  private static final HostnameVerifier HOSTNAME_VERIFIER = (s, sslSession) -> true;
 
   SplunkHECInput(HECTransportConfig config) throws Exception {
     this.config = config;
