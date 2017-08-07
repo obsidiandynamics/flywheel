@@ -7,8 +7,6 @@ dependencies {
   compile project(':')
   compile project(':flywheel-plugin-beacon')
   compile project(':flywheel-plugin-toplog')
-  compile 'de.odysseus.juel:juel-api:2.2.7'
-  compile 'de.odysseus.juel:juel-impl:2.2.7'
   
   runtime project(':flywheel-logging-splunk')
   
