@@ -36,7 +36,7 @@ public final class Session {
     return (A) auth;
   }
   
-  void setAuth(Auth auth) {
+  public void setAuth(Auth auth) {
     this.auth = auth;
   }
   
