@@ -1,7 +1,6 @@
 package au.com.williamhill.flywheel.logging;
 
 import java.net.*;
-import java.security.cert.*;
 import java.util.*;
 
 import javax.net.ssl.*;
@@ -12,7 +11,6 @@ import org.apache.http.client.utils.*;
 import org.apache.http.concurrent.*;
 import org.apache.http.config.*;
 import org.apache.http.conn.routing.*;
-import org.apache.http.conn.ssl.*;
 import org.apache.http.entity.*;
 import org.apache.http.impl.nio.client.*;
 import org.apache.http.impl.nio.conn.*;
@@ -20,6 +18,7 @@ import org.apache.http.impl.nio.reactor.*;
 import org.apache.http.nio.conn.*;
 import org.apache.http.nio.conn.ssl.*;
 import org.apache.http.nio.reactor.*;
+import org.apache.http.ssl.*;
 import org.apache.http.util.*;
 
 /**
@@ -117,15 +116,9 @@ final class SplunkHECInput extends SplunkInput {
     }
   }
 
-  @SuppressWarnings("deprecation")
-  private SSLContext getSSLContext() {
-    TrustStrategy acceptingTrustStrategy = new TrustStrategy() {
-      @Override public boolean isTrusted(X509Certificate[] certificate, String authType) {
-        return true;
-      }
-    };
+  private static SSLContext getSSLContext() {
     try {
-      return SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
+      return SSLContexts.custom().loadTrustMaterial(null, (certificate, authType) -> true).build();
     } catch (Exception e) {
       System.err.println("Splunk: error constructing SSL context: " + e);
       e.printStackTrace(System.err);
@@ -141,6 +134,8 @@ final class SplunkHECInput extends SplunkInput {
     try {
       httpClient.close();
     } catch (Exception e) {
+      System.err.println("Splunk: error closing stream: " + e);
+      e.printStackTrace(System.err);
     }
   }
 
