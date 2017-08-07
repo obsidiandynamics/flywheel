@@ -53,6 +53,6 @@ public final class BasicAuth implements Auth {
 
   @Override
   public String toString() {
-    return "Basic [username=" + username + ", password=<not shown>]";
+    return "Basic [username=" + username + ", password=<masked>]";
   }
 }

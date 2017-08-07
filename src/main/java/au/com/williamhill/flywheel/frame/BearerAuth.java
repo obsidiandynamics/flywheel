@@ -40,6 +40,6 @@ public final class BearerAuth implements Auth {
 
   @Override
   public String toString() {
-    return "Bearer [token=<not shown>]";
+    return "Bearer [token=<masked>]";
   }
 }
