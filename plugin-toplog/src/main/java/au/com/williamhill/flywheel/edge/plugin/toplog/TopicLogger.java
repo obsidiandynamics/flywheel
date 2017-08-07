@@ -7,6 +7,7 @@ import org.slf4j.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.topic.*;
 

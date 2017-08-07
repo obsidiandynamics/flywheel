@@ -8,6 +8,7 @@ import org.slf4j.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.plugin.*;
 
 /**
  *  A plugin that repeatedly publishes the current time on a set topic.

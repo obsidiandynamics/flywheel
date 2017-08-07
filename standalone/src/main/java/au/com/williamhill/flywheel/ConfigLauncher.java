@@ -9,6 +9,7 @@ import com.obsidiandynamics.yconf.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
+import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
 
