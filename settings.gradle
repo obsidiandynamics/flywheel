@@ -1,5 +1,8 @@
 rootProject.name = 'flywheel'
 
+include 'flywheel-auth-proxy-http'
+project(':flywheel-auth-proxy-http').projectDir = new File(settingsDir, 'auth-proxy-http')
+
 include 'flywheel-backplane-kafka'
 project(':flywheel-backplane-kafka').projectDir = new File(settingsDir, 'backplane-kafka')
 

@@ -15,8 +15,14 @@ public final class AuthChainTest {
   private AuthChain<?> chain;
   
   @Before
-  public void setup() {
-    chain = new SubAuthChain().clear();
+  public void before() {
+    chain = new SubAuthChain();
+    chain.clear();
+  }
+  
+  @After
+  public void after() throws Exception {
+    chain.close();
   }
   
   private void alw(String topicPrefix) {

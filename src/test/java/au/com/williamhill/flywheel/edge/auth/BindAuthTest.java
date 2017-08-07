@@ -14,6 +14,7 @@ import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 
 public final class BindAuthTest extends AbstractAuthTest {
+  @SuppressWarnings("resource")
   @Test(expected=NoAuthenticatorException.class)
   public void testEmptySubChain() throws Exception {
     setupEdgeNode(new PubAuthChain(), new SubAuthChain().clear());
@@ -71,6 +72,7 @@ public final class BindAuthTest extends AbstractAuthTest {
     assertTrue(bind3Res.isSuccess());
   }
   
+  @SuppressWarnings("resource")
   @Test
   public void testCustomSubChain() throws Exception {
     setupEdgeNode(new PubAuthChain(),

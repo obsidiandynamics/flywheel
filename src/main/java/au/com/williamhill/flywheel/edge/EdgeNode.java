@@ -357,6 +357,8 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
     backplane.close();
     server.close();
     interchange.close();
+    pubAuthChain.close();
+    subAuthChain.close();
   }
   
   public static EdgeNodeBuilder builder() {

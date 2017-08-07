@@ -16,7 +16,7 @@ import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.topic.*;
 
-public abstract class AuthChain<A extends AuthChain<A>> {
+public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(AuthChain.class);
   
   abstract static class AuthChainMapper<A extends AuthChain<A>> implements TypeMapper {
@@ -125,11 +125,11 @@ public abstract class AuthChain<A extends AuthChain<A>> {
   
   protected AuthChain() {}
   
-  public Map<Topic, Authenticator> getFilters() {
+  public final Map<Topic, Authenticator> getFilters() {
     return Collections.unmodifiableMap(filters);
   }
   
-  public AuthChain<A> clear() {
+  public final AuthChain<A> clear() {
     filters.clear();
     return this;
   }
@@ -138,7 +138,12 @@ public abstract class AuthChain<A extends AuthChain<A>> {
     return topic.isEmpty() ? Topic.root() : Topic.of(topic);
   }
   
-  public AuthChain<A> set(String topicPrefix, Authenticator authenticator) {
+  public final AuthChain<A> set(String topicPrefix, Authenticator authenticator) {
+    try {
+      authenticator.init();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     filters.put(create(topicPrefix), authenticator);
     return this;
   }
@@ -234,7 +239,7 @@ public abstract class AuthChain<A extends AuthChain<A>> {
    *  @param topic The topic under consideration.
    *  @return The matching authenticators.
    */
-  public List<Authenticator> get(String topic) {
+  public final List<Authenticator> get(String topic) {
     final Topic original = Topic.of(topic);
     final String[] stripped = stripMLWildcard(original);
     final boolean exactOrSL = stripped.length == original.length();
@@ -269,7 +274,14 @@ public abstract class AuthChain<A extends AuthChain<A>> {
     return definite;
   }
   
-  public void validate() {
+  public final void validate() {
     get("#");
+  }
+  
+  @Override
+  public final void close() throws Exception {
+    for (Authenticator auth : filters.values()) {
+      auth.close();
+    }
   }
 }

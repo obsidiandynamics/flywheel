@@ -17,6 +17,7 @@ import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 
 public final class PubAuthTest extends AbstractAuthTest {
+  @SuppressWarnings("resource")
   @Test(expected=NoAuthenticatorException.class)
   public void testEmptyPubChain() throws Exception {
     setupEdgeNode(new PubAuthChain().clear(), new SubAuthChain());
@@ -91,6 +92,7 @@ public final class PubAuthTest extends AbstractAuthTest {
     clearReceived();
   }
   
+  @SuppressWarnings("resource")
   @Test
   public void testCustomPubChain() throws Exception {
     final String customBasic = "custom/basic";
