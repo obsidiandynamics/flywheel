@@ -29,6 +29,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     TopicSpec topicSpec;
     boolean initiate;
     double normalMinNanos = Double.NaN;
+    long printOutliersOverMillis;
     int statsPeriod;
     LogConfig log;
     
@@ -298,7 +299,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     final long now = System.nanoTime();
     final int idx = payload.indexOf(' ');
     final long serverNanos = Long.valueOf(payload.substring(0, idx));
-    time(now, serverNanos);
+    time(topic, now, serverNanos);
   }
 
   @Override
@@ -307,7 +308,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     final ByteBuffer buf = ByteBuffer.wrap(payload);
     final long now = System.nanoTime();
     final long serverNanos = buf.getLong();
-    time(now, serverNanos);
+    time(topic, now, serverNanos);
   }
   
   private final AtomicBoolean loggedCommencement = new AtomicBoolean();
@@ -321,12 +322,19 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     }
   }
   
-  private void time(long now, long serverNanos) {
+  private void time(String topic, long now, long serverNanos) {
     final long count = received.incrementAndGet();
     if (serverNanos == 0) return;
     
     final long clientNanos = serverNanos + timeDiff;
     final long taken = now - clientNanos;
+    final long printOutliersOverMillis = config.printOutliersOverMillis;
+    if (printOutliersOverMillis != 0) {
+      final long takenMillis = taken / 1_000_000L;
+      if (takenMillis > printOutliersOverMillis) {
+        config.log.out.format("r: outlier took %,d ns on topic %s at %s\n", taken, topic, new Date());
+      }
+    }
     if (config.log.verbose) config.log.out.format("r: received; latency %,d\n", taken);
     final boolean sample = count <= MIN_SAMPLES || count % config.statsPeriod == 0;
     if (sample) summary.stats.executor.execute(() -> summary.stats.samples.addValue(taken));

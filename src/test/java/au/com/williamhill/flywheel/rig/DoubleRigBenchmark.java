@@ -36,6 +36,7 @@ public final class DoubleRigBenchmark implements TestSupport {
     boolean text;
     int bytes;
     double normalMinNanos = Double.NaN;
+    long printOutliersOverMillis;
     int statsPeriod;
     float warmupFrac;
     LogConfig log;
@@ -155,6 +156,7 @@ public final class DoubleRigBenchmark implements TestSupport {
       uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
+      printOutliersOverMillis = c.printOutliersOverMillis;
       statsPeriod = c.statsPeriod;
       log = c.log;
     }});
@@ -189,6 +191,7 @@ public final class DoubleRigBenchmark implements TestSupport {
       warmupFrac = 0.20f;
       initiate = true;
       normalMinNanos = Double.NaN;
+      printOutliersOverMillis = 10_000;
       statsPeriod = 1;
       text = false;
       bytes = 128;

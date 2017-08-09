@@ -21,6 +21,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
   private static final int STATS_PERIOD = get("flywheel.rig.statsPeriod", Integer::valueOf, 100);
+  private static final long PRINT_OUTLIERS_OVER = get("flywheel.rig.printOutliersOver", Long::parseLong, 1000L);
   
   private static double doubleOrNaN(String value) {
     return value.equals("NaN") ? Double.NaN : Double.parseDouble(value);
@@ -60,6 +61,7 @@ public final class RemoteRigBenchmark implements TestSupport {
         topicSpec = TopicLibrary.load(SPEC);
         initiate = INITIATE;
         normalMinNanos = NORMAL_MIN;
+        printOutliersOverMillis = PRINT_OUTLIERS_OVER;
         statsPeriod = STATS_PERIOD;
         log = new LogConfig() {{
           progress = intermediateSummaries = false;
