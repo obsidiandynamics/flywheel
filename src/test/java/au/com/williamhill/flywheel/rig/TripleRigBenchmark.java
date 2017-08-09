@@ -152,6 +152,7 @@ public final class TripleRigBenchmark implements TestSupport {
       pulses = c.pulses;
       injectors = c.injectors;
       warmupPulses = c.warmupPulses;
+      printOutliersOverMillis = c.printOutliersOverMillis;
       text = c.text;
       bytes = c.bytes;
       log = c.log;

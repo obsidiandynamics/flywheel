@@ -36,6 +36,7 @@ public final class RemoteRigBenchmark implements TestSupport {
       uri = getUri(c.host, c.port, c.path);
       initiate = c.initiate;
       normalMinNanos = c.normalMinNanos;
+      printOutliersOverMillis = c.printOutliersOverMillis;
       statsPeriod = c.statsPeriod;
       log = c.log;
     }});

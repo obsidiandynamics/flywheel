@@ -23,6 +23,7 @@ public final class InjectorRigBenchmark implements TestSupport {
   private static final int BYTES = get("flywheel.rig.bytes", Integer::valueOf, 128);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
+  private static final long PRINT_OUTLIERS_OVER = get("flywheel.rig.printOutliersOver", Long::parseLong, 1000L);
   
   private static Summary run(Config c) throws Exception {
     final RemoteNode remote = RemoteNode.builder()
@@ -34,6 +35,7 @@ public final class InjectorRigBenchmark implements TestSupport {
       pulses = c.pulses;
       injectors = c.injectors;
       warmupPulses = c.warmupPulses;
+      printOutliersOverMillis = c.printOutliersOverMillis;
       text = c.text;
       bytes = c.bytes;
       log = c.log;
@@ -71,6 +73,7 @@ public final class InjectorRigBenchmark implements TestSupport {
         injectors = INJECTORS;
         topicSpec = TopicLibrary.load(SPEC);
         warmupFrac = WARMUP_FRAC;
+        printOutliersOverMillis = PRINT_OUTLIERS_OVER;
         text = TEXT;
         bytes = BYTES;
         log = new LogConfig() {{

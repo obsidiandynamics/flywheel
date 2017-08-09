@@ -327,16 +327,16 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     if (serverNanos == 0) return;
     
     final long clientNanos = serverNanos + timeDiff;
-    final long taken = now - clientNanos;
+    final long took = now - clientNanos;
     final long printOutliersOverMillis = config.printOutliersOverMillis;
     if (printOutliersOverMillis != 0) {
-      final long takenMillis = taken / 1_000_000L;
-      if (takenMillis > printOutliersOverMillis) {
-        config.log.out.format("r: outlier took %,d ns on topic %s at %s\n", taken, topic, new Date());
+      final long tookMillis = took / 1_000_000L;
+      if (tookMillis > printOutliersOverMillis) {
+        config.log.out.format("r: outlier took %,d ns for topic %s on %s\n", took, topic, new Date());
       }
     }
-    if (config.log.verbose) config.log.out.format("r: received; latency %,d\n", taken);
+    if (config.log.verbose) config.log.out.format("r: received; latency %,d\n", took);
     final boolean sample = count <= MIN_SAMPLES || count % config.statsPeriod == 0;
-    if (sample) summary.stats.executor.execute(() -> summary.stats.samples.addValue(taken));
+    if (sample) summary.stats.executor.execute(() -> summary.stats.samples.addValue(took));
   }
 }

@@ -15,6 +15,7 @@ import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
+import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.Announce.*;
@@ -31,6 +32,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     int pulses;
     int injectors;
     int warmupPulses;
+    long printOutliersOverMillis;
     boolean text;
     int bytes;
     LogConfig log;
@@ -144,15 +146,16 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
         final int width = nexuses.length;
         final int hashMod = topic.hashCode() % width;
         final RemoteNexus nexus = nexuses[hashMod < 0 ? hashMod + width : hashMod];
+        final SendCallback callback = createTimedCallback(topic, timestamp);
         if (config.text) {
           final String str = new StringBuilder().append(timestamp).append(' ').append(textPayload).toString();
-          nexus.publish(new PublishTextFrame(topic, str));
+          nexus.publish(new PublishTextFrame(topic, str), callback);
         } else {
           final ByteBuffer buf = ByteBuffer.allocate(8 + config.bytes);
           buf.putLong(timestamp);
           buf.put(binPayload);
           buf.flip();
-          nexus.publish(new PublishBinaryFrame(topic, BinaryUtils.toByteArray(buf)));
+          nexus.publish(new PublishBinaryFrame(topic, BinaryUtils.toByteArray(buf)), callback);
         }
         
         if (sent++ % perInterval == 0) {
@@ -196,6 +199,22 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
     awaitRemotes();
   }
   
+  private SendCallback createTimedCallback(String topic, long startTimestamp) {
+    return (outcome, cause) -> {
+      if (outcome == SendOutcome.SENT) {
+        final long printOutliersOverMillis = config.printOutliersOverMillis;
+        if (startTimestamp != 0 && printOutliersOverMillis != 0) {
+          final long now = System.nanoTime();
+          final long took = now - startTimestamp;
+          final long tookMillis = took / 1_000_000L;
+          if (tookMillis > printOutliersOverMillis) {
+            config.log.out.format("i: outlier took %,d ns for topic %s on %s\n", took, topic, new Date());
+          }
+        }
+      }
+    };
+  }
+
   private static String getControlRxTopic(String remoteId) {
     return CONTROL_TOPIC + "/" + remoteId + "/rx";
   }
