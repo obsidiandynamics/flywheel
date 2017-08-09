@@ -65,7 +65,7 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
       final CalibrationResult cal = calibrate();
       timeDiff = cal.timeDiff;
       if (Double.isNaN(config.normalMinNanos)) {
-        config.normalMinNanos = cal.minRoundTrip;
+        config.normalMinNanos = cal.minRoundTrip / 2;
       }
     }
     announce(controlSessionId);
