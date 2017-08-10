@@ -60,6 +60,10 @@ public final class InjectorRigBenchmark implements TestSupport {
   
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
+    LOG_STREAM.println();
+    filter("flywheel.rig", System.getProperties()).entrySet().stream()
+    .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG_STREAM::println);
+    
     final URI uri = new URI(URL);
     do {
       LOG_STREAM.format("_\nInjector benchmark started (URI: %s)...\n", uri);
