@@ -109,12 +109,13 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
   }
   
   private void awaitReceival(long expectedMessages) throws InterruptedException {
+    final int awaitSecs = 10;
     for (int triesLeft = 5; ; triesLeft--) {
-      final boolean complete = Await.bounded(10_000, () -> received.get() >= expectedMessages);
+      final boolean complete = Await.bounded(awaitSecs * 1000, () -> received.get() >= expectedMessages);
       if (complete) {
         break;
       } else {
-        config.log.out.format("r: received %,d/%,d (%d intervals left)\n", received.get(), expectedMessages, triesLeft);
+        config.log.out.format("r: received %,d/%,d (%,d sec left)\n", received.get(), expectedMessages, triesLeft * awaitSecs);
         if (triesLeft == 0) {
           config.log.out.format("r: receive timed out\n");
           break;
@@ -332,7 +333,9 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     if (printOutliersOverMillis != 0) {
       final long tookMillis = took / 1_000_000L;
       if (tookMillis > printOutliersOverMillis) {
-        config.log.out.format("r: outlier took %,d ns for topic %s on %s\n", took, topic, new Date());
+        ForkJoinPool.commonPool().execute(() -> {
+          config.log.out.format("r: outlier took %,d ns for topic %s on %s\n", took, topic, new Date());
+        });
       }
     }
     if (config.log.verbose) config.log.out.format("r: received; latency %,d\n", took);

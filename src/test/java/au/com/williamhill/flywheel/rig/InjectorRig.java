@@ -208,7 +208,9 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
           final long took = now - startTimestamp;
           final long tookMillis = took / 1_000_000L;
           if (tookMillis > printOutliersOverMillis) {
-            config.log.out.format("i: outlier took %,d ns for topic %s on %s\n", took, topic, new Date());
+            ForkJoinPool.commonPool().execute(() -> {
+              config.log.out.format("i: outlier took %,d ns for topic %s on %s\n", took, topic, new Date());
+            });
           }
         }
       }
