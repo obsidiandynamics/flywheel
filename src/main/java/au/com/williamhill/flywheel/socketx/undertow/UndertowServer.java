@@ -19,10 +19,10 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
                          XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
     this.config = config;
     worker = Xnio.getInstance().createWorker(OptionMap.builder()
-                                             .set(Options.WORKER_IO_THREADS, Runtime.getRuntime().availableProcessors())
+                                             .set(Options.WORKER_IO_THREADS, UndertowProperties.ioThreads)
                                              .set(Options.THREAD_DAEMON, true)
-                                             .set(Options.WORKER_TASK_CORE_THREADS, 16)
-                                             .set(Options.WORKER_TASK_MAX_THREADS, 64)
+                                             .set(Options.WORKER_TASK_CORE_THREADS, UndertowProperties.coreTaskThreads)
+                                             .set(Options.WORKER_TASK_MAX_THREADS, UndertowProperties.maxTaskThreads)
                                              .set(Options.TCP_NODELAY, true)
                                              .getMap());
 
@@ -48,6 +48,8 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
         .setWorker(worker)
         .addHttpListener(config.port, "0.0.0.0")
         .setHandler(handler)
+        .setBufferSize(UndertowProperties.bufferSize)
+        .setDirectBuffers(UndertowProperties.directBuffers)
         .build();
     server.start();
   }
