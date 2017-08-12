@@ -34,7 +34,11 @@ public final class RoutingInterchange implements Interchange {
     if (LOG.isDebugEnabled()) LOG.debug("{}: opened", nexus);
     final Subscriber subscriber = d -> {
       if (LOG.isTraceEnabled()) LOG.trace("{}: delivering {}", nexus, d.getPayload());
-      nexus.sendAuto(d.getPayload());
+      try {
+        nexus.sendAuto(d.getPayload(), null);
+      } catch (Throwable e) {
+        LOG.warn(String.format("%s: error sending %s", nexus, d.getPayload()), e);
+      }
     };
     nexus.getSession().setSubscription(new RoutingSubscription(subscriber));
   }
