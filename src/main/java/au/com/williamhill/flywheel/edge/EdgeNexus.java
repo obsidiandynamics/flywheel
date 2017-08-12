@@ -24,6 +24,10 @@ public final class EdgeNexus implements AutoCloseable {
   public CompletableFuture<SendOutcome> sendAuto(Frame frame) {
     return SendHelper.sendAuto(frame, peer.getEndpoint(), node.getWire());
   }
+
+  public void sendAuto(Frame frame, SendCallback callback) {
+    SendHelper.sendAuto(frame, peer.getEndpoint(), node.getWire(), callback);
+  }
   
   public CompletableFuture<SendOutcome> send(TextEncodedFrame frame) {
     return SendHelper.send(frame, peer.getEndpoint(), node.getWire());
