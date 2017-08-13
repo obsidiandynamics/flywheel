@@ -25,6 +25,7 @@ public final class RoutingInterchange implements Interchange {
     };
     
     this.system = new ActorSystemConfig() {{
+      executor = ActorSystemConfig.ExecutorChoice.FIXED_THREAD_POOL;
       exceptionHandler = loggingExceptionHandler.andThen(ActorSystemConfig.ExceptionHandlerChoice.DRAIN);
     }}
     .createActorSystem()
