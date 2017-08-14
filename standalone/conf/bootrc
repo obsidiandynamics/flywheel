@@ -2,9 +2,10 @@
 # launching the broker JVM process.
 
 if [ -z ${FLYWHEEL_JVM_OPTS} ]; then
-  export FLYWHEEL_JVM_OPTS="-XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark \
-                            -XX:-UseBiasedLocking -Xms1G -Xmx2G -Xss1M -XX:MaxDirectMemorySize=2G \
-                            -XX:+DisableExplicitGC -Xloggc:log/gc-%t.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps \
+  export FLYWHEEL_JVM_OPTS="-XX:-MaxFDLimit -Djava.net.preferIPv4Stack=true -Xms1G -Xmx2G -Xss1M -XX:MaxDirectMemorySize=2G \
+                            -XX:+ExplicitGCInvokesConcurrent -Xloggc:log/gc-%t.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps \
+                            -XX:+PrintGCApplicationStoppedTime \
+                            -XX:+UseGCLogFileRotation -XX:GCLogFileSize=1G -XX:NumberOfGCLogFiles=10 \
                             -XX:+UseParallelGC \
                             -Dcom.sun.management.jmxremote.rmi.port=9090 -Dcom.sun.management.jmxremote=true \
                             -Dcom.sun.management.jmxremote.port=9090 -Dcom.sun.management.jmxremote.ssl=false \

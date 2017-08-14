@@ -2,6 +2,7 @@ package au.com.williamhill.flywheel.edge;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.*;
 import java.util.stream.*;
 
 import org.slf4j.*;
@@ -19,12 +20,16 @@ public final class RoutingInterchange implements Interchange {
   private final ActorRef routerRef = ActorRef.of(TopicRouter.ROLE);
 
   public RoutingInterchange() {
-    this(ActorSystem.create());
-  }
-
-  private RoutingInterchange(ActorSystem system) {
-    this.system = system;
-    system.on(TopicRouter.ROLE).withConfig(new ActorConfig() {{
+    final BiConsumer<ActorSystem, Throwable> loggingExceptionHandler = (sys, t) -> {
+      LOG.warn("Exception in actor thread", t);
+    };
+    
+    this.system = new ActorSystemConfig() {{
+      executor = ActorSystemConfig.ExecutorChoice.FIXED_THREAD_POOL;
+      exceptionHandler = loggingExceptionHandler.andThen(ActorSystemConfig.ExceptionHandlerChoice.DRAIN);
+    }}
+    .createActorSystem()
+    .on(TopicRouter.ROLE).withConfig(new ActorConfig() {{
       bias = 10;
     }}).cue(() -> new TopicRouter(new TopicConfig()));
   }
@@ -34,7 +39,7 @@ public final class RoutingInterchange implements Interchange {
     if (LOG.isDebugEnabled()) LOG.debug("{}: opened", nexus);
     final Subscriber subscriber = d -> {
       if (LOG.isTraceEnabled()) LOG.trace("{}: delivering {}", nexus, d.getPayload());
-      nexus.sendAuto(d.getPayload());
+      nexus.sendAuto(d.getPayload(), null);
     };
     nexus.getSession().setSubscription(new RoutingSubscription(subscriber));
   }
