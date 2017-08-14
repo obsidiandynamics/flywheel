@@ -10,12 +10,11 @@ import org.apache.kafka.common.serialization.*;
 import com.obsidiandynamics.indigo.util.*;
 
 public final class KafkaSamplePubSub {
-  private static final boolean MOCK = false;
   private static final String BROKERS = "localhost:9092";
   private static final String TOPIC = "test";
   private static final String CONSUMER_GROUP = "test";
   private static final long PUBLISH_INTERVAL = 100;
-  private static final Kafka<String, String> KAFKA = MOCK ? new MockKafka<>() : new KafkaCluster<>(new KafkaClusterConfig() {{
+  private static final Kafka<String, String> KAFKA = new KafkaCluster<>(new KafkaClusterConfig() {{
     bootstrapServers = BROKERS;
   }});
   

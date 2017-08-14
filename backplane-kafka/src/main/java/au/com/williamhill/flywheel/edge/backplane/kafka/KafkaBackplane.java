@@ -75,7 +75,8 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   public void attach(BackplaneConnector connector) {
     this.connector = connector;
     final Consumer<String, KafkaData> consumer = config.kafka.getConsumer(getConsumerProps());
-    seekToEnd(consumer, config.topic);
+    consumer.subscribe(config.topic);
+//    seekToEnd(consumer, config.topic);
     final String threadName = "KafkaReceiver-" + clusterId + "-" + brokerId + "-" + config.topic;
     receiver = new KafkaReceiver<>(
         consumer,
@@ -85,21 +86,21 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
     producer = config.kafka.getProducer(getProducerProps());
   }
   
-  private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
-    final List<PartitionInfo> infos = consumer.partitionsFor(topic);
-    final List<TopicPartition> partitions = infos.stream()
-        .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
-    final Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
-    consumer.assign(partitions);
-    for (Map.Entry<TopicPartition, Long> entry : endOffsets.entrySet()) {
-      consumer.seek(entry.getKey(), entry.getValue());
-    }
-  }
+//  private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
+//    final List<PartitionInfo> infos = consumer.partitionsFor(topic);
+//    final List<TopicPartition> partitions = infos.stream()
+//        .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
+//    final Map<TopicPartition, Long> endOffsets = consumer.endOffsets(partitions);
+//    consumer.assign(partitions);
+//    for (Map.Entry<TopicPartition, Long> entry : endOffsets.entrySet()) {
+//      consumer.seek(entry.getKey(), entry.getValue());
+//    }
+//  }
 
   @Override
-  public void handle(ConsumerRecords<String, KafkaData> records) {
+  public void handle(ConsumerRecords<String, KafkaData> records) throws Exception {
     System.out.println("in handle()");
-    for (ConsumerRecord<String, KafkaData> rec : records) {
+    for (ConsumerRecord<String, KafkaData> rec : records.records()) {
       if (LOG.isTraceEnabled()) LOG.trace("Receiving key={}, value={}", rec.key(), rec.value());
       final KafkaData data = rec.value();
       if (! data.getSource().equals(source)) {

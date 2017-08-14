@@ -23,7 +23,8 @@ public class ScramjetKafkaBackplaneTest extends BackplaneTest {
   }
   
   protected Kafka<String, KafkaData> getKafka() {
-    return new MockKafka<>(1, Integer.MAX_VALUE);
+    //TODO
+    return null; // new MockKafka<>(1, Integer.MAX_VALUE);
   }
   
   @Override
