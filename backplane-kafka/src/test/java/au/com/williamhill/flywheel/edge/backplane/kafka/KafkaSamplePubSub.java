@@ -72,13 +72,17 @@ public final class KafkaSamplePubSub {
     
     SampleSubscriber() {
       consumer = KAFKA.getConsumer(getProps());
-      consumer.subscribe(Arrays.asList(TOPIC));
+      consumer.subscribe(TOPIC);
       receiver = new KafkaReceiver<>(consumer, 100, "Kafka-SampleSubscriber", this::receive);
     }
     
     private void receive(ConsumerRecords<String, String> records) {
-      for (ConsumerRecord<String, String> record : records) {
-        log("c: rx [%s], key: %s, value: %s\n", formatMetadata(record.topic(), record.partition(), record.offset()), record.key(), record.value());
+      for (ConsumerRecord<String, String> record : records.records()) {
+        try {
+          log("c: rx [%s], key: %s, value: %s\n", formatMetadata(record.topic(), record.partition(), record.offset()), record.key(), record.value());
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
       }
     }
     

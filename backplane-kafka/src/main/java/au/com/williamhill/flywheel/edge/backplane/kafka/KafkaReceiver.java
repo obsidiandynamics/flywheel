@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
+import java.util.*;
+
 import org.apache.kafka.clients.consumer.*;
 
 public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
@@ -31,14 +33,11 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   @Override 
   public void run() {
     while (running) {
-      final ConsumerRecords<K, V> records;
-      try {
-        records = consumer.poll(pollTimeoutMillis);
-      } catch (org.apache.kafka.common.errors.InterruptException e) {
-        break;
-      }
-      if (! records.isEmpty()) {
-        handler.handle(records);
+      final Map<String, ConsumerRecords<K, V>> allRecords = consumer.poll(pollTimeoutMillis);
+      if (! allRecords.isEmpty()) {
+        for (ConsumerRecords<K, V> records : allRecords.values()) {
+          handler.handle(records);
+        }
       }
     }
     consumer.close();

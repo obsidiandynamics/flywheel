@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.*;
 import org.apache.kafka.common.serialization.*;
+import org.slf4j.*;
 
 import com.obsidiandynamics.indigo.util.*;
 import com.obsidiandynamics.yconf.*;
@@ -19,6 +20,8 @@ import au.com.williamhill.flywheel.frame.*;
 
 @Y
 public final class KafkaBackplane implements Backplane, RecordHandler<String, KafkaData> {
+  private static final Logger LOG = LoggerFactory.getLogger(KafkaBackplane.class);
+  
   private final KafkaBackplaneConfig config;
   
   private final String clusterId;
@@ -50,11 +53,15 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   }
   
   private Properties getConsumerProps() {
+    System.out.println("source=" + source);
     final Properties props = new Properties();
     props.setProperty("group.id", source);
     props.setProperty("enable.auto.commit", String.valueOf(false));
     props.setProperty("key.deserializer", StringDeserializer.class.getName());
     props.setProperty("value.deserializer", config.deserializer.getName());
+    props.setProperty("session.timeout.ms", String.valueOf(5000));
+    props.setProperty("fetch.max.wait.ms", String.valueOf(5000));
+    props.setProperty("request.timeout.ms", String.valueOf(5001));
     return props;
   }
   
@@ -77,9 +84,11 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
         threadName,
         this);
     producer = config.kafka.getProducer(getProducerProps());
+    System.out.println("AttaCHED");
   }
   
   private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
+    consumer.offsetsBeforeTime(-2, partitions)
     final List<PartitionInfo> infos = consumer.partitionsFor(topic);
     final List<TopicPartition> partitions = infos.stream()
         .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
@@ -92,13 +101,15 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
 
   @Override
   public void handle(ConsumerRecords<String, KafkaData> records) {
+    System.out.println("in handle()");
     for (ConsumerRecord<String, KafkaData> rec : records) {
+      if (LOG.isTraceEnabled()) LOG.trace("Receiving key={}, value={}", rec.key(), rec.value());
       final KafkaData data = rec.value();
       if (! data.getSource().equals(source)) {
         if (data.isText()) {
-          connector.publish(data.getRoute(), data.getTextPayload());
+          connector.publish(data.getTopic(), data.getTextPayload());
         } else {
-          connector.publish(data.getRoute(), data.getBinaryPayload());
+          connector.publish(data.getTopic(), data.getBinaryPayload());
         }
       }
     }
@@ -114,6 +125,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
                                          pub.getPayload(),
                                          now,
                                          now + config.ttlMillis);
+    if (LOG.isTraceEnabled()) LOG.trace("Sending key={}, value={}", data.getTopic(), data.getTextPayload());
     producer.send(new ProducerRecord<>(config.topic, pub.getTopic(), data));
   }
 
@@ -127,6 +139,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
                                          null,
                                          now,
                                          now + config.ttlMillis);
+    if (LOG.isTraceEnabled()) LOG.trace("Sending key={}, value.length={}", data.getTopic(), data.getBinaryPayload().length);
     producer.send(new ProducerRecord<>(config.topic, pub.getTopic(), data));
   }
 

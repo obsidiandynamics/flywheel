@@ -6,7 +6,8 @@ def packageName = 'flywheel-backplane-kafka'
 dependencies {
   compile project(':')
   compile project(':').sourceSets.test.output
-  compile 'org.apache.kafka:kafka-clients:0.11.0.0'
+  //compile 'org.apache.kafka:kafka-clients:0.11.0.0'
+  compile 'org.apache.kafka:kafka-clients:0.8.2.1'
   
   testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
   testRuntime 'org.slf4j:slf4j-log4j12:1.7.25'

@@ -51,7 +51,7 @@ public final class ScramjetSerializerTest implements TestSupport {
     log("decoded: %s\n", r);
     assertEquals(d.getId(), r.getId());
     assertEquals(d.getSource(), r.getSource());
-    assertEquals(d.getRoute(), r.getRoute());
+    assertEquals(d.getTopic(), r.getTopic());
     assertArrayEquals(d.getBinaryPayload(), r.getBinaryPayload());
     assertEquals(d.getTextPayload(), r.getTextPayload());
     assertEquals(d.getTimestamp(), r.getTimestamp());
