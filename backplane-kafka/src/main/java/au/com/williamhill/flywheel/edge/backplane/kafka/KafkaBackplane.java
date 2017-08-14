@@ -53,7 +53,6 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   }
   
   private Properties getConsumerProps() {
-    System.out.println("source=" + source);
     final Properties props = new Properties();
     props.setProperty("group.id", source);
     props.setProperty("enable.auto.commit", String.valueOf(false));
@@ -84,11 +83,9 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
         threadName,
         this);
     producer = config.kafka.getProducer(getProducerProps());
-    System.out.println("AttaCHED");
   }
   
   private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
-    consumer.offsetsBeforeTime(-2, partitions)
     final List<PartitionInfo> infos = consumer.partitionsFor(topic);
     final List<TopicPartition> partitions = infos.stream()
         .map(i -> new TopicPartition(i.topic(), i.partition())).collect(Collectors.toList());
