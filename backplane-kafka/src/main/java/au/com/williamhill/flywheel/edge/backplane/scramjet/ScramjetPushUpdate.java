@@ -68,12 +68,12 @@ public final class ScramjetPushUpdate implements ScramjetPayload {
 
   @Override
   public AttributeWriter pack() {
-    return new AttributeWriter(TYPE).write("topic", topic).write("timetolive", timeToLive).write("payload", payload);
+    return new AttributeWriter(TYPE).write("topic", topic).write("timeToLive", timeToLive).write("payload", payload);
   }
   
   static ScramjetPushUpdate unpack(AttributeReader reader) {
     final ScramjetPushUpdate obj = new ScramjetPushUpdate(reader.read("topic"),
-                                                          reader.<Number>read("timetolive").intValue(),
+                                                          reader.<Number>read("timeToLive").intValue(),
                                                           reader.read("payload"));
     return obj;
   }
