@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.*;
 import org.apache.kafka.common.serialization.*;
+import org.slf4j.*;
 
 import com.obsidiandynamics.indigo.util.*;
 import com.obsidiandynamics.yconf.*;
@@ -18,7 +19,9 @@ import au.com.williamhill.flywheel.edge.backplane.kafka.KafkaReceiver.*;
 import au.com.williamhill.flywheel.frame.*;
 
 @Y
-public final class KafkaBackplane implements Backplane, RecordHandler<String, KafkaData> {
+public final class KafkaBackplane implements Backplane, RecordHandler<String, KafkaData>, ErrorHandler {
+  private static final Logger LOG = LoggerFactory.getLogger(KafkaBackplane.class);
+  
   private final KafkaBackplaneConfig config;
   
   private final String clusterId;
@@ -67,6 +70,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
 
   @Override
   public void attach(BackplaneConnector connector) {
+    if (LOG.isDebugEnabled()) LOG.debug("Attaching Kafka backplane...");
     this.connector = connector;
     final Consumer<String, KafkaData> consumer = config.kafka.getConsumer(getConsumerProps());
     seekToEnd(consumer, config.topic);
@@ -75,8 +79,10 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
         consumer,
         config.pollTimeoutMillis,
         threadName,
+        this,
         this);
     producer = config.kafka.getProducer(getProducerProps());
+    if (LOG.isDebugEnabled()) LOG.debug("Backplane attached");
   }
   
   private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
@@ -91,17 +97,29 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   }
 
   @Override
-  public void handle(ConsumerRecords<String, KafkaData> records) {
+  public void onReceive(ConsumerRecords<String, KafkaData> records) {
     for (ConsumerRecord<String, KafkaData> rec : records) {
       final KafkaData data = rec.value();
+      if (data.isError()) {
+        LOG.warn(String.format("Error processing Kafka record at offset %,d on partition %s",
+                               rec.offset(), rec.partition()), data.getError());
+        continue;
+      }
+      
       if (! data.getSource().equals(source)) {
+        if (LOG.isTraceEnabled()) LOG.trace("rx {}", data);
         if (data.isText()) {
-          connector.publish(data.getRoute(), data.getTextPayload());
+          connector.publish(data.getTopic(), data.getTextPayload());
         } else {
-          connector.publish(data.getRoute(), data.getBinaryPayload());
+          connector.publish(data.getTopic(), data.getBinaryPayload());
         }
       }
     }
+  }
+  
+  @Override
+  public void onError(Throwable cause) {
+    LOG.warn("Error processing Kafka record", cause);
   }
 
   @Override
@@ -114,6 +132,8 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
                                          pub.getPayload(),
                                          now,
                                          now + config.ttlMillis);
+
+    if (LOG.isTraceEnabled()) LOG.trace("tx {}", data);
     producer.send(new ProducerRecord<>(config.topic, pub.getTopic(), data));
   }
 
@@ -127,6 +147,8 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
                                          null,
                                          now,
                                          now + config.ttlMillis);
+
+    if (LOG.isTraceEnabled()) LOG.trace("tx {}", data);
     producer.send(new ProducerRecord<>(config.topic, pub.getTopic(), data));
   }
 
@@ -141,5 +163,10 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
       producer.close();
       producer = null;
     }
+  }
+
+  @Override
+  public String toString() {
+    return "KafkaBackplane [config: " + config + ", clusterId: " + clusterId + ", brokerId: " + brokerId + "]";
   }
 }

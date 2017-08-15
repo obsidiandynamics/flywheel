@@ -7,6 +7,7 @@ import java.util.*;
 import org.apache.kafka.common.serialization.*;
 import org.junit.*;
 
+import com.google.gson.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.util.*;
@@ -51,10 +52,23 @@ public final class ScramjetSerializerTest implements TestSupport {
     log("decoded: %s\n", r);
     assertEquals(d.getId(), r.getId());
     assertEquals(d.getSource(), r.getSource());
-    assertEquals(d.getRoute(), r.getRoute());
+    assertEquals(d.getTopic(), r.getTopic());
     assertArrayEquals(d.getBinaryPayload(), r.getBinaryPayload());
     assertEquals(d.getTextPayload(), r.getTextPayload());
     assertEquals(d.getTimestamp(), r.getTimestamp());
     assertEquals(d.getExpiry(), r.getExpiry());
+  }
+  
+  @Test
+  public void testDeserializeError() {
+    final KafkaData d = deserializer.deserialize("test", "nonsense".getBytes());
+    assertTrue(d.isError());
+    assertEquals(JsonSyntaxException.class, d.getError().getClass());
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testSerializeError() {
+    final KafkaData d = new KafkaData(new RuntimeException());
+    serializer.serialize("test", d);
   }
 }

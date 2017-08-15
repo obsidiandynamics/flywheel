@@ -166,4 +166,9 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
       throw new RuntimeException(e);
     }
   }
+
+  @Override
+  public String toString() {
+    return "MockKafka [maxPartitions: " + maxPartitions + ", maxHistory: " + maxHistory + "]";
+  }
 }

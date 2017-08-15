@@ -20,12 +20,16 @@ public final class ScramjetDeserializer implements Deserializer<KafkaData> {
 
   @Override
   public KafkaData deserialize(String topic, byte[] data) {
-    final String json = s.deserialize(topic, data);
-    final ScramjetMessage msg = ScramjetMessage.fromJson(gson, json);
-    return toKafka(msg);
+    try {
+      final String json = s.deserialize(topic, data);
+      final ScramjetMessage msg = ScramjetMessage.fromJson(gson, json);
+      return toKafka(msg);
+    } catch(Throwable e) {
+      return new KafkaData(e);
+    }
   }
   
-  private  KafkaData toKafka(ScramjetMessage msg) {
+  private KafkaData toKafka(ScramjetMessage msg) {
     final ScramjetPushUpdate update = (ScramjetPushUpdate) msg.getPayload();
     final Object payload = extractPayload(update.getPayload());
     final boolean text = payload instanceof String;

@@ -8,7 +8,26 @@ properties:
 launchers: 
 - type: au.com.williamhill.flywheel.ConfigLauncher
   backplane:
-    type: au.com.williamhill.flywheel.edge.backplane.NoOpBackplane
+    type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaBackplane
+    backplaneConfig:
+      kafka:
+        type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaCluster
+        clusterConfig:
+          bootstrapServers: ${mandatory(env.FLYWHEEL_KAFKA_BROKERS, "Kafka brokers cannot be null")}
+          prodAcks: all
+          prodRetries: 0
+          prodBatchSize: 16384
+          prodLingerMillis: 1
+          prodBufferMemory: 33554432
+          consAutoCommit: false
+          consAutoCommitIntervalMillis: 0
+      topic: platform.push
+      serializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetSerializer
+      deserializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetDeserializer
+      pollTimeoutMillis: 100
+      ttlMillis: 300000
+    clusterId: test
+    brokerId: 0
   serverConfig:
     port: 8080
     path: /broker

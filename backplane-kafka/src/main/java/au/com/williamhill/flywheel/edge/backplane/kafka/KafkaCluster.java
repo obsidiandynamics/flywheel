@@ -31,4 +31,9 @@ public final class KafkaCluster<K, V> implements Kafka<K, V> {
     combinedProps.putAll(props);
     return new KafkaConsumer<>(combinedProps);
   }
+
+  @Override
+  public String toString() {
+    return "KafkaCluster [config: " + config + "]";
+  }
 }

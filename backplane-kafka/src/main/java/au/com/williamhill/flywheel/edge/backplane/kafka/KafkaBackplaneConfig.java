@@ -20,7 +20,14 @@ public class KafkaBackplaneConfig {
   
   @YInject
   public long pollTimeoutMillis = 100;
-  
+
   @YInject
   public long ttlMillis = 300_000;
+  
+  @Override
+  public String toString() {
+    return "KafkaBackplaneConfig [kafka: " + kafka + ", topic: " + topic + ", serializer: " + serializer
+           + ", deserializer: " + deserializer + ", pollTimeoutMillis: " + pollTimeoutMillis + ", ttlMillis: " + ttlMillis
+           + "]";
+  }
 }

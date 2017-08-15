@@ -73,13 +73,17 @@ public final class KafkaSamplePubSub {
     SampleSubscriber() {
       consumer = KAFKA.getConsumer(getProps());
       consumer.subscribe(Arrays.asList(TOPIC));
-      receiver = new KafkaReceiver<>(consumer, 100, "Kafka-SampleSubscriber", this::receive);
+      receiver = new KafkaReceiver<>(consumer, 100, "Kafka-SampleSubscriber", this::onReceive, this::onError);
     }
     
-    private void receive(ConsumerRecords<String, String> records) {
+    private void onReceive(ConsumerRecords<String, String> records) {
       for (ConsumerRecord<String, String> record : records) {
         log("c: rx [%s], key: %s, value: %s\n", formatMetadata(record.topic(), record.partition(), record.offset()), record.key(), record.value());
       }
+    }
+    
+    private void onError(Throwable cause) {
+      log("c: exception: %s\n", cause);
     }
     
     void close() throws InterruptedException {

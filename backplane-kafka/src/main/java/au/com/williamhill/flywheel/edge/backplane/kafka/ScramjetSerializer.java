@@ -19,6 +19,8 @@ public final class ScramjetSerializer implements Serializer<KafkaData> {
   
   @Override
   public byte[] serialize(String topic, KafkaData data) {
+    if (data.isError()) throw new IllegalArgumentException("Cannot serialize an error");
+    
     final ScramjetMessage msg = toScramjet(data);
     final String json = msg.toJson(gson);
     return s.serialize(topic, json);
@@ -28,7 +30,7 @@ public final class ScramjetSerializer implements Serializer<KafkaData> {
     final int ttl = (int) (data.getTimeRemaining() / 1000);
     final int cappedTtl = ttl < 0 ? Integer.MAX_VALUE : ttl;
     final Object payload = data.isText() ? data.getTextPayload() : new ScramjetBase64(data.getBinaryPayload());
-    final ScramjetPushUpdate update = new ScramjetPushUpdate(data.getRoute(), cappedTtl, payload);
+    final ScramjetPushUpdate update = new ScramjetPushUpdate(data.getTopic(), cappedTtl, payload);
     final ScramjetMessage msg = new ScramjetMessage(data.getId(), "PUSH_UPDATE", update, 
                                                     data.getSource(), new Date(data.getTimestamp()));
     return msg;

@@ -5,7 +5,12 @@ import org.apache.kafka.clients.consumer.*;
 public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   @FunctionalInterface
   public interface RecordHandler<K, V> {
-    void handle(ConsumerRecords<K, V> records);
+    void onReceive(ConsumerRecords<K, V> records);
+  }
+  
+  @FunctionalInterface
+  public interface ErrorHandler {
+    void onError(Throwable cause);
   }
   
   private final Consumer<K, V> consumer;
@@ -14,13 +19,17 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   
   private final RecordHandler<K, V> handler;
   
+  private final ErrorHandler errorHandler;
+  
   private volatile boolean running = true;
   
-  public KafkaReceiver(Consumer<K, V> consumer, long pollTimeoutMillis, String threadName, RecordHandler<K, V> handler) {
+  public KafkaReceiver(Consumer<K, V> consumer, long pollTimeoutMillis, String threadName, 
+                       RecordHandler<K, V> handler, ErrorHandler errorHandler) {
     super(threadName);
     this.consumer = consumer;
     this.pollTimeoutMillis = pollTimeoutMillis;
     this.handler = handler;
+    this.errorHandler = errorHandler;
     start();
   }
   
@@ -36,9 +45,12 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
         records = consumer.poll(pollTimeoutMillis);
       } catch (org.apache.kafka.common.errors.InterruptException e) {
         break;
+      } catch (Throwable e) {
+        errorHandler.onError(e);
+        continue;
       }
       if (! records.isEmpty()) {
-        handler.handle(records);
+        handler.onReceive(records);
       }
     }
     consumer.close();

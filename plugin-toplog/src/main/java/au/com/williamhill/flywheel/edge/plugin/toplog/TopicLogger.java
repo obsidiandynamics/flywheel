@@ -79,6 +79,6 @@ public final class TopicLogger implements Plugin, TopicListener {
 
   @Override
   public String toString() {
-    return "TopicLogger {exclude topics: " + Arrays.toString(excludeTopics) + "}";
+    return "TopicLogger [exclude topics: " + Arrays.toString(excludeTopics) + "]";
   }
 }

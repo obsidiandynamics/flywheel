@@ -17,7 +17,7 @@ public class KafkaClusterConfig {
   
   @YInject
   public int prodBatchSize = 16_384;
-  
+
   @YInject
   public int prodLingerMillis = 1;
   
@@ -25,10 +25,10 @@ public class KafkaClusterConfig {
   public int prodBufferMemory = 33_554_432;
   
   @YInject
-  public boolean consAutoCommit = true;
+  public boolean consAutoCommit = false;
   
   @YInject
-  public int consAutoCommitIntervalMillis = 100;
+  public int consAutoCommitIntervalMillis = 0;
   
   void init() {
     if (bootstrapServers == null) throw new IllegalArgumentException("Must specify a value for 'bootstrapServers'");
@@ -55,5 +55,13 @@ public class KafkaClusterConfig {
     props.setProperty("enable.auto.commit", String.valueOf(consAutoCommit));
     props.setProperty("auto.commit.interval.ms", String.valueOf(consAutoCommitIntervalMillis));
     return props;
+  }
+  
+  @Override
+  public String toString() {
+    return "KafkaClusterConfig [bootstrapServers: " + bootstrapServers + ", prodAcks: " + prodAcks + ", prodRetries: "
+           + prodRetries + ", prodBatchSize: " + prodBatchSize + ", prodLingerMillis: " + prodLingerMillis
+           + ", prodBufferMemory: " + prodBufferMemory + ", consAutoCommit: " + consAutoCommit
+           + ", consAutoCommitIntervalMillis: " + consAutoCommitIntervalMillis + "]";
   }
 }

@@ -102,6 +102,6 @@ public final class Beacon implements Plugin {
 
   @Override
   public String toString() {
-    return "Beacon {interval: " + intervalMillis + " ms, topic: " + topic + ", format: " + format + "}";
+    return "Beacon [interval: " + intervalMillis + " ms, topic: " + topic + ", format: " + format + "]";
   }
 }
