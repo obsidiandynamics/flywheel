@@ -32,6 +32,7 @@ public final class Profile {
   public static Profile fromFile(File file) throws FileNotFoundException, IOException, NoSuchMethodException, SecurityException {
     return new MappingContext()
         .withDomTransform(new JuelTransform()
+                          .withFunction("randomUUID", UUID.class.getMethod("randomUUID"))
                           .withVariable("maxInt", Integer.MAX_VALUE)
                           .withVariable("maxLong", Long.MAX_VALUE))
         .withParser(new SnakeyamlParser())

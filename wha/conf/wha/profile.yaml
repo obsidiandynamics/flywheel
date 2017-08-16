@@ -27,7 +27,7 @@ launchers:
       pollTimeoutMillis: 100
       ttlMillis: 300000
     clusterId: roundhouse
-    brokerId: 0
+    brokerId: ${randomUUID()}
   serverConfig:
     port: 8080
     path: /broker
