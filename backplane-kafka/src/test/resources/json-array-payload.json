@@ -1,0 +1,12 @@
+{
+  "payload": {
+    "$type": "Scramjet.Messages.Push.Update",
+    "topic": "racing/13815910/status",
+    "payload": [0,1,2],
+    "timeToLive": 30
+  },
+  "messageType": "PUSH_UPDATE",
+  "id": "309be61a-a551-4f6b-9ad6-4fd91c3d495e",
+  "sentAt": "2017-08-12T19:53:36.0317039Z",
+  "publisher": "roundhouse-0"
+}

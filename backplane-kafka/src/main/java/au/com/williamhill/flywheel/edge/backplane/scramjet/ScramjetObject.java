@@ -12,11 +12,6 @@ public final class ScramjetObject implements ScramjetPayload {
     return this;
   }
   
-  @SuppressWarnings("unchecked")
-  public <T> T get(String attribute) {
-    return (T) atts.get(attribute);
-  }
-  
   @Override
   public int hashCode() {
     final int prime = 31;

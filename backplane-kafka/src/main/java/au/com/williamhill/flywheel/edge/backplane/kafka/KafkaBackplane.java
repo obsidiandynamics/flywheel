@@ -19,8 +19,13 @@ import au.com.williamhill.flywheel.edge.backplane.kafka.KafkaReceiver.*;
 import au.com.williamhill.flywheel.frame.*;
 
 @Y
-public final class KafkaBackplane implements Backplane, RecordHandler<String, KafkaData>, ErrorHandler {
+public final class KafkaBackplane implements Backplane, RecordHandler<String, KafkaData> {
   private static final Logger LOG = LoggerFactory.getLogger(KafkaBackplane.class);
+  
+  @FunctionalInterface
+  interface ErrorHandler {
+    void onError(ConsumerRecord<String, KafkaData> record);
+  }
   
   private final KafkaBackplaneConfig config;
   
@@ -31,6 +36,8 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   private final String source;
   
   private final AtomicLong idGen = new AtomicLong(randomNonNegative());
+
+  private final ErrorHandler errorHandler;
   
   private volatile BackplaneConnector connector;
   
@@ -46,10 +53,23 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   public KafkaBackplane(@YInject(name="backplaneConfig") KafkaBackplaneConfig config, 
                         @YInject(name="clusterId") String clusterId, 
                         @YInject(name="brokerId") String brokerId) {
+    this(config, clusterId, brokerId, createErrorHandler(LOG));
+  }
+  
+  KafkaBackplane(KafkaBackplaneConfig config, 
+                 String clusterId, 
+                 String brokerId,
+                 ErrorHandler errorHandler) {
     this.config = config;
     this.clusterId = clusterId;
     this.brokerId = brokerId;
+    this.errorHandler = errorHandler;
     source = clusterId + "-" + brokerId;
+  }
+  
+  static ErrorHandler createErrorHandler(Logger logger) {
+    return record -> logger.warn(String.format("Error processing Kafka record at offset %,d on partition %s",
+                                               record.offset(), record.partition()), record.value().getError());
   }
   
   private Properties getConsumerProps() {
@@ -70,7 +90,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
 
   @Override
   public void attach(BackplaneConnector connector) {
-    if (LOG.isDebugEnabled()) LOG.debug("Attaching Kafka backplane...");
+    LOG.debug("Attaching Kafka backplane...");
     this.connector = connector;
     final Consumer<String, KafkaData> consumer = config.kafka.getConsumer(getConsumerProps());
     seekToEnd(consumer, config.topic);
@@ -80,9 +100,9 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
         config.pollTimeoutMillis,
         threadName,
         this,
-        this);
+        KafkaReceiver.genericErrorLogger(LOG));
     producer = config.kafka.getProducer(getProducerProps());
-    if (LOG.isDebugEnabled()) LOG.debug("Backplane attached");
+    LOG.debug("Backplane attached");
   }
   
   private static void seekToEnd(Consumer<?, ?> consumer, String topic) {
@@ -101,8 +121,7 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
     for (ConsumerRecord<String, KafkaData> rec : records) {
       final KafkaData data = rec.value();
       if (data.isError()) {
-        LOG.warn(String.format("Error processing Kafka record at offset %,d on partition %s",
-                               rec.offset(), rec.partition()), data.getError());
+        errorHandler.onError(rec);
         continue;
       }
       
@@ -117,11 +136,6 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
     }
   }
   
-  @Override
-  public void onError(Throwable cause) {
-    LOG.warn("Error processing Kafka record", cause);
-  }
-
   @Override
   public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
     final long now = System.currentTimeMillis();

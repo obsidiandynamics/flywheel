@@ -15,6 +15,10 @@ public final class KafkaCluster<K, V> implements Kafka<K, V> {
     config.init();
     this.config = config;
   }
+  
+  public KafkaClusterConfig getConfig() {
+    return config;
+  }
 
   @Override
   public Producer<K, V> getProducer(Properties props) {

@@ -27,11 +27,14 @@ public final class ScramjetMessageTest implements TestSupport {
   
   @Test
   public void testBase64Payload() {
-    test(new ScramjetMessage(UUID.randomUUID().toString(),
-                             "TestMessage",
-                             new ScramjetBase64(BinaryUtils.toByteArray(0, 1, 2, 3, 4, 5, 6, 7)),
-                             "junit",
-                             new Date()));
+    final byte[] bytes = BinaryUtils.toByteArray(0, 1, 2, 3, 4, 5, 6, 7);
+    final ScramjetMessage d = test(new ScramjetMessage(UUID.randomUUID().toString(),
+                                                       "TestMessage",
+                                                       new ScramjetBase64(bytes),
+                                                       "junit",
+                                                       new Date()));
+    final ScramjetBase64 base64 = (ScramjetBase64) d.getPayload();
+    Assert.assertArrayEquals(bytes, base64.decode());
   }
   
   @Test
@@ -122,7 +125,7 @@ public final class ScramjetMessageTest implements TestSupport {
                              new Date()));
   }
   
-  private void test(ScramjetMessage m) {
+  private ScramjetMessage test(ScramjetMessage m) {
     final String json = m.toJson(gson);
     log("encoded=%s\n", json);
     final ScramjetMessage r = ScramjetMessage.fromJson(gson, json);
@@ -134,5 +137,6 @@ public final class ScramjetMessageTest implements TestSupport {
     assertEquals(m.getSentAt(), r.getSentAt());
     assertEquals(m, r);
     assertEquals(m.hashCode(), r.hashCode());
+    return r;
   }
 }

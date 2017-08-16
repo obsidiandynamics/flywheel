@@ -1,6 +1,7 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import org.apache.kafka.clients.consumer.*;
+import org.slf4j.*;
 
 public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   @FunctionalInterface
@@ -23,6 +24,10 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   
   private volatile boolean running = true;
   
+  public static ErrorHandler genericErrorLogger(Logger logger) {
+    return cause -> logger.warn("Error processing Kafka record", cause);
+  }
+  
   public KafkaReceiver(Consumer<K, V> consumer, long pollTimeoutMillis, String threadName, 
                        RecordHandler<K, V> handler, ErrorHandler errorHandler) {
     super(threadName);
@@ -31,10 +36,6 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
     this.handler = handler;
     this.errorHandler = errorHandler;
     start();
-  }
-  
-  public Consumer<K, V> getConsumer() {
-    return consumer;
   }
   
   @Override 
@@ -57,7 +58,7 @@ public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   }
   
   @Override
-  public void close() throws InterruptedException {
+  public void close() {
     running = false;
   }
   
