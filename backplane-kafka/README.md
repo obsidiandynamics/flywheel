@@ -1,6 +1,14 @@
 Flywheel - Kafka Backplane
 ===
-Backplane implementation using Kafka and Scramjet to share messages among all edge nodes.
+Backplane implementation using Kafka to share messages among all edge nodes.
+
+# Overview
+This backplane implementation works by establishing a discrete consumer group for each edge node in the cluster, such that each node receives _all_ messages across _all_ partitions. At the same time, each edge node will publish a Kafka message for every message published by any of its connected remotes. In this manner every edge node becomes aware of every message that has been published across the cluster. 
+
+The published Kafka messages contain the ID of the originator node, comprising a combination of the node's `clusterId` and `brokerId`, in the form `{clusterId}-{brokerId}`. This identifier is used internally within the backplane implementation to avoid a feedback loop,
+such that a message published by one edge node is consumed by every other node, but not by the originating node itself.
+
+The consumer groups are configured with auto offset committing disabled. This allows the backplane to skip over all backlogged messages (which are deemed as stale) on startup.
 
 # Wire Format
 Currently **Scramjet** is used as the wire protocol. Scramjet is a simple JSON envelope that takes the following form:
@@ -33,7 +41,7 @@ A push update with a text payload is shown in the example below.
   "messageType": "PUSH_UPDATE",
   "id": "309be61a-a551-4f6b-9ad6-4fd91c3d495e",
   "sentAt": "2017-08-12T19:53:36.0317039Z",
-  "publisher": "flywheel-0"
+  "publisher": "roundhouse-0"
 }
 ```
 
@@ -83,3 +91,8 @@ By default the backplane uses the Kafka topic `platform.push` to disseminate mes
 Messages are keyed by the Flywheel topic name, which provides an even sharding across all available partitions, while preserving message order within any given topic. 
 
 Depending on your Kafka set-up, the backplane may auto-create the Kafka topic with a single partition upon first use. This is _not_ the recommended approach; we suggest that you explicitly create the topic in Kafka prior to connecting the backplane, and have it partitioned accordingly.
+
+# Direct Publishing
+Normally a backplane is used to disseminate messages among edge nodes in a Flywheel cluster, and is not intended for use outside of the cluster. But because the underlying transport is plain Kafka, you can publish _directly_ to the Kafka topic and have your message delivered to all subscribers regardless of which edge node they've connected to. Needless to say, this only works if your producer is an internal entity, setting behind the corporate firewall with line-of-sight access to the Kafka brokers.
+
+To publish direct to the backplane, simply craft a Scramjet message as per one of the examples below and publish it to the appropriate Flywheel topic (the default is `platform.flywheel`). You should set a sensible value for the `publisher` field, which should be the name of the service that emitted the message. 
