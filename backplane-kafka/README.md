@@ -39,28 +39,22 @@ A push update with a text payload is shown in the example below.
 
 If the `payload.payload` value is a string, it is treated as a text message. So the example above will result in the text message `race started` published on the topic `racing/13815910/status`. Alternatively, the payload can be a free-form JSON object, which will be automatically coerced to a string - a major convenience and a readability aid if your payload is natively JSON. So the following two examples will produce an identical outcome:
 ```json
-{
+"payload": {
+  "$type": "Scramjet.Messages.Push.Update",
+  "topic": "example",
   "payload": {
-    "$type": "Scramjet.Messages.Push.Update",
-    "topic": "example",
-    "payload": {
-      "foo": "bar"
-    }
-    "timeToLive": 30
-  },
-  ...
+    "foo": "bar"
+  }
+  "timeToLive": 30
 }
 ```
 
 ```json
-{
-  "payload": {
-    "$type": "Scramjet.Messages.Push.Update",
-    "topic": "example",
-    "payload": "{\"foo\": \"bar\"}"
-    "timeToLive": 30
-  },
-  ...
+"payload": {
+  "$type": "Scramjet.Messages.Push.Update",
+  "topic": "example",
+  "payload": "{\"foo\": \"bar\"}",
+  "timeToLive": 30
 }
 ```
 
@@ -68,17 +62,14 @@ If the `payload.payload` value is a string, it is treated as a text message. So 
 ## Binary messages
 If the payload is of type `Scramjet.Messages.Base64`, it will be treated as binary string, decoded from `payload.payload.value`. This is illustrated in the following example, which is just the byte array `[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]` in [Base64](https://en.wikipedia.org/wiki/Base64) notation.
 ```json
-{
+"payload": {
+  "$type": "Scramjet.Messages.Push.Update",
+  "topic": "racing/13815910/status",
   "payload": {
-    "$type": "Scramjet.Messages.Push.Update",
-    "topic": "racing/13815910/status",
-    "payload": {
-      "$type": "Scramjet.Messages.Base64",
-      "value": "AAECAwQFBgc="
-    },
-    "timeToLive": 30
+    "$type": "Scramjet.Messages.Base64",
+    "value": "AAECAwQFBgc="
   },
-  ...
+  "timeToLive": 30
 }
 ```
 
@@ -91,4 +82,4 @@ By default the backplane uses the Kafka topic `platform.push` to disseminate mes
 
 Messages are keyed by the Flywheel topic name, which provides an even sharding across all available partitions, while preserving message order within any given topic. 
 
-Depending on your Kafka set-up, the backplane may auto-create the Kafka topic with a single partition upon first use. This _is not_ the recommended approach; we suggest that you explicitly create the topic in Kafka prior to connecting the backplane, and have it partitioned accordingly.
+Depending on your Kafka set-up, the backplane may auto-create the Kafka topic with a single partition upon first use. This is _not_ the recommended approach; we suggest that you explicitly create the topic in Kafka prior to connecting the backplane, and have it partitioned accordingly.
