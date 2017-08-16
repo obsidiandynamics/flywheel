@@ -9,6 +9,7 @@ dependencies {
   compile project(':flywheel-plugin-beacon')
   compile project(':flywheel-plugin-toplog')
   
+  runtime project(':flywheel-backplane-kafka')
   runtime project(':flywheel-logging-splunk')
   
   testCompile project(':').sourceSets.test.output
