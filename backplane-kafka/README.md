@@ -44,7 +44,7 @@ If the `payload.payload` value is a string, it is treated as a text message. So 
   "topic": "example",
   "payload": {
     "foo": "bar"
-  }
+  },
   "timeToLive": 30
 }
 ```
