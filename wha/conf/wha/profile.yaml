@@ -26,7 +26,7 @@ launchers:
       deserializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetDeserializer
       pollTimeoutMillis: 100
       ttlMillis: 300000
-    clusterId: test
+    clusterId: roundhouse
     brokerId: 0
   serverConfig:
     port: 8080
