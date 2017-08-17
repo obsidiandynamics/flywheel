@@ -18,7 +18,7 @@ public final class EdgeRigBenchmark implements TestSupport {
   private static final int PULSE_DURATION = get("flywheel.rig.pulseDuration", Integer::valueOf, 1000);
   private static final String SPEC = get("flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
   private static final float WARMUP_FRAC = get("flywheel.rig.warmupFrac", Float::valueOf, 0.10f);
-  private static final boolean TEXT = get("flywheel.rig.text", Boolean::valueOf, false);
+  private static final boolean TEXT = get("flywheel.rig.text", Boolean::valueOf, true);
   private static final int BYTES = get("flywheel.rig.bytes", Integer::valueOf, 128);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   

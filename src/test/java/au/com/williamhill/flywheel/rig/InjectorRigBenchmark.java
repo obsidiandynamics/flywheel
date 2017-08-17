@@ -19,7 +19,7 @@ public final class InjectorRigBenchmark implements TestSupport {
   private static final String SPEC = get("flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
   private static final int INJECTORS = get("flywheel.rig.injectors", Integer::valueOf, 10);
   private static final float WARMUP_FRAC = get("flywheel.rig.warmupFrac", Float::valueOf, 0.10f);
-  private static final boolean TEXT = get("flywheel.rig.text", Boolean::valueOf, false);
+  private static final boolean TEXT = get("flywheel.rig.text", Boolean::valueOf, true);
   private static final int BYTES = get("flywheel.rig.bytes", Integer::valueOf, 128);
   private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
   private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
