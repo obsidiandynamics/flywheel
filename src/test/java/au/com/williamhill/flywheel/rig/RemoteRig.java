@@ -239,9 +239,10 @@ public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunn
     
     lastRemoteTransmitTime.set(System.nanoTime());
     
+    final int waitTime = config.syncFrames * 20; // allow for an average of up to 20 ms per round-trip
     for (;;) {
       nexus.publish(new PublishTextFrame(outTopic, new Sync(lastRemoteTransmitTime.get()).marshal(subframeGson)));
-      if (Await.bounded(10_000, () -> syncComplete.get())) {
+      if (Await.bounded(waitTime, () -> syncComplete.get())) {
         break;
       } else {
         config.log.out.format("r: calibration timed out; retrying...\n");
