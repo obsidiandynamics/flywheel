@@ -1,14 +1,17 @@
 kafka:
   type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaCluster
   clusterConfig:
-    bootstrapServers: 10.20.30.40:9092
-    prodAcks: all
-    prodRetries: 0
-    prodBatchSize: 16384
-    prodLingerMillis: 1
-    prodBufferMemory: 33554432
-    consAutoCommit: false
-    consAutoCommitIntervalMillis: 0
+    common:
+      bootstrap.servers: 10.20.30.40:9092
+    producer:
+      acks: 1
+      retries: 0
+      batch.size: 16384
+      linger.ms: 0
+      buffer.memory: 33554432
+    consumer:
+      enable.auto.commit: false
+      auto.commit.interval.ms: 0
 topic: platform.push
 serializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetSerializer
 deserializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetDeserializer

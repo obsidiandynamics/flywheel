@@ -42,7 +42,7 @@ public final class ScramjetKafkaBackplaneIT extends ScramjetKafkaBackplaneTest {
   @Override
   protected Kafka<String, KafkaData> getKafka() {
     return new KafkaCluster<>(new KafkaClusterConfig() {{
-      bootstrapServers = BROKERS;
+      common.with("bootstrap.servers", BROKERS);
     }});
   }
 }

@@ -75,7 +75,6 @@ public final class KafkaBackplane implements Backplane, RecordHandler<String, Ka
   private Properties getConsumerProps() {
     final Properties props = new Properties();
     props.setProperty("group.id", source);
-    props.setProperty("enable.auto.commit", String.valueOf(false));
     props.setProperty("key.deserializer", StringDeserializer.class.getName());
     props.setProperty("value.deserializer", config.deserializer.getName());
     return props;

@@ -16,7 +16,7 @@ public final class KafkaSamplePubSub {
   private static final String CONSUMER_GROUP = "test";
   private static final long PUBLISH_INTERVAL = 100;
   private static final Kafka<String, String> KAFKA = MOCK ? new MockKafka<>() : new KafkaCluster<>(new KafkaClusterConfig() {{
-    bootstrapServers = BROKERS;
+    common.with("bootstrap.servers", BROKERS);
   }});
   
   private static final class SamplePublisher extends Thread implements TestSupport {
