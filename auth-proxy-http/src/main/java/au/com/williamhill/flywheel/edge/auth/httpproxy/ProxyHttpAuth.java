@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.edge.auth;
+package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 import java.io.*;
 import java.net.*;
@@ -24,6 +24,7 @@ import org.slf4j.*;
 import com.google.gson.*;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.auth.Authenticator;
 
 public final class ProxyHttpAuth implements Authenticator {
   private static final Logger LOG = LoggerFactory.getLogger(ProxyHttpAuth.class);
@@ -31,6 +32,8 @@ public final class ProxyHttpAuth implements Authenticator {
   private URI uri;
 
   private int poolSize = 8;
+  
+  private int timeoutMillis = 60_000;
   
   private Gson gson;
 
@@ -46,6 +49,11 @@ public final class ProxyHttpAuth implements Authenticator {
     return this;
   }
 
+  public ProxyHttpAuth withTimeoutMillis(int timeoutMillis) {
+    this.timeoutMillis = timeoutMillis;
+    return this;
+  }
+
   @Override
   public void init() throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
@@ -56,12 +64,19 @@ public final class ProxyHttpAuth implements Authenticator {
         .register("http", NoopIOSessionStrategy.INSTANCE)
         .register("https", new SSLIOSessionStrategy(getSSLContext(), hostnameVerifier)).build();
 
-    final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
+    final int selectInterval = Math.min(1000, timeoutMillis);
+    final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
+                                                                         .setSelectInterval(selectInterval)
+                                                                         .setSoTimeout(timeoutMillis)
+                                                                         .setConnectTimeout(timeoutMillis)
+                                                                         .build());
     final PoolingNHttpClientConnectionManager cm = new PoolingNHttpClientConnectionManager(ioReactor, sslSessionStrategy);
     cm.setMaxTotal(poolSize);
     cm.setDefaultMaxPerRoute(poolSize);
 
-    httpClient = HttpAsyncClients.custom().setConnectionManager(cm).build();
+    httpClient = HttpAsyncClients.custom()
+        .setConnectionManager(cm)
+        .build();
     httpClient.start();
   }
 
@@ -104,9 +119,9 @@ public final class ProxyHttpAuth implements Authenticator {
     try {
       final String resJson = EntityUtils.toString(res.getEntity());
       final ProxyAuthResponse authRes = gson.fromJson(resJson, ProxyAuthResponse.class);
-      if (authRes.getValidMillis() != null) {
+      if (authRes.getAllowMillis() > 0) {
         outcome.allow();
-        if (LOG.isDebugEnabled()) LOG.debug("Allowing topic {} for {} ms", topic, authRes.getValidMillis());
+        if (LOG.isDebugEnabled()) LOG.debug("Allowing topic {} for {} ms", topic, authRes.getAllowMillis());
       } else {
         outcome.forbidden(topic);
         if (LOG.isDebugEnabled()) LOG.debug("Denying topic {}", topic);

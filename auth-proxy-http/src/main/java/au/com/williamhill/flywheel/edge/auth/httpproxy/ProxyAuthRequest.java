@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.edge.auth;
+package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 import au.com.williamhill.flywheel.frame.*;
 

@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.edge.auth;
+package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
@@ -9,6 +9,7 @@ import java.security.*;
 import java.util.concurrent.*;
 
 import org.apache.http.client.utils.*;
+import org.apache.http.nio.reactor.*;
 import org.awaitility.*;
 import org.junit.*;
 import org.mockito.*;
@@ -39,7 +40,6 @@ public final class ProxyAuthHttpTest {
     auth.withUri(getURI());
     auth.withPoolSize(4);
     auth.close(); // tests close() before init()
-    auth.init();
   }
   
   @After
@@ -50,7 +50,8 @@ public final class ProxyAuthHttpTest {
   }
 
   @Test
-  public void testAllow() throws URISyntaxException {
+  public void testAllow() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
+    auth.init();
     final ProxyAuthResponse expected = new ProxyAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -72,8 +73,9 @@ public final class ProxyAuthHttpTest {
   }
 
   @Test
-  public void testDeny() throws URISyntaxException {
-    final ProxyAuthResponse expected = new ProxyAuthResponse(null);
+  public void testDeny() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
+    auth.init();
+    final ProxyAuthResponse expected = new ProxyAuthResponse(0);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -94,7 +96,8 @@ public final class ProxyAuthHttpTest {
   }
 
   @Test
-  public void testBadStatusCode() throws URISyntaxException {
+  public void testBadStatusCode() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
+    auth.init();
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -113,7 +116,8 @@ public final class ProxyAuthHttpTest {
   }
 
   @Test
-  public void testBadEntity() throws URISyntaxException {
+  public void testBadEntity() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
+    auth.init();
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -131,6 +135,29 @@ public final class ProxyAuthHttpTest {
     });
     
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
+  }
+
+  @Test
+  public void testTimeout() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
+    auth
+    .withTimeoutMillis(1)
+    .init();
+    stubFor(post(urlEqualTo(MOCK_PATH))
+            .withHeader("Accept", equalTo("application/json"))
+            .willReturn(aResponse()
+                        .withFixedDelay(10_000)
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("")));
+    
+    final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
+    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
+    auth.verify(nexus, TOPIC, outcome);
+    
+    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+      Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
+    });
   }
 
   private URI getURI() throws URISyntaxException {

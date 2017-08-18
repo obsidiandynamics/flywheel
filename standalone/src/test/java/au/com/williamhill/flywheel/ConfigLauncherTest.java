@@ -5,6 +5,7 @@ import org.mockito.*;
 import org.slf4j.*;
 
 import au.com.williamhill.flywheel.edge.auth.*;
+import au.com.williamhill.flywheel.edge.auth.httpproxy.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.health.*;
