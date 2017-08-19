@@ -37,7 +37,7 @@ public final class ProxyAuthHttpTest {
   public void before() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
     auth = new ProxyHttpAuth();
-    auth.withUri(getURI());
+    auth.withUri(getURI(false));
     auth.withPoolSize(4);
     auth.close(); // tests close() before init()
   }
@@ -52,6 +52,29 @@ public final class ProxyAuthHttpTest {
   @Test
   public void testAllow() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
     auth.init();
+    final ProxyAuthResponse expected = new ProxyAuthResponse(1000L);
+    stubFor(post(urlEqualTo(MOCK_PATH))
+            .withHeader("Accept", equalTo("application/json"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody(gson.toJson(expected))));
+    
+    final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
+    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
+    auth.verify(nexus, TOPIC, outcome);
+    
+    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+      Mockito.verify(outcome).allow();
+    });
+    
+    verify(postRequestedFor(urlMatching(MOCK_PATH)));
+  }
+
+  @Test
+  public void testAllowHttps() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
+    auth.withUri(getURI(true)).init();
     final ProxyAuthResponse expected = new ProxyAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -160,11 +183,11 @@ public final class ProxyAuthHttpTest {
     });
   }
 
-  private URI getURI() throws URISyntaxException {
+  private URI getURI(boolean https) throws URISyntaxException {
     return new URIBuilder()
-        .setScheme("http")
+        .setScheme(https ? "https" : "http")
         .setHost("localhost")
-        .setPort(wireMock.port())
+        .setPort(https ? wireMock.httpsPort() : wireMock.port())
         .setPath(MOCK_PATH)
         .build();
   }
