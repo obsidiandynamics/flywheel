@@ -162,9 +162,7 @@ public final class ProxyAuthHttpTest {
 
   @Test
   public void testTimeout() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth
-    .withTimeoutMillis(1)
-    .init();
+    auth.withTimeoutMillis(1).init();
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()

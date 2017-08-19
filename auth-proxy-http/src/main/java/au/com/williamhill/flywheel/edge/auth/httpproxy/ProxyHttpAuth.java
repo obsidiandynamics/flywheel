@@ -92,7 +92,7 @@ public final class ProxyHttpAuth implements Authenticator {
     final HttpPost post = new HttpPost(uri);
     post.setEntity(reqEntity);
     post.setHeader("Accept", ContentType.APPLICATION_JSON.getMimeType());
-    httpClient.execute(post, new FutureCallback<HttpResponse>() {
+    httpClient.execute(post, new FutureCallbackAdapter<HttpResponse>() {
       @Override public void completed(HttpResponse res) {
         final int statusCode = res.getStatusLine().getStatusCode();
         switch (statusCode) {
@@ -110,8 +110,6 @@ public final class ProxyHttpAuth implements Authenticator {
       @Override public void failed(Exception cause) {
         handleSendFailure(topic, cause, outcome);
       }
-
-      @Override public void cancelled() {}
     });
   }
   
