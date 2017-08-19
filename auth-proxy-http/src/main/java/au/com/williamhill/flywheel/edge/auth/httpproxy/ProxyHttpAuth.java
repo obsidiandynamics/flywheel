@@ -21,18 +21,23 @@ import org.apache.http.util.*;
 import org.slf4j.*;
 
 import com.google.gson.*;
+import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.Authenticator;
 
+@Y
 public final class ProxyHttpAuth implements Authenticator {
   private static final Logger LOG = LoggerFactory.getLogger(ProxyHttpAuth.class);
 
-  private URI uri;
+  @YInject
+  URI uri;
 
-  private int poolSize = 8;
+  @YInject
+  int poolSize = 8;
   
-  private int timeoutMillis = 60_000;
+  @YInject
+  int timeoutMillis = 60_000;
   
   private Gson gson;
 
