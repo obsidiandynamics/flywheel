@@ -8,7 +8,6 @@ import javax.net.ssl.*;
 
 import org.apache.http.*;
 import org.apache.http.client.methods.*;
-import org.apache.http.concurrent.*;
 import org.apache.http.config.*;
 import org.apache.http.entity.*;
 import org.apache.http.impl.nio.client.*;
