@@ -18,8 +18,8 @@ public final class ProxyAuthReqResTest {
   
   @Test
   public void testResponse() {
-    final ProxyAuthResponse res = new ProxyAuthResponse(1000);
-    assertEquals(1000L, res.getAllowMillis());
+    final ProxyAuthResponse res = new ProxyAuthResponse(1000L);
+    assertEquals(1000L, (long) res.getAllowMillis());
     assertNotNull(res.toString());
   }
 }

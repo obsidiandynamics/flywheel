@@ -98,7 +98,7 @@ public final class ProxyAuthHttpTest {
   @Test
   public void testDeny() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
     auth.init();
-    final ProxyAuthResponse expected = new ProxyAuthResponse(0);
+    final ProxyAuthResponse expected = new ProxyAuthResponse(null);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()

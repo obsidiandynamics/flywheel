@@ -1,13 +1,13 @@
 package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 public final class ProxyAuthResponse {
-  private long allowMillis;
+  private Long allowMillis;
 
-  public ProxyAuthResponse(long allowMillis) {
+  public ProxyAuthResponse(Long allowMillis) {
     this.allowMillis = allowMillis;
   }
   
-  public long getAllowMillis() {
+  public Long getAllowMillis() {
     return allowMillis;
   }
 

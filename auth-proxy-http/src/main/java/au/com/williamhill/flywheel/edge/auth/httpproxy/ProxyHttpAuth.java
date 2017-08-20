@@ -121,7 +121,7 @@ public final class ProxyHttpAuth implements Authenticator {
     try {
       final String resJson = EntityUtils.toString(res.getEntity());
       final ProxyAuthResponse authRes = gson.fromJson(resJson, ProxyAuthResponse.class);
-      if (authRes.getAllowMillis() > 0) {
+      if (authRes.getAllowMillis() != null) {
         outcome.allow();
         if (LOG.isDebugEnabled()) LOG.debug("Allowing topic {} for {} ms", topic, authRes.getAllowMillis());
       } else {
