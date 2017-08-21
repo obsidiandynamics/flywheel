@@ -20,7 +20,7 @@ public final class AllowAllAuth implements Authenticator {
   
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
-    outcome.allow();
+    outcome.allow(AuthenticationOutcome.INDEFINITE);
   }
   
   @Override

@@ -21,7 +21,7 @@ public final class AllowLocalAuth implements Authenticator {
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
     if (nexus.isLocal()) {
-      outcome.allow();
+      outcome.allow(AuthenticationOutcome.INDEFINITE);
     } else {
       outcome.forbidden(topic);
     }

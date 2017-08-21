@@ -6,7 +6,9 @@ import au.com.williamhill.flywheel.frame.*;
 @FunctionalInterface
 public interface Authenticator extends AutoCloseable {
   public interface AuthenticationOutcome {
-    void allow();
+    long INDEFINITE = 0;
+    
+    void allow(long millis);
     
     void deny(TopicAccessError error);
     
@@ -15,10 +17,10 @@ public interface Authenticator extends AutoCloseable {
     }
   }
   
-  default void init() throws Exception {};
+  default void attach(AuthConnector connector) throws Exception {}
   
   @Override
-  default void close() throws Exception {};
+  default void close() throws Exception {}
   
   void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome);
 }

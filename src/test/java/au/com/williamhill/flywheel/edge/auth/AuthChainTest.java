@@ -243,7 +243,7 @@ public final class AuthChainTest {
         @Override public void deny(TopicAccessError error) {
           errors.add(error.getDescription());
         }
-        @Override public void allow() {}
+        @Override public void allow(long millis) {}
       });
     }
     return errors;

@@ -30,7 +30,7 @@ public final class RemoteTopicAuth implements Authenticator {
     
     final String allowedTopicPrefix = Flywheel.getSessionTopicPrefix(sessionId);
     if (topic.startsWith(allowedTopicPrefix)) {
-      outcome.allow();
+      outcome.allow(AuthenticationOutcome.INDEFINITE);
     } else{
       outcome.deny(new TopicAccessError(String.format("Restricted to %s/#", allowedTopicPrefix), topic));
     }

@@ -118,7 +118,7 @@ public abstract class AbstractAuthTest {
         if (nexus.getSession().getAuth() instanceof BasicAuth) {
           final BasicAuth basic = nexus.getSession().getAuth();
           if (username.equals(basic.getUsername()) && password.equals(basic.getPassword())) {
-            outcome.allow();
+            outcome.allow(AuthenticationOutcome.INDEFINITE);
           } else {
             outcome.forbidden(topic);
           }
@@ -135,7 +135,7 @@ public abstract class AbstractAuthTest {
         if (nexus.getSession().getAuth() instanceof BearerAuth) {
           final BearerAuth bearer = nexus.getSession().getAuth();
           if (token.equals(bearer.getToken())) {
-            outcome.allow();
+            outcome.allow(AuthenticationOutcome.INDEFINITE);
           } else {
             outcome.forbidden(topic);
           }

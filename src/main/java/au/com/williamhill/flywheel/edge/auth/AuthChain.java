@@ -55,7 +55,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       for (MatchedAuthenticators match : matches) {
         for (Authenticator authenticator : match.authenticators) {
           authenticator.verify(nexus, match.topic, new AuthenticationOutcome() {
-            @Override public void allow() {
+            @Override public void allow(long millis) {
               complete();
             }
     
@@ -139,11 +139,6 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
   }
   
   public final AuthChain<A> set(String topicPrefix, Authenticator authenticator) {
-    try {
-      authenticator.init();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
     filters.put(create(topicPrefix), authenticator);
     return this;
   }

@@ -24,6 +24,7 @@ import com.google.gson.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.Authenticator;
 
 @Y
@@ -59,7 +60,7 @@ public final class ProxyHttpAuth implements Authenticator {
   }
 
   @Override
-  public void init() throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+  public void attach(AuthConnector connector) throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
     
     final HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
@@ -121,8 +122,8 @@ public final class ProxyHttpAuth implements Authenticator {
     try {
       final String resJson = EntityUtils.toString(res.getEntity());
       final ProxyAuthResponse authRes = gson.fromJson(resJson, ProxyAuthResponse.class);
-      if (authRes.getAllowMillis() != null) {
-        outcome.allow();
+      if (authRes.isAllow()) {
+        outcome.allow(authRes.getAllowMillis());
         if (LOG.isDebugEnabled()) LOG.debug("Allowing topic {} for {} ms", topic, authRes.getAllowMillis());
       } else {
         outcome.forbidden(topic);

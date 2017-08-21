@@ -42,7 +42,7 @@ public abstract class BackplaneTest implements TestSupport {
     final KeyedBlockingQueue<String, TestBackplaneMessage> received = 
         new KeyedBlockingQueue<>(LinkedBlockingQueue::new);
 
-    MockConnector(String brokerId, Backplane backplane) {
+    MockConnector(String brokerId, Backplane backplane) throws Exception {
       this.brokerId = brokerId;
       this.backplane = backplane;
       backplane.attach(this);

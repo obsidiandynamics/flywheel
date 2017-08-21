@@ -10,6 +10,10 @@ public final class ProxyAuthResponse {
   public Long getAllowMillis() {
     return allowMillis;
   }
+  
+  public boolean isAllow() {
+    return allowMillis != null;
+  }
 
   @Override
   public String toString() {

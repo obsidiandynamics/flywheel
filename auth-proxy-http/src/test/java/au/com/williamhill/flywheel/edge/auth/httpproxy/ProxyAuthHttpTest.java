@@ -51,7 +51,7 @@ public final class ProxyAuthHttpTest {
 
   @Test
   public void testAllow() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.init();
+    auth.attach(null);
     final ProxyAuthResponse expected = new ProxyAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -66,7 +66,7 @@ public final class ProxyAuthHttpTest {
     auth.verify(nexus, TOPIC, outcome);
     
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-      Mockito.verify(outcome).allow();
+      Mockito.verify(outcome).allow(Mockito.eq(1000L));
     });
     
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
@@ -74,7 +74,7 @@ public final class ProxyAuthHttpTest {
 
   @Test
   public void testAllowHttps() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.withUri(getURI(true)).init();
+    auth.withUri(getURI(true)).attach(null);
     final ProxyAuthResponse expected = new ProxyAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -89,7 +89,7 @@ public final class ProxyAuthHttpTest {
     auth.verify(nexus, TOPIC, outcome);
     
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-      Mockito.verify(outcome).allow();
+      Mockito.verify(outcome).allow(1000L);
     });
     
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
@@ -97,7 +97,7 @@ public final class ProxyAuthHttpTest {
 
   @Test
   public void testDeny() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.init();
+    auth.attach(null);
     final ProxyAuthResponse expected = new ProxyAuthResponse(null);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -120,7 +120,7 @@ public final class ProxyAuthHttpTest {
 
   @Test
   public void testBadStatusCode() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.init();
+    auth.attach(null);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -140,7 +140,7 @@ public final class ProxyAuthHttpTest {
 
   @Test
   public void testBadEntity() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.init();
+    auth.attach(null);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -162,7 +162,7 @@ public final class ProxyAuthHttpTest {
 
   @Test
   public void testTimeout() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.withTimeoutMillis(1).init();
+    auth.withTimeoutMillis(1).attach(null);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
