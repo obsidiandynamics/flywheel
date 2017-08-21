@@ -7,8 +7,8 @@ public final class Maps {
   private Maps() {}
   
   /**
-   *  Uses double-checked locking to retrieve a value from the map, or to insert a new
-   *  value if none exists.
+   *  Uses the double-checked locking pattern to retrieve a value from the map, or to insert a new
+   *  value if none exists, in a way that only one thread may insert the value.
    *  
    *  @param lock The lock object.
    *  @param map The map.
@@ -22,9 +22,9 @@ public final class Maps {
       return existing;
     } else {
       synchronized (lock) {
-        final V existing2 = map.get(key);
-        if (existing2 != null) {
-          return existing2;
+        final V existingAfterLock = map.get(key);
+        if (existingAfterLock != null) {
+          return existingAfterLock;
         } else {
           final V created = valueFactory.get();
           map.put(key, created);

@@ -6,8 +6,8 @@ import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.rig.EdgeRig.*;
 import au.com.williamhill.flywheel.rig.DoubleRigBenchmark.*;
+import au.com.williamhill.flywheel.rig.EdgeRig.*;
 import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
 

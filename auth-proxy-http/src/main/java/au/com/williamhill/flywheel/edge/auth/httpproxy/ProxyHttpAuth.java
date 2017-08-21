@@ -25,10 +25,10 @@ import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator;
+import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 
 @Y
-public final class ProxyHttpAuth implements Authenticator {
+public final class ProxyHttpAuth implements NestedAuthenticator {
   private static final Logger LOG = LoggerFactory.getLogger(ProxyHttpAuth.class);
 
   @YInject

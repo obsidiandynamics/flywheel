@@ -26,15 +26,15 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   
   private final long scanIntervalMillis;
   
-  private final Authenticator delegate;
+  private final NestedAuthenticator delegate;
   
   private AuthConnector connector;
   
   private volatile boolean running = true;
   
-  public CachedAuthenticator(long scanIntervalMillis, Authenticator delegate) {
-    super(String.format("Scanner[scanInterval=%dms]", scanIntervalMillis));
-    this.scanIntervalMillis = scanIntervalMillis;
+  public CachedAuthenticator(long runIntervalMillis, NestedAuthenticator delegate) {
+    super(String.format("AuthReaper[runInterval=%dms]", runIntervalMillis));
+    this.scanIntervalMillis = runIntervalMillis;
     this.delegate = delegate;
   }
   

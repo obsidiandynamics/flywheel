@@ -8,7 +8,7 @@ import org.junit.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
+import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 
 public final class AuthChainTest {

@@ -8,7 +8,7 @@ import org.junit.*;
 import org.mockito.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
+import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 
 public final class AuthenticatorTest {
   @Test
