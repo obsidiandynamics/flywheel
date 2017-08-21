@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.edge.auth;
 
+import static junit.framework.TestCase.*;
+
 import org.junit.*;
 import org.mockito.*;
 
@@ -84,6 +86,8 @@ public final class CachedAuthenticatorTest {
     c.verify(nexus, "topic", outcome);
     Mockito.verify(outcome).deny(Mockito.notNull(TopicAccessError.class));
     Mockito.verify(delegateProxy).verify(Mockito.eq(nexus), Mockito.eq("topic"), Mockito.notNull(AuthenticationOutcome.class));
+    
+    assertNotNull(c.toString());
   }
 
   private static EdgeNexus createNexus() {

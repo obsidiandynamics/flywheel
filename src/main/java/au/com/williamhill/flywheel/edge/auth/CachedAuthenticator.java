@@ -108,4 +108,9 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
       });
     }
   }
+
+  @Override
+  public String toString() {
+    return "CachedAuthenticator [scanIntervalMillis: " + scanIntervalMillis + ", delegate: " + delegate + "]";
+  }
 }
