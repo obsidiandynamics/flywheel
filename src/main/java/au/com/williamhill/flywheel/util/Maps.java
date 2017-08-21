@@ -10,6 +10,8 @@ public final class Maps {
    *  Uses the double-checked locking pattern to retrieve a value from the map, or to insert a new
    *  value if none exists, in a way that only one thread may insert the value.
    *  
+   *  @param <K> The key type.
+   *  @param <V> The value type.
    *  @param lock The lock object.
    *  @param map The map.
    *  @param key The key.
