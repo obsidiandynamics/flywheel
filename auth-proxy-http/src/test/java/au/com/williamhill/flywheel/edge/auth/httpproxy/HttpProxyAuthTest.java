@@ -21,31 +21,31 @@ import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 
-public final class ProxyAuthHttpTest {
+public final class HttpProxyAuthTest {
   private static final String MOCK_PATH = "/auth";
-  
+
   private static final String TOPIC = "test";
-  
+
   @ClassRule
   public static WireMockRule wireMock = new WireMockRule(options()
                                                          .dynamicPort()
                                                          .dynamicHttpsPort());
   private Gson gson;
-  private ProxyHttpAuth auth;
-  
+  private HttpProxyAuth auth;
+
   @Before
   public void before() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
-    auth = new ProxyHttpAuth();
+    auth = new HttpProxyAuth();
     auth.withUri(getURI(false));
     auth.withPoolSize(4);
     auth.close(); // tests close() before init()
   }
-  
+
   @After
   public void after() throws IOException {
     if (auth != null) auth.close();
-    
+
     auth = null;
   }
 
@@ -56,19 +56,19 @@ public final class ProxyAuthHttpTest {
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(gson.toJson(expected))));
-    
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(gson.toJson(expected))));
+
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
     nexus.getSession().setAuth(new BasicAuth("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
-    
+
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       Mockito.verify(outcome).allow(Mockito.eq(1000L));
     });
-    
+
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
@@ -79,19 +79,19 @@ public final class ProxyAuthHttpTest {
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(gson.toJson(expected))));
-    
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(gson.toJson(expected))));
+
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
     nexus.getSession().setAuth(new BasicAuth("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
-    
+
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       Mockito.verify(outcome).allow(1000L);
     });
-    
+
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
@@ -102,19 +102,19 @@ public final class ProxyAuthHttpTest {
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody(gson.toJson(expected))));
-    
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(gson.toJson(expected))));
+
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
     nexus.getSession().setAuth(new BasicAuth("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
-    
+
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });
-    
+
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
@@ -124,17 +124,17 @@ public final class ProxyAuthHttpTest {
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
-                .withStatus(404)));
-    
+                        .withStatus(404)));
+
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
     nexus.getSession().setAuth(new BasicAuth("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
-    
+
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });
-    
+
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
@@ -147,16 +147,16 @@ public final class ProxyAuthHttpTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("}{")));
-    
+
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
     nexus.getSession().setAuth(new BasicAuth("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
-    
+
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });
-    
+
     verify(postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
@@ -170,12 +170,12 @@ public final class ProxyAuthHttpTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("")));
-    
+
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
     nexus.getSession().setAuth(new BasicAuth("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
-    
+
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });

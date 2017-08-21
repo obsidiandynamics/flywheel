@@ -25,11 +25,10 @@ import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 
 @Y
-public final class ProxyHttpAuth implements NestedAuthenticator {
-  private static final Logger LOG = LoggerFactory.getLogger(ProxyHttpAuth.class);
+public final class HttpProxyAuth implements NestedAuthenticator {
+  private static final Logger LOG = LoggerFactory.getLogger(HttpProxyAuth.class);
 
   @YInject
   URI uri;
@@ -44,17 +43,17 @@ public final class ProxyHttpAuth implements NestedAuthenticator {
 
   private CloseableHttpAsyncClient httpClient;
 
-  public ProxyHttpAuth withUri(URI uri) {
+  public HttpProxyAuth withUri(URI uri) {
     this.uri = uri;
     return this;
   }
 
-  public ProxyHttpAuth withPoolSize(int poolSize) {
+  public HttpProxyAuth withPoolSize(int poolSize) {
     this.poolSize = poolSize;
     return this;
   }
 
-  public ProxyHttpAuth withTimeoutMillis(int timeoutMillis) {
+  public HttpProxyAuth withTimeoutMillis(int timeoutMillis) {
     this.timeoutMillis = timeoutMillis;
     return this;
   }

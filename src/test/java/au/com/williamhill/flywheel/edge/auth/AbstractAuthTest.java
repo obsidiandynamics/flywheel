@@ -41,7 +41,7 @@ public abstract class AbstractAuthTest {
   private int port;
   
   @Before
-  public void setup() throws Exception {
+  public void before() throws Exception {
     port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
     
     wire = new Wire(true, LocationHint.UNSPECIFIED);
@@ -62,14 +62,21 @@ public abstract class AbstractAuthTest {
     remote = RemoteNode.builder()
         .withWire(wire)
         .build();
+    
+    setup();
   }
   
+  protected void setup() throws Exception {}
+  
   @After
-  public void teardown() throws Exception {
+  public void after() throws Exception {
+    teardown();
     if (remoteNexus != null) remoteNexus.close();
     if (edge != null) edge.close();
     if (remote != null) remote.close();
   }
+  
+  protected void teardown() throws Exception {}
   
   protected void clearReceived() {
     errors = null;

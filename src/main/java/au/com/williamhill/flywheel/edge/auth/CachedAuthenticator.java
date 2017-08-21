@@ -52,7 +52,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   }
   
   private void cycle() {
-    
+    //TODO 
   }
   
   private LiveTopic query(EdgeNexus nexus, String topic) {

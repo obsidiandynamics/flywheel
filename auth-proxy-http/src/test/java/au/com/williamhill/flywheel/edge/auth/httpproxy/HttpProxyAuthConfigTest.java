@@ -9,13 +9,13 @@ import org.junit.*;
 
 import com.obsidiandynamics.yconf.*;
 
-public final class ProxyAuthHttpConfigTest {
+public final class HttpProxyAuthConfigTest {
   @Test
   public void test() throws IOException, URISyntaxException {
-    final ProxyHttpAuth auth = new MappingContext()
+    final HttpProxyAuth auth = new MappingContext()
         .withParser(new SnakeyamlParser())
-        .fromStream(ProxyAuthHttpConfigTest.class.getClassLoader().getResourceAsStream("proxy-auth-http-config.yaml"))
-        .map(ProxyHttpAuth.class);
+        .fromStream(HttpProxyAuthConfigTest.class.getClassLoader().getResourceAsStream("proxy-auth-http-config.yaml"))
+        .map(HttpProxyAuth.class);
     assertEquals(new URI("http://localhost:8090/auth"), auth.uri);
     assertEquals(4, auth.poolSize);
     assertEquals(30000, auth.timeoutMillis);
