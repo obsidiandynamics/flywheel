@@ -93,7 +93,13 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
     }
   }
   
-  public CombinedMatches get(Collection<String> topics) {
+  /**
+   *  Produces the combined set of matches for the given topics.
+   *  
+   *  @param topics The topics.
+   *  @return The combined matches.
+   */
+  public CombinedMatches getMatches(Collection<String> topics) {
     if (topics.isEmpty()) return CombinedMatches.EMPTY;
     
     final List<MatchedAuthenticators> mappings = new ArrayList<>(topics.size());
@@ -104,6 +110,18 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       numAuthenticators += authenticators.size();
     }
     return new CombinedMatches(mappings, numAuthenticators);
+  }
+  
+  /**
+   *  Similar to {@link #getMatches(Collection)}, but optimised for single-topic use.
+   *  
+   *  @param topic The topic.
+   *  @return The matches for this topic.
+   */
+  public CombinedMatches getMatches(String topic) {
+    final List<Authenticator> authenticators = get(topic);
+    final List<MatchedAuthenticators> mappings = Collections.singletonList(new MatchedAuthenticators(topic, authenticators));
+    return new CombinedMatches(mappings, authenticators.size());
   }
   
   public static final class NoAuthenticatorException extends RuntimeException {

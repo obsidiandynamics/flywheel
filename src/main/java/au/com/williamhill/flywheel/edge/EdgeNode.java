@@ -257,7 +257,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   }
   
   private void authenticateSubTopics(EdgeNexus nexus, UUID messageId, Set<String> topics, Runnable onSuccess) {
-    final CombinedMatches combined = subAuthChain.get(topics);
+    final CombinedMatches combined = subAuthChain.getMatches(topics);
     combined.invokeAll(nexus, errors -> {
       if (errors.isEmpty()) {
         onSuccess.run();
@@ -284,7 +284,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   }
   
   private void authenticatePubTopic(EdgeNexus nexus, String topic, Runnable onSuccess) {
-    final CombinedMatches combined = pubAuthChain.get(Collections.singleton(topic));
+    final CombinedMatches combined = pubAuthChain.getMatches(topic);
     combined.invokeAll(nexus, errors -> {
       if (errors.isEmpty()) {
         onSuccess.run();
