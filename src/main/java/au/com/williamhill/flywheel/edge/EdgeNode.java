@@ -132,7 +132,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   
   private void initAuthChains() throws Exception {
     final AuthConnector pubConnector = new AuthConnector() {
-      @Override public Collection<String> getLiveTopics(EdgeNexus nexus) {
+      @Override public Collection<String> getActiveTopics(EdgeNexus nexus) {
         return Collections.emptyList();
       }
       @Override public void expireTopic(EdgeNexus nexus, String topic) {
@@ -144,7 +144,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
     }
     
     final AuthConnector subConnector = new AuthConnector() {
-      @Override public Collection<String> getLiveTopics(EdgeNexus nexus) {
+      @Override public Collection<String> getActiveTopics(EdgeNexus nexus) {
         return nexus.getSession().getSubscription().getTopics();
       }
       @Override public void expireTopic(EdgeNexus nexus, String topic) {

@@ -8,11 +8,11 @@ import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class CachedAuthenticator extends Thread implements Authenticator {
-  private static final class LiveTopics {
-    final Map<String, LiveTopic> map = new ConcurrentHashMap<>();
+  private static final class ActiveTopics {
+    final Map<String, ActiveTopic> map = new ConcurrentHashMap<>();
   }
   
-  private static final class LiveTopic {
+  private static final class ActiveTopic {
     long expiryTime;
 
     long getAllowedMillis(long now) {
@@ -20,7 +20,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
     }
   }
   
-  private final Map<EdgeNexus, LiveTopics> nexusTopics = new ConcurrentHashMap<>();
+  private final Map<EdgeNexus, ActiveTopics> nexusTopics = new ConcurrentHashMap<>();
   
   private final Object nexusTopicsLock = new Object();
   
@@ -55,14 +55,14 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
     //TODO 
   }
   
-  private LiveTopic query(EdgeNexus nexus, String topic) {
-    final LiveTopics existingTopics = nexusTopics.get(nexus);
+  private ActiveTopic query(EdgeNexus nexus, String topic) {
+    final ActiveTopics existingTopics = nexusTopics.get(nexus);
     return existingTopics != null ? existingTopics.map.get(topic) : null;
   }
   
-  private LiveTopic update(EdgeNexus nexus, String topic) {
-    final LiveTopics topics = Maps.putAtomic(nexusTopicsLock, nexusTopics, nexus, LiveTopics::new);
-    return Maps.putAtomic(topics, topics.map, topic, LiveTopic::new);
+  private ActiveTopic update(EdgeNexus nexus, String topic) {
+    final ActiveTopics topics = Maps.putAtomic(nexusTopicsLock, nexusTopics, nexus, ActiveTopics::new);
+    return Maps.putAtomic(topics, topics.map, topic, ActiveTopic::new);
   }
   
   @Override
@@ -83,7 +83,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
     final long now = System.currentTimeMillis();
-    final LiveTopic existing = query(nexus, topic);
+    final ActiveTopic existing = query(nexus, topic);
     
     final long cachedAllowedMillis = existing != null ? existing.getAllowedMillis(now) : -1;
     
@@ -96,8 +96,8 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
       delegate.verify(nexus, topic, new AuthenticationOutcome() {
         @Override
         public void allow(long millis) {
-          final LiveTopic liveTopic = update(nexus, topic);
-          liveTopic.expiryTime = millis != 0 ? now + millis : 0;
+          final ActiveTopic activeTopic = update(nexus, topic);
+          activeTopic.expiryTime = millis != 0 ? now + millis : 0;
           outcome.allow(millis);
         }
 
