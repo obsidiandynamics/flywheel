@@ -2,6 +2,9 @@ package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.*;
 
 import java.net.*;
@@ -12,13 +15,14 @@ import org.junit.*;
 import com.github.tomakehurst.wiremock.junit.*;
 import com.google.gson.*;
 
+import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 
-public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
-  private static final boolean USE_HTTPS = true;
+public final class HttpProxyAuthUncachedPubTest extends AbstractAuthTest {
+  private static final boolean USE_HTTPS = false;
 
   private static final String MOCK_PATH = "/auth";
 
@@ -45,9 +49,9 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
 
   @SuppressWarnings("resource")
   private void setupAuthChains() throws URISyntaxException, Exception {
-    setupEdgeNode(new PubAuthChain(), 
-                  new SubAuthChain().set(TOPIC, new AuthenticatorWrapper(new HttpProxyAuth()
-                                                                         .withUri(getURI(USE_HTTPS)))));
+    setupEdgeNode(new PubAuthChain().set(TOPIC, new AuthenticatorWrapper(new HttpProxyAuth()
+                                                                         .withUri(getURI(USE_HTTPS)))),
+                  new SubAuthChain());
   }
 
   @Test
@@ -61,35 +65,29 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
 
     final RemoteNexus remoteNexus = openNexus();
     final String sessionId = generateSessionId();
+    
+    final BindFrame bind = new BindFrame(UUID.randomUUID(), 
+                                         sessionId,
+                                         null,
+                                         new String[]{TOPIC},
+                                         new String[]{},
+                                         null);
+    final BindResponseFrame bindRes = remoteNexus.bind(bind).get();
+    assertTrue(bindRes.isSuccess());
+    verify(0, postRequestedFor(urlMatching(MOCK_PATH)));
 
-    final BindFrame bind1 = new BindFrame(UUID.randomUUID(), 
-                                          sessionId,
-                                          null,
-                                          new String[]{TOPIC},
-                                          null,
-                                          null);
-    final BindResponseFrame bind1Res = remoteNexus.bind(bind1).get();
-    assertTrue(bind1Res.isSuccess());
+    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
+    awaitReceived();
+    assertNull(errors);
+    assertEquals(new TextFrame(TOPIC, "hello"), text);
+    clearReceived();
     verify(1, postRequestedFor(urlMatching(MOCK_PATH)));
 
-    final BindFrame unbind1 = new BindFrame(UUID.randomUUID(), 
-                                            sessionId,
-                                            null,
-                                            null,
-                                            new String[]{TOPIC},
-                                            null);
-    final BindResponseFrame unbind1Res = remoteNexus.bind(unbind1).get();
-    assertTrue(unbind1Res.isSuccess());
-    verify(1, postRequestedFor(urlMatching(MOCK_PATH)));
-
-    final BindFrame bind2 = new BindFrame(UUID.randomUUID(), 
-                                          sessionId,
-                                          null,
-                                          new String[]{TOPIC},
-                                          null,
-                                          null);
-    final BindResponseFrame bind2Res = remoteNexus.bind(bind2).get();
-    assertTrue(bind2Res.isSuccess());
+    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
+    awaitReceived();
+    assertNull(errors);
+    assertEquals(new TextFrame(TOPIC, "hello"), text);
+    clearReceived();
     verify(2, postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
@@ -109,12 +107,31 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
                                          sessionId,
                                          null,
                                          new String[]{TOPIC},
-                                         null,
+                                         new String[]{},
                                          null);
     final BindResponseFrame bindRes = remoteNexus.bind(bind).get();
-    assertFalse(bindRes.isSuccess());
-    assertEquals(1, bindRes.getErrors().length);
+    assertTrue(bindRes.isSuccess());
+    verify(0, postRequestedFor(urlMatching(MOCK_PATH)));
+    
+    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
+    awaitReceived();
+    assertNotNull(errors);
+    assertNull(text);
+    assertNull(binary);
+    assertEquals(1, errors.getErrors().length);
+    assertEquals(new TopicAccessError("Forbidden", TOPIC), errors.getErrors()[0]);
+    clearReceived();
     verify(1, postRequestedFor(urlMatching(MOCK_PATH)));
+    
+    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
+    awaitReceived();
+    assertNotNull(errors);
+    assertNull(text);
+    assertNull(binary);
+    assertEquals(1, errors.getErrors().length);
+    assertEquals(new TopicAccessError("Forbidden", TOPIC), errors.getErrors()[0]);
+    clearReceived();
+    verify(2, postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
   private static String toJson(Object obj) {

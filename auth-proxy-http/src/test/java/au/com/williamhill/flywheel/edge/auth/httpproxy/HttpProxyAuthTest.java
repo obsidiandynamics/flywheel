@@ -8,7 +8,6 @@ import java.net.*;
 import java.security.*;
 import java.util.concurrent.*;
 
-import org.apache.http.client.utils.*;
 import org.apache.http.nio.reactor.*;
 import org.awaitility.*;
 import org.junit.*;
@@ -182,11 +181,10 @@ public final class HttpProxyAuthTest {
   }
 
   private URI getURI(boolean https) throws URISyntaxException {
-    return new URIBuilder()
-        .setScheme(https ? "https" : "http")
-        .setHost("localhost")
-        .setPort(https ? wireMock.httpsPort() : wireMock.port())
-        .setPath(MOCK_PATH)
+    return new WireMockURIBuilder()
+        .withWireMock(wireMock)
+        .withHttps(https)
+        .withPath(MOCK_PATH)
         .build();
   }
 }
