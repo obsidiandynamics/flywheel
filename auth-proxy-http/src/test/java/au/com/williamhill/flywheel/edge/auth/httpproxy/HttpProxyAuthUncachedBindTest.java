@@ -66,7 +66,7 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
                                           sessionId,
                                           null,
                                           new String[]{TOPIC},
-                                          null,
+                                          new String[]{},
                                           null);
     final BindResponseFrame bind1Res = remoteNexus.bind(bind1).get();
     assertTrue(bind1Res.isSuccess());
@@ -75,7 +75,7 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
     final BindFrame unbind1 = new BindFrame(UUID.randomUUID(), 
                                             sessionId,
                                             null,
-                                            null,
+                                            new String[]{},
                                             new String[]{TOPIC},
                                             null);
     final BindResponseFrame unbind1Res = remoteNexus.bind(unbind1).get();
@@ -86,7 +86,7 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
                                           sessionId,
                                           null,
                                           new String[]{TOPIC},
-                                          null,
+                                          new String[]{},
                                           null);
     final BindResponseFrame bind2Res = remoteNexus.bind(bind2).get();
     assertTrue(bind2Res.isSuccess());
@@ -109,7 +109,7 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
                                          sessionId,
                                          null,
                                          new String[]{TOPIC},
-                                         null,
+                                         new String[]{},
                                          null);
     final BindResponseFrame bindRes = remoteNexus.bind(bind).get();
     assertFalse(bindRes.isSuccess());
