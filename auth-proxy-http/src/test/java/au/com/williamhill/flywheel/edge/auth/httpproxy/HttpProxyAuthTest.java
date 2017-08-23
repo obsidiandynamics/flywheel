@@ -17,6 +17,7 @@ import com.github.tomakehurst.wiremock.junit.*;
 import com.google.gson.*;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 
@@ -35,9 +36,7 @@ public final class HttpProxyAuthTest {
   @Before
   public void before() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
-    auth = new HttpProxyAuth();
-    auth.withUri(getURI(false));
-    auth.withPoolSize(4);
+    auth = new HttpProxyAuth(new HttpProxyAuthConfig().withURI(getURI(false)).withPoolSize(4));
     auth.close(); // tests close() before init()
   }
 
@@ -50,7 +49,7 @@ public final class HttpProxyAuthTest {
 
   @Test
   public void testAllow() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(null);
+    auth.attach(Mockito.mock(AuthConnector.class));
     final ProxyAuthResponse expected = new ProxyAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -73,7 +72,8 @@ public final class HttpProxyAuthTest {
 
   @Test
   public void testAllowHttps() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.withUri(getURI(true)).attach(null);
+    auth.getConfig().withURI(getURI(true));
+    auth.attach(Mockito.mock(AuthConnector.class));
     final ProxyAuthResponse expected = new ProxyAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -96,7 +96,7 @@ public final class HttpProxyAuthTest {
 
   @Test
   public void testDeny() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(null);
+    auth.attach(Mockito.mock(AuthConnector.class));
     final ProxyAuthResponse expected = new ProxyAuthResponse(null);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -119,7 +119,7 @@ public final class HttpProxyAuthTest {
 
   @Test
   public void testBadStatusCode() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(null);
+    auth.attach(Mockito.mock(AuthConnector.class));
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -139,7 +139,7 @@ public final class HttpProxyAuthTest {
 
   @Test
   public void testBadEntity() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(null);
+    auth.attach(Mockito.mock(AuthConnector.class));
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -161,7 +161,8 @@ public final class HttpProxyAuthTest {
 
   @Test
   public void testTimeout() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.withTimeoutMillis(1).attach(null);
+    auth.getConfig().withTimeoutMillis(1);
+    auth.attach(Mockito.mock(AuthConnector.class));
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()

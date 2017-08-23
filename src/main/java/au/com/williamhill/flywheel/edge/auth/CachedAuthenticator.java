@@ -52,7 +52,12 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   }
   
   private void cycle() {
-    //TODO 
+    final long now = System.currentTimeMillis();
+    for (Map.Entry<EdgeNexus, ActiveTopics> nexusTopicEntry : nexusTopics.entrySet()) {
+      for (Map.Entry<String, ActiveTopic> activeTopicEntry : nexusTopicEntry.getValue().map.entrySet()) {
+        final long allowed = activeTopicEntry.getValue().getAllowedMillis(now);
+      }
+    }
   }
   
   private ActiveTopic query(EdgeNexus nexus, String topic) {

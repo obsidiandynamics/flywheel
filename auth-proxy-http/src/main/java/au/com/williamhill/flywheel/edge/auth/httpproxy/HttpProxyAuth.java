@@ -1,7 +1,6 @@
 package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 import java.io.*;
-import java.net.*;
 import java.security.*;
 
 import javax.net.ssl.*;
@@ -30,32 +29,18 @@ import au.com.williamhill.flywheel.edge.auth.*;
 public final class HttpProxyAuth implements NestedAuthenticator {
   private static final Logger LOG = LoggerFactory.getLogger(HttpProxyAuth.class);
 
-  @YInject
-  URI uri;
-
-  @YInject
-  int poolSize = 8;
-  
-  @YInject
-  int timeoutMillis = 60_000;
+  private final HttpProxyAuthConfig config;
   
   private Gson gson;
 
   private CloseableHttpAsyncClient httpClient;
 
-  public HttpProxyAuth withUri(URI uri) {
-    this.uri = uri;
-    return this;
+  public HttpProxyAuth(@YInject(name="config") HttpProxyAuthConfig config) {
+    this.config = config;
   }
-
-  public HttpProxyAuth withPoolSize(int poolSize) {
-    this.poolSize = poolSize;
-    return this;
-  }
-
-  public HttpProxyAuth withTimeoutMillis(int timeoutMillis) {
-    this.timeoutMillis = timeoutMillis;
-    return this;
+  
+  public HttpProxyAuthConfig getConfig() {
+    return config;
   }
 
   @Override
@@ -68,15 +53,15 @@ public final class HttpProxyAuth implements NestedAuthenticator {
         .register("http", NoopIOSessionStrategy.INSTANCE)
         .register("https", new SSLIOSessionStrategy(getSSLContext(), hostnameVerifier)).build();
 
-    final int selectInterval = Math.min(1000, timeoutMillis);
+    final int selectInterval = Math.min(1000, config.timeoutMillis);
     final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
                                                                          .setSelectInterval(selectInterval)
-                                                                         .setSoTimeout(timeoutMillis)
-                                                                         .setConnectTimeout(timeoutMillis)
+                                                                         .setSoTimeout(config.timeoutMillis)
+                                                                         .setConnectTimeout(config.timeoutMillis)
                                                                          .build());
     final PoolingNHttpClientConnectionManager cm = new PoolingNHttpClientConnectionManager(ioReactor, sslSessionStrategy);
-    cm.setMaxTotal(poolSize);
-    cm.setDefaultMaxPerRoute(poolSize);
+    cm.setMaxTotal(config.poolSize);
+    cm.setDefaultMaxPerRoute(config.poolSize);
 
     httpClient = HttpAsyncClients.custom()
         .setConnectionManager(cm)
@@ -93,7 +78,7 @@ public final class HttpProxyAuth implements NestedAuthenticator {
     final ProxyAuthRequest authReq = new ProxyAuthRequest(nexus.getSession().getAuth(), topic);
     final String reqJson = gson.toJson(authReq);
     final StringEntity reqEntity = new StringEntity(reqJson, ContentType.APPLICATION_JSON);
-    final HttpPost post = new HttpPost(uri);
+    final HttpPost post = new HttpPost(config.uri);
     post.setEntity(reqEntity);
     post.setHeader("Accept", ContentType.APPLICATION_JSON.getMimeType());
     httpClient.execute(post, new FutureCallbackAdapter<HttpResponse>() {

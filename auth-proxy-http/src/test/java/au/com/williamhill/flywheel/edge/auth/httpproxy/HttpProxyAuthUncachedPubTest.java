@@ -5,7 +5,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.net.*;
 import java.util.*;
@@ -15,7 +15,6 @@ import org.junit.*;
 import com.github.tomakehurst.wiremock.junit.*;
 import com.google.gson.*;
 
-import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
@@ -32,7 +31,7 @@ public final class HttpProxyAuthUncachedPubTest extends AbstractAuthTest {
   public static WireMockRule wireMock = new WireMockRule(options()
                                                          .dynamicPort()
                                                          .dynamicHttpsPort());
-  
+
   @Override
   protected void setup() throws URISyntaxException, Exception {
     reset();
@@ -49,8 +48,9 @@ public final class HttpProxyAuthUncachedPubTest extends AbstractAuthTest {
 
   @SuppressWarnings("resource")
   private void setupAuthChains() throws URISyntaxException, Exception {
-    setupEdgeNode(new PubAuthChain().set(TOPIC, new AuthenticatorWrapper(new HttpProxyAuth()
-                                                                         .withUri(getURI(USE_HTTPS)))),
+    setupEdgeNode(new PubAuthChain().set(TOPIC, 
+                                         new AuthenticatorWrapper(new HttpProxyAuth(new HttpProxyAuthConfig()
+                                                                                    .withURI(getURI(USE_HTTPS))))),
                   new SubAuthChain());
   }
 
@@ -65,7 +65,7 @@ public final class HttpProxyAuthUncachedPubTest extends AbstractAuthTest {
 
     final RemoteNexus remoteNexus = openNexus();
     final String sessionId = generateSessionId();
-    
+
     final BindFrame bind = new BindFrame(UUID.randomUUID(), 
                                          sessionId,
                                          null,
@@ -112,7 +112,7 @@ public final class HttpProxyAuthUncachedPubTest extends AbstractAuthTest {
     final BindResponseFrame bindRes = remoteNexus.bind(bind).get();
     assertTrue(bindRes.isSuccess());
     verify(0, postRequestedFor(urlMatching(MOCK_PATH)));
-    
+
     remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
     awaitReceived();
     assertNotNull(errors);
@@ -122,7 +122,7 @@ public final class HttpProxyAuthUncachedPubTest extends AbstractAuthTest {
     assertEquals(new TopicAccessError("Forbidden", TOPIC), errors.getErrors()[0]);
     clearReceived();
     verify(1, postRequestedFor(urlMatching(MOCK_PATH)));
-    
+
     remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
     awaitReceived();
     assertNotNull(errors);

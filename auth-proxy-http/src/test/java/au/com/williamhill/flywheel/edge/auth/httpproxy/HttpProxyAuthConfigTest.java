@@ -16,8 +16,8 @@ public final class HttpProxyAuthConfigTest {
         .withParser(new SnakeyamlParser())
         .fromStream(HttpProxyAuthConfigTest.class.getClassLoader().getResourceAsStream("proxy-auth-http-config.yaml"))
         .map(HttpProxyAuth.class);
-    assertEquals(new URI("http://localhost:8090/auth"), auth.uri);
-    assertEquals(4, auth.poolSize);
-    assertEquals(30000, auth.timeoutMillis);
+    assertEquals(new URI("http://localhost:8090/auth"), auth.getConfig().uri);
+    assertEquals(4, auth.getConfig().poolSize);
+    assertEquals(30000, auth.getConfig().timeoutMillis);
   }
 }

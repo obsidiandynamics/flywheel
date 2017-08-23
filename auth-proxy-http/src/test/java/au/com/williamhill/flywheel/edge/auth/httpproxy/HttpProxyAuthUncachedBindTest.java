@@ -46,8 +46,9 @@ public final class HttpProxyAuthUncachedBindTest extends AbstractAuthTest {
   @SuppressWarnings("resource")
   private void setupAuthChains() throws URISyntaxException, Exception {
     setupEdgeNode(new PubAuthChain(), 
-                  new SubAuthChain().set(TOPIC, new AuthenticatorWrapper(new HttpProxyAuth()
-                                                                         .withUri(getURI(USE_HTTPS)))));
+                  new SubAuthChain().set(TOPIC, 
+                                         new AuthenticatorWrapper(new HttpProxyAuth(new HttpProxyAuthConfig()
+                                                                                    .withURI(getURI(USE_HTTPS))))));
   }
 
   @Test
