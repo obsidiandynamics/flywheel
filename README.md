@@ -46,6 +46,8 @@ The diagram below describes a typical Flywheel topology.
 
 <img src="https://raw.githubusercontent.com/wiki/William-Hill-Community/flywheel/images/flywheel-architecture-simple.png" alt="architecture"/>
 
+A backplane is an optional component, required only if running Flywheel in clustered mode (i.e. with more than one edge node). Currently, Flywheel supports [Kafka](https://kafka.apache.org) as a backplane. For more information, see the [Kafka Backplane README](https://github.com/William-Hill-Community/flywheel/tree/master/backplane-kafka).
+
 # Getting Started
 The first step is deciding on which of the two modes - embedded or standalone - is best-suited to your messaging scenario.
 
@@ -249,3 +251,7 @@ At the top level we have the special `$remote` topic container. This topic and a
 The most common use case for direct messaging is communicating errors back to the remote node based on an earlier publish that couldn't be processed. Because publishing is purely asynchronous, the publisher wouldn't ordinarily wait for a response; besides, it's very unlikely that a publish operation would fail. But the remote may have attempted to publish on a topic to which it has no access. In this case the edge node will send an array with a single `TopicAccess` error object back to the remote node, on the topic `$remote/{sessionId}|anon/rx/errors`.
 
 **Note:** The above describes the built-in scheme, which is minimalistic by design - initially to accommodate asynchronous error handling. The combination of a flexible topic hierarchy and pluggable auth modules allows you to create secure topics and bespoke routing behaviour, ranging from direct messaging, to P2P, private groups, and so on.
+
+# Module Documentation
+* [Standalone](https://github.com/William-Hill-Community/flywheel/tree/master/standalone) - Building, configuring and running a Flywheel instance using [Docker](https://www.docker.com/) or directly from the command line.
+* [Kafka backplane](https://github.com/William-Hill-Community/flywheel/tree/master/backplane-kafka) - Setting up a Flywheel cluster using a [Kafka](https://kafka.apache.org) backplane.

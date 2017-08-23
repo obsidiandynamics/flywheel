@@ -92,6 +92,46 @@ Messages are keyed by the Flywheel topic name, which provides an even sharding a
 
 Depending on your Kafka set-up, the backplane may auto-create the Kafka topic with a single partition upon first use. This is _not_ the recommended approach; we suggest that you explicitly create the topic in Kafka prior to connecting the backplane, and have it partitioned accordingly.
 
+## Standalone configuration
+To start using the Kafka backplane in your standalone cluster, add the following snippet to your `profile.yaml` file, replacing the default `NoOpBackplane`.
+
+```yaml
+backplane:
+  type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaBackplane
+  clusterId: roundhouse
+  brokerId: ${randomUUID()}
+  backplaneConfig:
+    topic: platform.push
+    serializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetSerializer
+    deserializer: au.com.williamhill.flywheel.edge.backplane.kafka.ScramjetDeserializer
+    pollTimeoutMillis: 100
+    ttlMillis: 300000
+    kafka:
+      type: au.com.williamhill.flywheel.edge.backplane.kafka.KafkaCluster
+      clusterConfig:
+        common:
+          bootstrap.servers: ${mandatory(env.FLYWHEEL_KAFKA_BROKERS, "Kafka brokers cannot be null")}
+        producer:
+          acks: 1
+          retries: 0
+          batch.size: 16384
+          linger.ms: 0
+          buffer.memory: 33554432
+        consumer:
+          enable.auto.commit: false
+          auto.commit.interval.ms: 0
+```
+
+The `clusterId` property is an arbitrary identifier assigned to your cluster. The `brokerId` must be unique within the cluster, and so we use a random UUID.
+
+The `topic` property relates to the Kafka topic and may be any arbitrary topic; however, it may only be used for one cluster. In other words, if you have two or more separate Flywheel clusters sharing the same Kafka cluster, each Flywheel cluster must be given its own Kafka topic.
+
+The above configuration assumes that the `FLYWHEEL_KAFKA_BROKERS` environment variable is set to a comma-separated list of broker addresses and ports, in the format `broker1:port1,broker2:port2,...`. Alternatively, you can replace the EL expression (the `${...}` part) in `bootstrap.servers` with a hard-coded list of brokers.
+
+The `producer`, `consumer` and `common` sections under `clusterConfig` correspond to the standard set of [Kafka properties](https://kafka.apache.org/documentation/#producerconfigs) that are normally passed to producers and consumers, with `common` applying to both.
+
+**Note:** The Kafka backplane implementation uses a Kafka 0.10.x client. This requires that your Kafka cluster is, at minimum, version 0.10.
+
 # Direct Publishing
 Normally a backplane is used to disseminate messages among edge nodes in a Flywheel cluster, and is not intended for use outside of the cluster. But because the underlying transport is plain Kafka, you can publish _directly_ to the Kafka topic and have your message delivered to all subscribers regardless of which edge node they've connected to. Needless to say, this only works if your producer is an internal entity, setting behind the corporate firewall with line-of-sight access to the Kafka brokers.
 
