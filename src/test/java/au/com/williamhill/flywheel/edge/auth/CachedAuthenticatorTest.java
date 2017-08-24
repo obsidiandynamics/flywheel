@@ -2,6 +2,9 @@ package au.com.williamhill.flywheel.edge.auth;
 
 import static junit.framework.TestCase.*;
 
+import java.util.concurrent.*;
+
+import org.awaitility.*;
 import org.junit.*;
 import org.mockito.*;
 
@@ -88,6 +91,46 @@ public final class CachedAuthenticatorTest {
     Mockito.verify(delegateProxy).verify(Mockito.eq(nexus), Mockito.eq("topic"), Mockito.notNull(AuthenticationOutcome.class));
     
     assertNotNull(c.toString());
+  }
+  
+  @Test
+  public void testCacheRefreshShortMinInterval() throws Exception {
+    final NestedAuthenticator delegate = new TimedAllow(1000L);
+    final NestedAuthenticator delegateProxy = Mockito.spy(delegate);
+    c = new CachedAuthenticator(new CachedAuthenticatorConfig()
+                                .withRunIntervalMillis(1)
+                                .withMinQueryIntervalMillis(1), 
+                                delegateProxy);
+    final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
+    final EdgeNexus nexus = createNexus();
+    c.attach(Mockito.mock(AuthConnector.class));
+    c.verify(nexus, "topic", outcome);
+    Mockito.verify(outcome).allow(Mockito.eq(1000L));
+    Mockito.verify(delegateProxy).verify(Mockito.eq(nexus), Mockito.eq("topic"), Mockito.notNull(AuthenticationOutcome.class));
+    
+    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+      Mockito.verify(delegateProxy, Mockito.atLeast(10)).verify(Mockito.eq(nexus), Mockito.eq("topic"), Mockito.notNull(AuthenticationOutcome.class));
+    });
+  }
+  
+  @Test
+  public void testCacheRefreshLongMinInterval() throws Exception {
+    final NestedAuthenticator delegate = new TimedAllow(1000L);
+    final NestedAuthenticator delegateProxy = Mockito.spy(delegate);
+    c = new CachedAuthenticator(new CachedAuthenticatorConfig()
+                                .withRunIntervalMillis(1)
+                                .withMinQueryIntervalMillis(1000), 
+                                delegateProxy);
+    final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
+    final EdgeNexus nexus = createNexus();
+    c.attach(Mockito.mock(AuthConnector.class));
+    c.verify(nexus, "topic", outcome);
+    Mockito.verify(outcome, Mockito.times(1)).allow(Mockito.eq(1000L));
+    Mockito.verify(delegateProxy, Mockito.times(1)).verify(Mockito.eq(nexus), Mockito.eq("topic"), Mockito.notNull(AuthenticationOutcome.class));
+    
+    TestSupport.sleep(100);
+    
+    Mockito.verify(delegateProxy, Mockito.times(1)).verify(Mockito.eq(nexus), Mockito.eq("topic"), Mockito.notNull(AuthenticationOutcome.class));
   }
 
   private static EdgeNexus createNexus() {

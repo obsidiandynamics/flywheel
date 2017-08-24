@@ -150,6 +150,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
         public void allow(long millis) {
           if (LOG.isTraceEnabled()) LOG.trace("{}: allowed for {} ms", nexus, millis);
           final ActiveTopic activeTopic = update(nexus, topic);
+          activeTopic.lastQueriedTime = now;
           activeTopic.expiryTime = millis != 0 ? now + millis : 0;
           outcome.allow(millis);
         }

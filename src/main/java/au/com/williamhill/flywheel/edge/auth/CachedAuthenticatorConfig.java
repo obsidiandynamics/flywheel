@@ -1,13 +1,13 @@
 package au.com.williamhill.flywheel.edge.auth;
 
 public class CachedAuthenticatorConfig {
-  long runIntervalMillis;
+  long runIntervalMillis = 1000;
   
-  long queryBeforeExpiryMillis;
+  long queryBeforeExpiryMillis = 10_000;
   
-  long minQueryIntervalMillis;
+  long minQueryIntervalMillis = 10_000;
   
-  int maxPendingQueries;
+  int maxPendingQueries = 100;
 
   public CachedAuthenticatorConfig withRunIntervalMillis(long runIntervalMillis) {
     this.runIntervalMillis = runIntervalMillis;
