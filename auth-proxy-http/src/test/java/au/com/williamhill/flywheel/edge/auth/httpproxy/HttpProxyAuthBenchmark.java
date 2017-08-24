@@ -1,35 +1,43 @@
 package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 import java.net.*;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+import java.util.function.*;
 
-import org.apache.http.client.utils.*;
 import org.awaitility.*;
 import org.junit.*;
+import org.junit.Test;
 import org.mockito.*;
 
+import com.github.tomakehurst.wiremock.*;
+import com.github.tomakehurst.wiremock.client.*;
 import com.github.tomakehurst.wiremock.junit.*;
+import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
+import com.obsidiandynamics.indigo.benchmark.Summary.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
+import junit.framework.*;
 
 public final class HttpProxyAuthBenchmark implements TestSupport {
   abstract static class Config implements Spec {
     int port;
     int n;
     int maxOutstanding;
+    int poolSize;
     float warmupFrac;
-    boolean useHttps;
-    String host;
-    String path;
-    String topic;
+    URI uri;
+    String topic = "topic";
+    boolean stats;
     LogConfig log;
     
     /* Derived fields. */
@@ -51,34 +59,13 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
                            n, warmupFrac * 100);
     }
     
-    Config withWireMock(WireMockRule wireMock, boolean useHttps) {
-      this.useHttps = useHttps;
-      port = useHttps ? wireMock.httpsPort() : wireMock.port();
-      return this;
-    }
-    
     SpecMultiplier assignDefaults() {
       warmupFrac = 0.10f;
-      host = "localhost";
-      path = "/auth";
-      topic = "topic";
+      poolSize = 10;
       log = new LogConfig() {{
         summary = stages = LOG;
       }};
       return times(2);
-    }
-    
-    URI getURI() {
-      try {
-        return new URIBuilder()
-            .setScheme(useHttps ? "https" : "http")
-            .setHost(host)
-            .setPort(port)
-            .setPath(path)
-            .build();
-      } catch (URISyntaxException e) {
-        throw new RuntimeException(e);
-      }
     }
 
     @Override
@@ -91,49 +78,154 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
   public static WireMockRule wireMock = new WireMockRule(options()
                                                          .dynamicPort()
                                                          .dynamicHttpsPort());
-
-  @Test
-  public void test() throws Exception {
-    final boolean useHttps = false;
-    new Config() {{
-      n = 100;
-      maxOutstanding = 10;
-    }}
-    .withWireMock(wireMock, useHttps)
-    .assignDefaults()
-    .test();
+  
+  private static MappingBuilder postEndpoint(String path) {
+    return post(urlEqualTo(path))
+        .withHeader("Accept", equalTo("application/json"))
+        .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(getJsonResponse()));
+  }
+  
+  private static String getJsonResponse() {
+    final ProxyAuthResponse response = new ProxyAuthResponse(AuthenticationOutcome.INDEFINITE);
+    return new GsonBuilder().disableHtmlEscaping().create().toJson(response);
+  }
+  
+  private static class ResponseCounter {
+    final AtomicInteger allowed = new AtomicInteger();
+    final AtomicInteger denied = new AtomicInteger();
+    
+    void reset() {
+      allowed.set(0);
+      denied.set(0);
+    }
+    
+    int getReceived() {
+      return allowed.get() + denied.get();
+    }
+    
+    boolean hasReceived(int messages) {
+      return getReceived() >= messages;
+    }
   }
   
   private static class MockOutcome implements AuthenticationOutcome {
-    private final AtomicInteger allowed = new AtomicInteger();
-    private final AtomicInteger denied = new AtomicInteger();
+    private final ResponseCounter counter;
+    private final Consumer<MockOutcome> responseCallback;
+    private final long started = System.nanoTime();
+    
+    MockOutcome(ResponseCounter counter, Consumer<MockOutcome> responseCallback) {
+      this.counter = counter;
+      this.responseCallback = responseCallback;
+    }
 
     @Override
     public void allow(long millis) {
-      allowed.incrementAndGet();
+      counter.allowed.incrementAndGet();
+      responseCallback.accept(this);
     }
 
     @Override
     public void deny(TopicAccessError error) {
-      denied.incrementAndGet();
+      counter.denied.incrementAndGet();
+      responseCallback.accept(this);
     }
     
-//    received
+    long took() {
+      return System.nanoTime() - started;
+    }
   }
   
   private static Summary test(Config c) throws Exception {
-    try (HttpProxyAuth auth = new HttpProxyAuth(new HttpProxyAuthConfig().withURI(c.getURI()))) {
+    final Summary summary = new Summary();
+    final long timedStart;
+    try (HttpProxyAuth auth = new HttpProxyAuth(new HttpProxyAuthConfig().withURI(c.uri).withPoolSize(c.poolSize))) {
       auth.attach(Mockito.mock(AuthConnector.class));
       final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
-      final MockOutcome mockOutcome = new MockOutcome();
-      for (int i = 0; i < c.n; i++) {
-        auth.verify(nexus, c.topic, mockOutcome);
-        while (i - mockOutcome.allowed.get() > c.maxOutstanding) {
-          TestSupport.sleep(1);
-        }
+      final int progressInterval = Math.max(1, c.n / 25);
+      final ResponseCounter counter = new ResponseCounter();
+      
+      if (c.log.stages) c.log.out.format("Warming up...\n");
+      runSeries(c, nexus, auth, counter, c.warmupMessages, progressInterval, null);
+      
+      if (c.log.stages) c.log.out.format("Starting timed run...\n");
+      timedStart = System.currentTimeMillis();
+      runSeries(c, nexus, auth, counter, c.n - c.warmupMessages, progressInterval, summary.stats);
+      
+      TestCase.assertEquals(0, counter.denied.get());
+    }
+    
+    summary.compute(Arrays.asList(new Elapsed() {
+      @Override public long getTotalProcessed() {
+        return c.n - c.warmupMessages;
       }
-//      Awaitility.dontCatchUncaughtExceptions().await().atMost(60, TimeUnit.SECONDS).until(() -> 
-      return null;//TODO.class)
+      @Override public long getTimeTaken() {
+        return System.currentTimeMillis() - timedStart;
+      }
+    }));
+    return summary;
+  }
+  
+  private static void runSeries(Config c, EdgeNexus nexus, HttpProxyAuth auth, ResponseCounter counter, 
+                                int runs, int progressInterval, Stats stats) {
+    counter.reset();
+    for (int i = 0; i < runs; i++) {
+      final MockOutcome outcome = new MockOutcome(counter, _outcome -> {
+        if (c.stats && stats != null) stats.samples.addValue(_outcome.took());
+      });
+      auth.verify(nexus, c.topic, outcome);
+      while (i - counter.getReceived() > c.maxOutstanding) {
+        if (c.log.verbose) c.log.out.format("Throttling...");
+        TestSupport.sleep(1);
+      }
+      if (c.log.progress && i % progressInterval == 0) c.log.printProgressBlock();
+    }
+    Awaitility.dontCatchUncaughtExceptions().await().atMost(60, TimeUnit.SECONDS).until(() -> counter.hasReceived(runs));
+  }
+  
+  @Test
+  public void test() throws Exception {
+    final boolean useHttps = false;
+    final String path = "/auth";
+    stubFor(postEndpoint(path));
+    
+    new Config() {{
+      n = 10;
+      maxOutstanding = 10;
+      uri = new WireMockURIBuilder().withWireMock(wireMock).withPath(path).withHttps(useHttps).build();
+    }}
+    .assignDefaults()
+    .test();
+  }
+  
+  public static void main(String[] args) throws Exception {
+    final boolean useHttps = false;
+    final String path = "/auth";
+
+    final WireMockServer wireMock = new WireMockServer(options()
+                                                       .dynamicPort()
+                                                       .dynamicHttpsPort());
+    try {
+      wireMock.start();
+      wireMock.stubFor(postEndpoint(path));
+      new Config() {{
+        n = 20_000;
+        maxOutstanding = 100;
+        warmupFrac = 0.10f;
+        stats = true;
+        poolSize = 100;
+        uri = new WireMockURIBuilder().withWireMock(wireMock).withPath(path).withHttps(useHttps).build();
+        log = new LogConfig() {{
+          stages = false;
+          progress = intermediateSummaries = true;
+          summary = true;
+        }};
+      }}
+      .testPercentile(1, 5, 50, Summary::byThroughput);
+    } finally {
+      wireMock.stop();
     }
   }
 }

@@ -1,22 +1,32 @@
 package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 import java.net.*;
+import java.util.function.*;
 
 import org.apache.http.client.utils.*;
 
+import com.github.tomakehurst.wiremock.*;
 import com.github.tomakehurst.wiremock.junit.*;
 
 final class WireMockURIBuilder {
-  private WireMockRule wireMock;
+  private Function<Boolean, Integer> portProvider;
   
   private boolean https;
   
   private String path;
   
   private String host = "localhost";
+  
+  WireMockURIBuilder withWireMock(WireMockServer wireMock) {
+    return withPortProvider(https -> https ? wireMock.httpsPort() : wireMock.port());
+  }
 
   WireMockURIBuilder withWireMock(WireMockRule wireMock) {
-    this.wireMock = wireMock;
+    return withPortProvider(https -> https ? wireMock.httpsPort() : wireMock.port());
+  }
+  
+  WireMockURIBuilder withPortProvider(Function<Boolean, Integer> portProvider) {
+    this.portProvider = portProvider;
     return this;
   }
 
@@ -40,7 +50,7 @@ final class WireMockURIBuilder {
       return new URIBuilder()
           .setScheme(https ? "https" : "http")
           .setHost(host)
-          .setPort(https ? wireMock.httpsPort() : wireMock.port())
+          .setPort(portProvider.apply(https))
           .setPath(path)
           .build();
     } catch (URISyntaxException e) {
