@@ -41,7 +41,7 @@ public final class CachedAuthenticatorTest {
   public void testAllowFinite() throws Exception {
     final NestedAuthenticator delegate = new TimedAllow(30000L);
     final NestedAuthenticator delegateProxy = Mockito.spy(delegate);
-    c = new CachedAuthenticator(1000L, delegateProxy);
+    c = new CachedAuthenticator(new CachedAuthenticatorConfig().withRunIntervalMillis(1000), delegateProxy);
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     final EdgeNexus nexus = createNexus();
     c.attach(Mockito.mock(AuthConnector.class));
@@ -60,7 +60,7 @@ public final class CachedAuthenticatorTest {
   public void testAllowIndefinite() throws Exception {
     final NestedAuthenticator delegate = new TimedAllow(0L);
     final NestedAuthenticator delegateProxy = Mockito.spy(delegate);
-    c = new CachedAuthenticator(1000L, delegateProxy);
+    c = new CachedAuthenticator(new CachedAuthenticatorConfig().withRunIntervalMillis(1000), delegateProxy);
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     final EdgeNexus nexus = createNexus();
     c.attach(Mockito.mock(AuthConnector.class));
@@ -79,7 +79,7 @@ public final class CachedAuthenticatorTest {
   public void testDeny() throws Exception {
     final NestedAuthenticator delegate = new TimedAllow(-1);
     final NestedAuthenticator delegateProxy = Mockito.spy(delegate);
-    c = new CachedAuthenticator(0L, delegateProxy);
+    c = new CachedAuthenticator(new CachedAuthenticatorConfig().withRunIntervalMillis(0), delegateProxy);
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     final EdgeNexus nexus = createNexus();
     c.attach(Mockito.mock(AuthConnector.class));
