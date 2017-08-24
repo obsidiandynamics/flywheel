@@ -39,6 +39,8 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
     String topic = "topic";
     boolean stats;
     LogConfig log;
+    ThrowingRunnable beforeRun = () -> {};
+    ThrowingRunnable afterRun = () -> {};
     
     /* Derived fields. */
     int warmupMessages;
@@ -139,6 +141,7 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
   }
   
   private static Summary test(Config c) throws Exception {
+    c.beforeRun.run();
     final Summary summary = new Summary();
     final long timedStart;
     try (HttpProxyAuth auth = new HttpProxyAuth(new HttpProxyAuthConfig().withURI(c.uri).withPoolSize(c.poolSize))) {
@@ -155,6 +158,8 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
       runSeries(c, nexus, auth, counter, c.n - c.warmupMessages, progressInterval, summary.stats);
       
       TestCase.assertEquals(0, counter.denied.get());
+    } finally {
+      c.afterRun.run();
     }
     
     summary.compute(Arrays.asList(new Elapsed() {
@@ -195,6 +200,8 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
       n = 10;
       maxOutstanding = 10;
       uri = new WireMockURIBuilder().withWireMock(wireMock).withPath(path).withHttps(useHttps).build();
+      beforeRun = () -> wireMock.resetRequests();
+      afterRun = () -> verify(n, postRequestedFor(urlMatching(uri.getPath())));
     }}
     .assignDefaults()
     .test();
@@ -222,6 +229,8 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
           progress = intermediateSummaries = true;
           summary = true;
         }};
+        beforeRun = () -> wireMock.resetRequests();
+        afterRun = () -> wireMock.verify(n, postRequestedFor(urlMatching(uri.getPath())));
       }}
       .testPercentile(1, 5, 50, Summary::byThroughput);
     } finally {
