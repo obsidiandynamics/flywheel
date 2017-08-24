@@ -25,12 +25,12 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.httpproxy.util.*;
 import au.com.williamhill.flywheel.frame.*;
 import junit.framework.*;
 
 public final class HttpProxyAuthBenchmark implements TestSupport {
   abstract static class Config implements Spec {
-    int port;
     int n;
     int maxOutstanding;
     int poolSize;
@@ -57,8 +57,7 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
 
     @Override
     public String describe() {
-      return String.format("%,d requests, %.0f%% warmup fraction",
-                           n, warmupFrac * 100);
+      return String.format("%,d requests, %.0f%% warmup fraction", n, warmupFrac * 100);
     }
     
     SpecMultiplier assignDefaults() {
@@ -191,7 +190,7 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
   }
   
   @Test
-  public void test() throws Exception {
+  public void testWithWireMock() throws Exception {
     final boolean useHttps = false;
     final String path = "/auth";
     stubFor(postEndpoint(path));
@@ -207,34 +206,90 @@ public final class HttpProxyAuthBenchmark implements TestSupport {
     .test();
   }
   
-  public static void main(String[] args) throws Exception {
+  @Test
+  public void testWithUndertow() throws Exception {
     final boolean useHttps = false;
     final String path = "/auth";
-
-    final WireMockServer wireMock = new WireMockServer(options()
-                                                       .dynamicPort()
-                                                       .dynamicHttpsPort());
+    final UndertowMockServer server = new UndertowMockServer(path, getJsonResponse());
+    
     try {
-      wireMock.start();
-      wireMock.stubFor(postEndpoint(path));
+      server.start();
       new Config() {{
-        n = 20_000;
-        maxOutstanding = 100;
-        warmupFrac = 0.10f;
-        stats = true;
-        poolSize = 100;
-        uri = new WireMockURIBuilder().withWireMock(wireMock).withPath(path).withHttps(useHttps).build();
-        log = new LogConfig() {{
-          stages = false;
-          progress = intermediateSummaries = true;
-          summary = true;
-        }};
-        beforeRun = () -> wireMock.resetRequests();
-        afterRun = () -> wireMock.verify(n, postRequestedFor(urlMatching(uri.getPath())));
+        n = 10;
+        maxOutstanding = 10;
+        uri = new WireMockURIBuilder().withPortProvider(server::getPort).withPath(path).withHttps(useHttps).build();
+        beforeRun = () -> server.getRequests().set(0);
+        afterRun = () -> TestCase.assertEquals(n, server.getRequests().get());
       }}
-      .testPercentile(1, 5, 50, Summary::byThroughput);
+      .assignDefaults()
+      .test();
     } finally {
-      wireMock.stop();
+      server.stop();
+    }
+  }
+  
+  public static final class WireMockStubBenchmark {
+    public static void main(String[] args) throws Exception {
+      final boolean useHttps = false;
+      final String path = "/auth";
+  
+      final WireMockServer wireMock = new WireMockServer(options()
+                                                         .dynamicPort()
+                                                         .dynamicHttpsPort());
+      try {
+        wireMock.start();
+        wireMock.stubFor(postEndpoint(path));
+        new Config() {{
+          n = 20_000;
+          maxOutstanding = 100;
+          warmupFrac = 0.10f;
+          stats = true;
+          poolSize = 100;
+          uri = new WireMockURIBuilder().withWireMock(wireMock).withPath(path).withHttps(useHttps).build();
+          log = new LogConfig() {{
+            stages = false;
+            progress = intermediateSummaries = true;
+            summary = true;
+          }};
+          beforeRun = () -> wireMock.resetRequests();
+          afterRun = () -> wireMock.verify(n, postRequestedFor(urlMatching(uri.getPath())));
+        }}
+        .testPercentile(1, 5, 50, Summary::byThroughput);
+      } finally {
+        wireMock.stop();
+      }
+    }
+  } 
+
+  public static final class UndertowStubBenchmark {
+    public static void main(String[] args) throws Exception {
+      final boolean useHttps = false;
+      final String path = "/auth";
+  
+      final UndertowMockServer server = new UndertowMockServer(path, getJsonResponse());
+      
+      try {
+        server.start();
+        new Config() {{
+          n = 100_000;
+          maxOutstanding = 1000;
+          warmupFrac = 0.10f;
+          stats = true;
+          poolSize = 100;
+          uri = new WireMockURIBuilder()
+              .withPortProvider(server::getPort).withPath(path).withHttps(useHttps).build();
+          log = new LogConfig() {{
+            stages = false;
+            progress = intermediateSummaries = true;
+            summary = true;
+          }};
+          beforeRun = () -> server.getRequests().set(0);
+          afterRun = () -> TestCase.assertEquals(n, server.getRequests().get());
+        }}
+        .testPercentile(1, 5, 50, Summary::byThroughput);
+      } finally {
+        server.stop();
+      }
     }
   }
 }

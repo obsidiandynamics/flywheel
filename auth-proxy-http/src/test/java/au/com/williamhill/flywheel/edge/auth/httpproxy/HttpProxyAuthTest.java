@@ -19,6 +19,7 @@ import com.google.gson.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.httpproxy.util.*;
 import au.com.williamhill.flywheel.frame.*;
 
 public final class HttpProxyAuthTest {

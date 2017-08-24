@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.edge.auth.httpproxy;
+package au.com.williamhill.flywheel.edge.auth.httpproxy.util;
 
 import java.net.*;
 import java.util.function.*;
@@ -8,7 +8,7 @@ import org.apache.http.client.utils.*;
 import com.github.tomakehurst.wiremock.*;
 import com.github.tomakehurst.wiremock.junit.*;
 
-final class WireMockURIBuilder {
+public final class WireMockURIBuilder {
   private Function<Boolean, Integer> portProvider;
   
   private boolean https;
@@ -17,35 +17,35 @@ final class WireMockURIBuilder {
   
   private String host = "localhost";
   
-  WireMockURIBuilder withWireMock(WireMockServer wireMock) {
+  public WireMockURIBuilder withWireMock(WireMockServer wireMock) {
     return withPortProvider(https -> https ? wireMock.httpsPort() : wireMock.port());
   }
 
-  WireMockURIBuilder withWireMock(WireMockRule wireMock) {
+  public WireMockURIBuilder withWireMock(WireMockRule wireMock) {
     return withPortProvider(https -> https ? wireMock.httpsPort() : wireMock.port());
   }
   
-  WireMockURIBuilder withPortProvider(Function<Boolean, Integer> portProvider) {
+  public WireMockURIBuilder withPortProvider(Function<Boolean, Integer> portProvider) {
     this.portProvider = portProvider;
     return this;
   }
 
-  WireMockURIBuilder withHttps(boolean https) {
+  public WireMockURIBuilder withHttps(boolean https) {
     this.https = https;
     return this;
   }
 
-  WireMockURIBuilder withPath(String path) {
+  public WireMockURIBuilder withPath(String path) {
     this.path = path;
     return this;
   }
 
-  WireMockURIBuilder withHost(String host) {
+  public  WireMockURIBuilder withHost(String host) {
     this.host = host;
     return this;
   }
   
-  URI build() {
+  public URI build() {
     try {
       return new URIBuilder()
           .setScheme(https ? "https" : "http")
