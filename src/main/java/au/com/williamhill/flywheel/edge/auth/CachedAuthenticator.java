@@ -75,8 +75,10 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
         if (remaining < config.queryBeforeExpiryMillis) {
           final long queriedAgo = activeTopic.getQueriedAgo(now);
           if (queriedAgo > config.minQueryIntervalMillis) {
-            if (LOG.isTraceEnabled()) LOG.trace("{}: {} ms remaining; querying delegate", nexusTopicEntry.getKey(), remaining);
-            query(nexusTopicEntry.getKey(), activeTopicEntry.getKey(), nexusTopicEntry.getValue(), activeTopic);
+            final EdgeNexus nexus = nexusTopicEntry.getKey();
+            final String topic = activeTopicEntry.getKey();
+            if (LOG.isDebugEnabled()) LOG.debug("{}: {} ms remaining for {}; querying delegate", nexus, remaining, topic);
+            query(nexus, topic, nexusTopicEntry.getValue(), activeTopic);
           }
         }
       }
@@ -91,7 +93,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
       @Override
       public void allow(long millis) {
         pendingQueries.decrementAndGet();
-        if (LOG.isTraceEnabled()) LOG.trace("{}: allowed for {} ms", nexus, millis);
+        if (LOG.isDebugEnabled()) LOG.debug("{}: allowing {} for {} ms", nexus, topic, millis);
         activeTopic.expiryTime = millis != 0 ? now + millis : 0;
       }
 
@@ -99,7 +101,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
       public void deny(TopicAccessError error) {
         pendingQueries.decrementAndGet();
         activeTopics.map.remove(topic);
-        if (LOG.isTraceEnabled()) LOG.trace("{}: denied with {}", nexus, error);
+        if (LOG.isDebugEnabled()) LOG.debug("{}: denying {} with {}", nexus, topic, error);
         connector.expireTopic(nexus, topic);
       }
     });
@@ -146,6 +148,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
       delegate.verify(nexus, topic, new AuthenticationOutcome() {
         @Override
         public void allow(long millis) {
+          if (LOG.isTraceEnabled()) LOG.trace("{}: allowed for {} ms", nexus, millis);
           final ActiveTopic activeTopic = update(nexus, topic);
           activeTopic.expiryTime = millis != 0 ? now + millis : 0;
           outcome.allow(millis);
@@ -153,6 +156,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
 
         @Override
         public void deny(TopicAccessError error) {
+          if (LOG.isTraceEnabled()) LOG.trace("{}: denied with {}", nexus, error);
           outcome.deny(error); 
         }
       });

@@ -87,7 +87,7 @@ public final class HttpProxyAuth implements NestedAuthenticator {
         switch (statusCode) {
           case 200:
           case 201:
-            handleNormalResponse(topic, res, outcome);
+            handleNormalResponse(nexus, topic, res, outcome);
             break;
             
           default:
@@ -102,16 +102,16 @@ public final class HttpProxyAuth implements NestedAuthenticator {
     });
   }
   
-  private void handleNormalResponse(String topic, HttpResponse res, AuthenticationOutcome outcome) {
+  private void handleNormalResponse(EdgeNexus nexus, String topic, HttpResponse res, AuthenticationOutcome outcome) {
     try {
       final String resJson = EntityUtils.toString(res.getEntity());
       final ProxyAuthResponse authRes = gson.fromJson(resJson, ProxyAuthResponse.class);
       if (authRes.isAllow()) {
         outcome.allow(authRes.getAllowMillis());
-        if (LOG.isDebugEnabled()) LOG.debug("Allowing topic {} for {} ms", topic, authRes.getAllowMillis());
+        if (LOG.isDebugEnabled()) LOG.debug("{}: allowing topic {} for {} ms", nexus, topic, authRes.getAllowMillis());
       } else {
         outcome.forbidden(topic);
-        if (LOG.isDebugEnabled()) LOG.debug("Denying topic {}", topic);
+        if (LOG.isDebugEnabled()) LOG.debug("{}: denying topic {}", nexus, topic);
       }
     } catch (Throwable e) {
       outcome.forbidden(topic);
