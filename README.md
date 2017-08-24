@@ -255,3 +255,4 @@ The most common use case for direct messaging is communicating errors back to th
 # Module Documentation
 * [Standalone](https://github.com/William-Hill-Community/flywheel/tree/master/standalone) - Building, configuring and running a Flywheel instance using [Docker](https://www.docker.com/) or directly from the command line.
 * [Kafka backplane](https://github.com/William-Hill-Community/flywheel/tree/master/backplane-kafka) - Setting up a Flywheel cluster using a [Kafka](https://kafka.apache.org) backplane.
+* [Remote SDK for JavaScript](https://github.com/William-Hill-Community/flywheel/tree/master/remote-js) - SDK for HTML5 compliant web browsers, wrapping a stock `WebSocket` API.
