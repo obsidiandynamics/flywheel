@@ -18,9 +18,9 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   }
   
   private static final class ActiveTopic {
-    long expiryTime;
+    volatile long expiryTime;
     
-    long lastQueriedTime;
+    volatile long lastQueriedTime;
 
     long getRemainingMillis(long now) {
       return expiryTime == 0 ? Long.MAX_VALUE : expiryTime - now;
@@ -32,8 +32,6 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   }
   
   private final Map<EdgeNexus, ActiveTopics> nexusTopics = new ConcurrentHashMap<>();
-  
-  private final Object nexusTopicsLock = new Object();
   
   private final CachedAuthenticatorConfig config;
   
@@ -67,7 +65,20 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   private void cycle() {
     final long now = System.currentTimeMillis();
     for (Map.Entry<EdgeNexus, ActiveTopics> nexusTopicEntry : nexusTopics.entrySet()) {
-      for (Map.Entry<String, ActiveTopic> activeTopicEntry : nexusTopicEntry.getValue().map.entrySet()) {
+      final EdgeNexus nexus = nexusTopicEntry.getKey();
+      final ActiveTopics activeTopics = nexusTopicEntry.getValue();
+      final Collection<String> currentlyActive = connector.getActiveTopics(nexus);
+      
+      for (Map.Entry<String, ActiveTopic> activeTopicEntry : activeTopics.map.entrySet()) {
+        final String topic = activeTopicEntry.getKey();
+        if (! currentlyActive.contains(topic)) {
+          activeTopics.map.remove(topic);
+          if (activeTopics.map.isEmpty()) {
+            nexusTopics.remove(nexus);
+          }
+          break;
+        }
+        
         if (pendingQueries.get() >= config.maxPendingQueries) return;
         
         final ActiveTopic activeTopic = activeTopicEntry.getValue();
@@ -75,8 +86,6 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
         if (remaining < config.queryBeforeExpiryMillis) {
           final long queriedAgo = activeTopic.getQueriedAgo(now);
           if (queriedAgo > config.minQueryIntervalMillis) {
-            final EdgeNexus nexus = nexusTopicEntry.getKey();
-            final String topic = activeTopicEntry.getKey();
             if (LOG.isDebugEnabled()) LOG.debug("{}: {} ms remaining for {}; querying delegate", nexus, remaining, topic);
             query(nexus, topic, nexusTopicEntry.getValue(), activeTopic);
           }
@@ -113,7 +122,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   }
   
   private ActiveTopic update(EdgeNexus nexus, String topic) {
-    final ActiveTopics topics = Maps.putAtomic(nexusTopicsLock, nexusTopics, nexus, ActiveTopics::new);
+    final ActiveTopics topics = Maps.putAtomic(nexusTopics, nexusTopics, nexus, ActiveTopics::new);
     return Maps.putAtomic(topics, topics.map, topic, ActiveTopic::new);
   }
   
