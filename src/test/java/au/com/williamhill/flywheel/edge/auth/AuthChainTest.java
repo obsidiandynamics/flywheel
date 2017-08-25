@@ -43,6 +43,12 @@ public final class AuthChainTest {
   }
   
   @Test
+  public void testOnlyPlausible() {
+    alw("foo");
+    assertOutcome("+");
+  }
+  
+  @Test
   public void testSimulatedDefault() {
     alw("");
     dny("$remote");
