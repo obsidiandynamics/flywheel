@@ -125,8 +125,8 @@ public final class CachedAuthenticatorTest {
     c.verify(nexus, "topic1", outcome);
     c.verify(nexus, "topic2", outcome);
     verify(outcome, times(2)).allow(eq(1000L));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
+    verify(spied).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
     
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
@@ -238,7 +238,7 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(1000L));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
@@ -269,7 +269,7 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(1000L));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
