@@ -6,10 +6,13 @@ import java.util.concurrent.atomic.*;
 
 import org.slf4j.*;
 
+import com.obsidiandynamics.yconf.*;
+
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.util.*;
 
+@Y
 public final class CachedAuthenticator extends Thread implements Authenticator {
   private static final Logger LOG = LoggerFactory.getLogger(CachedAuthenticator.class);
   
@@ -43,7 +46,8 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   
   private volatile boolean running = true;
   
-  public CachedAuthenticator(CachedAuthenticatorConfig config, NestedAuthenticator delegate) {
+  public CachedAuthenticator(@YInject(name="config") CachedAuthenticatorConfig config, 
+                             @YInject(name="delegate") NestedAuthenticator delegate) {
     super(String.format("CachedAuthenticatorWatchdog[runInterval=%dms]", config.runIntervalMillis));
     this.config = config;
     this.delegate = delegate;
@@ -157,7 +161,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
       delegate.verify(nexus, topic, new AuthenticationOutcome() {
         @Override
         public void allow(long millis) {
-          if (LOG.isTraceEnabled()) LOG.trace("{}: allowed for {} ms", nexus, millis);
+          if (LOG.isDebugEnabled()) LOG.debug("{}: allowed for {} ms", nexus, millis);
           final ActiveTopic activeTopic = update(nexus, topic);
           activeTopic.lastQueriedTime = now;
           activeTopic.expiryTime = millis != 0 ? now + millis : 0;
@@ -166,7 +170,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
 
         @Override
         public void deny(TopicAccessError error) {
-          if (LOG.isTraceEnabled()) LOG.trace("{}: denied with {}", nexus, error);
+          if (LOG.isDebugEnabled()) LOG.debug("{}: denied with {}", nexus, error);
           outcome.deny(error); 
         }
       });

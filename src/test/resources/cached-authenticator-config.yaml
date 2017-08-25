@@ -1,0 +1,7 @@
+config:
+  runIntervalMillis: 1
+  queryBeforeExpiryMillis: 2
+  minQueryIntervalMillis: 3
+  maxPendingQueries: 4
+delegate:
+  type: au.com.williamhill.flywheel.edge.auth.NoOpDelegate

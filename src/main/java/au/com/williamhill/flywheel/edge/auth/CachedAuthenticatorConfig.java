@@ -1,12 +1,19 @@
 package au.com.williamhill.flywheel.edge.auth;
 
+import com.obsidiandynamics.yconf.*;
+
+@Y
 public class CachedAuthenticatorConfig {
+  @YInject
   long runIntervalMillis = 1000;
   
+  @YInject
   long queryBeforeExpiryMillis = 10_000;
   
+  @YInject
   long minQueryIntervalMillis = 10_000;
   
+  @YInject
   int maxPendingQueries = 100;
 
   public CachedAuthenticatorConfig withRunIntervalMillis(long runIntervalMillis) {
