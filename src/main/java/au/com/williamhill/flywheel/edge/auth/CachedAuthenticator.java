@@ -23,7 +23,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   private static final class ActiveTopic {
     volatile long expiryTime;
     
-    volatile long lastQueriedTime;
+    volatile long lastQueriedTime = System.currentTimeMillis();
 
     long getRemainingMillis(long now) {
       return expiryTime == 0 ? Long.MAX_VALUE : expiryTime - now;
@@ -163,7 +163,6 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
         public void allow(long millis) {
           if (LOG.isDebugEnabled()) LOG.debug("{}: allowed for {} ms", nexus, millis);
           final ActiveTopic activeTopic = update(nexus, topic);
-          activeTopic.lastQueriedTime = now;
           activeTopic.expiryTime = millis != 0 ? now + millis : 0;
           outcome.allow(millis);
         }

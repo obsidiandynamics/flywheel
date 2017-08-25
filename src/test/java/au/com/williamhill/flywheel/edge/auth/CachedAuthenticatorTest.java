@@ -53,34 +53,38 @@ public final class CachedAuthenticatorTest {
     c = new CachedAuthenticator(new CachedAuthenticatorConfig().withRunIntervalMillis(1000), spied);
     final AuthenticationOutcome outcome = mock(AuthenticationOutcome.class);
     final EdgeNexus nexus = createNexus();
-    c.attach(mock(AuthConnector.class));
+    final AuthConnector connector = mock(AuthConnector.class);
+    when(connector.getActiveTopics(eq(nexus))).thenReturn(Collections.singleton("topic"));
+    c.attach(connector);
     c.verify(nexus, "topic", outcome);
-    verify(outcome).allow(eq(30000L));
-    verify(spied).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(outcome, times(1)).allow(eq(30000L));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
     TestSupport.sleep(1);
     reset(outcome, spied);
     c.verify(nexus, "topic", outcome);
-    verify(outcome).allow(AdditionalMatchers.leq(30000L));
+    verify(outcome, times(1)).allow(AdditionalMatchers.leq(30000L));
     verifyNoMoreInteractions(spied);
   }
 
   @Test
   public void testAllowIndefinite() throws Exception {
-    final MockAuthenticator mock = new MockAuthenticator(0L);
+    final MockAuthenticator mock = new MockAuthenticator(AuthenticationOutcome.INDEFINITE);
     final NestedAuthenticator spied = spy(mock);
     c = new CachedAuthenticator(new CachedAuthenticatorConfig().withRunIntervalMillis(1000), spied);
     final AuthenticationOutcome outcome = mock(AuthenticationOutcome.class);
     final EdgeNexus nexus = createNexus();
-    c.attach(mock(AuthConnector.class));
+    final AuthConnector connector = mock(AuthConnector.class);
+    when(connector.getActiveTopics(eq(nexus))).thenReturn(Collections.singleton("topic"));
+    c.attach(connector);
     c.verify(nexus, "topic", outcome);
-    verify(outcome).allow(eq(0L));
-    verify(spied).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(outcome, times(1)).allow(eq(AuthenticationOutcome.INDEFINITE));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
     TestSupport.sleep(1);
     reset(outcome, spied);
     c.verify(nexus, "topic", outcome);
-    verify(outcome).allow(eq(0L));
+    verify(outcome, times(1)).allow(eq(AuthenticationOutcome.INDEFINITE));
     verifyNoMoreInteractions(spied);
   }
 
@@ -92,9 +96,14 @@ public final class CachedAuthenticatorTest {
     final AuthenticationOutcome outcome = mock(AuthenticationOutcome.class);
     final EdgeNexus nexus = createNexus();
     c.attach(mock(AuthConnector.class));
+    
     c.verify(nexus, "topic", outcome);
-    verify(outcome).deny(notNull(TopicAccessError.class));
-    verify(spied).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(outcome, times(1)).deny(notNull(TopicAccessError.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    
+    c.verify(nexus, "topic", outcome);
+    verify(outcome, times(2)).deny(notNull(TopicAccessError.class));
+    verify(spied, times(2)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
     assertNotNull(c.toString());
   }
@@ -116,8 +125,8 @@ public final class CachedAuthenticatorTest {
     c.verify(nexus, "topic1", outcome);
     c.verify(nexus, "topic2", outcome);
     verify(outcome, times(2)).allow(eq(1000L));
-    verify(spied).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
     
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
@@ -153,8 +162,8 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic1", outcome);
     c.verify(nexus, "topic2", outcome);
-    verify(delegateProxy).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(delegateProxy).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(delegateProxy, times(1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
+    verify(delegateProxy, times(1)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
     verify(outcome, times(0)).allow(eq(1000L));
 
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
