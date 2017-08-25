@@ -45,6 +45,26 @@ public final class MapsTest {
     final Object put = Maps.putAtomic(map, map, "key", () -> inserted);
     assertSame(simulatedRaceCondition, put);
   }
+
+  @Test(expected=IllegalStateException.class)
+  public void testException() {
+    final Map<String, Object> map = new HashMap<String, Object>() {
+      private static final long serialVersionUID = 1L;
+      
+      private int calls;
+      
+      public Object get(Object key) {
+        if (calls == 0) {
+          calls++;
+          return null;
+        } else {
+          throw new IllegalStateException();
+        }
+      }
+    };
+    
+    Maps.putAtomic(map, map, "key", () -> "value");
+  }
   
   @Test
   public void testInsert() {
