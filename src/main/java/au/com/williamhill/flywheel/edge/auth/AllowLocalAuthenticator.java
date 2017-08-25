@@ -4,19 +4,19 @@ import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 
-@Y(AllowLocalAuth.Mapper.class)
-public final class AllowLocalAuth implements Authenticator {
+@Y(AllowLocalAuthenticator.Mapper.class)
+public final class AllowLocalAuthenticator implements Authenticator {
   public static final class Mapper implements TypeMapper {
     @Override public Object map(YObject y, Class<?> type) {
-      return INSTANCE;
+      return instance();
     }
   }
   
-  private static final AllowLocalAuth INSTANCE = new AllowLocalAuth();
+  private static final AllowLocalAuthenticator INSTANCE = new AllowLocalAuthenticator();
   
-  private AllowLocalAuth() {}
+  private AllowLocalAuthenticator() {}
   
-  public static AllowLocalAuth instance() { return INSTANCE; }
+  public static AllowLocalAuthenticator instance() { return INSTANCE; }
   
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {

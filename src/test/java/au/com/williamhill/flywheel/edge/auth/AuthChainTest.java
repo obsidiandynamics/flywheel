@@ -26,7 +26,7 @@ public final class AuthChainTest {
   }
   
   private void alw(String topicPrefix) {
-    chain.set(topicPrefix, AllowAllAuth.instance());
+    chain.set(topicPrefix, AllowAllAuthenticator.instance());
   }
   
   private void dny(String topicPrefix) {

@@ -4,23 +4,23 @@ import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 
-@Y(DenyAllAuth.Mapper.class)
-public final class DenyAllAuth implements Authenticator {
+@Y(AllowAllAuthenticator.Mapper.class)
+public final class AllowAllAuthenticator implements Authenticator {
   public static final class Mapper implements TypeMapper {
     @Override public Object map(YObject y, Class<?> type) {
-      return INSTANCE;
+      return instance();
     }
   }
   
-  private static final DenyAllAuth INSTANCE = new DenyAllAuth();
+  private static final AllowAllAuthenticator INSTANCE = new AllowAllAuthenticator();
   
-  private DenyAllAuth() {}
+  private AllowAllAuthenticator() {}
   
-  public static DenyAllAuth instance() { return INSTANCE; }
+  public static AllowAllAuthenticator instance() { return INSTANCE; }
   
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
-    outcome.forbidden(topic);
+    outcome.allow(AuthenticationOutcome.INDEFINITE);
   }
   
   @Override

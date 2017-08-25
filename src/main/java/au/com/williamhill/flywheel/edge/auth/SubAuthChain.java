@@ -17,8 +17,8 @@ public final class SubAuthChain extends AuthChain<SubAuthChain> {
   }
   
   private SubAuthChain registerDefaults() {
-    set("", AllowAllAuth.instance());
-    set(Flywheel.REMOTE_PREFIX, RemoteTopicAuth.instance());
+    set("", AllowAllAuthenticator.instance());
+    set(Flywheel.REMOTE_PREFIX, RemoteTopicAuthenticator.instance());
     return this;
   }
 }
