@@ -12,7 +12,7 @@ import org.slf4j.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
+import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.topic.*;
 
@@ -55,7 +55,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       for (MatchedAuthenticators match : matches) {
         for (Authenticator authenticator : match.authenticators) {
           authenticator.verify(nexus, match.topic, new AuthenticationOutcome() {
-            @Override public void allow() {
+            @Override public void allow(long millis) {
               complete();
             }
     
@@ -93,7 +93,13 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
     }
   }
   
-  public CombinedMatches get(Collection<String> topics) {
+  /**
+   *  Produces the combined set of matches for the given topics.
+   *  
+   *  @param topics The topics.
+   *  @return The combined matches.
+   */
+  public final CombinedMatches getMatches(Collection<String> topics) {
     if (topics.isEmpty()) return CombinedMatches.EMPTY;
     
     final List<MatchedAuthenticators> mappings = new ArrayList<>(topics.size());
@@ -104,6 +110,18 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       numAuthenticators += authenticators.size();
     }
     return new CombinedMatches(mappings, numAuthenticators);
+  }
+  
+  /**
+   *  Similar to {@link #getMatches(Collection)}, but optimised for single-topic use.
+   *  
+   *  @param topic The topic.
+   *  @return The matches for this topic.
+   */
+  public final CombinedMatches getMatches(String topic) {
+    final List<Authenticator> authenticators = get(topic);
+    final List<MatchedAuthenticators> mappings = Collections.singletonList(new MatchedAuthenticators(topic, authenticators));
+    return new CombinedMatches(mappings, authenticators.size());
   }
   
   public static final class NoAuthenticatorException extends RuntimeException {
@@ -139,11 +157,6 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
   }
   
   public final AuthChain<A> set(String topicPrefix, Authenticator authenticator) {
-    try {
-      authenticator.init();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
     filters.put(create(topicPrefix), authenticator);
     return this;
   }
@@ -159,21 +172,21 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       this.definite = definite;
     }
     
-    static Match common(String[] t1, String[] t2) {
-      final int extent = Math.min(t1.length, t2.length);
+    static Match common(String[] filter, String[] topic) {
+      final int extent = Math.min(filter.length, topic.length);
       
       boolean definite = true;
       int i;
       for (i = 0; i < extent; i++) {
-        if (t1[i].equals(t2[i])) {
-        } else if (t1[i].equals(SL_WILDCARD) || t2[i].equals(SL_WILDCARD)) {
+        if (filter[i].equals(topic[i])) {
+        } else if (topic[i].equals(SL_WILDCARD)) {
           definite = false;
         } else {
           break;
         }
       }
       
-      if (i != t1.length && i != t2.length) return INCOMPLETE;
+      if (i != filter.length && i != topic.length) return INCOMPLETE;
       
       return new Match(i, definite);
     }
@@ -216,7 +229,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
    *  them/apples them/#<p>
    *  them/apples +<p>
    *  
-   *  On the other hand, the filter 'them/apples' will no match the topic 'them/pears', as neither 
+   *  On the other hand, the filter 'them/apples' will not match the topic 'them/pears', as neither 
    *  completely consumes the other.<p>
    *  
    *  Multi-level wildcards are first stripped of the trailing '#' before being subjected to the 
@@ -234,10 +247,15 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
    *  'them/apples' matches 'them/#', as well as '#'.<p>
    *  
    *  Upon completion, this method yields <em>all</em> plausible matches, as well as the (equal) 
-   *  longest definite matches.
+   *  longest definite matches.<p>
+   *  
+   *  If no matches were found, a {@link NoAuthenticatorException} is thrown. This is an abnormal
+   *  condition, indicating that the chain wasn't set up properly (i.e. no root filter was
+   *  registered).
    *  
    *  @param topic The topic under consideration.
    *  @return The matching authenticators.
+   *  @exception NoAuthenticatorException If no matches were found.
    */
   public final List<Authenticator> get(String topic) {
     final Topic original = Topic.of(topic);
@@ -270,8 +288,9 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       throw new NoAuthenticatorException("No match for topic " + topic + ", filters=" + filters.keySet());
     }
     
-    definite.addAll(plausible);
-    return definite;
+    final List<Authenticator> all = definite;
+    all.addAll(plausible);
+    return all;
   }
   
   public final void validate() {

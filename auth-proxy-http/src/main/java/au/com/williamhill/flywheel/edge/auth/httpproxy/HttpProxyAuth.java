@@ -1,7 +1,6 @@
 package au.com.williamhill.flywheel.edge.auth.httpproxy;
 
 import java.io.*;
-import java.net.*;
 import java.security.*;
 
 import javax.net.ssl.*;
@@ -24,42 +23,28 @@ import com.google.gson.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator;
+import au.com.williamhill.flywheel.edge.auth.*;
 
 @Y
-public final class ProxyHttpAuth implements Authenticator {
-  private static final Logger LOG = LoggerFactory.getLogger(ProxyHttpAuth.class);
+public final class HttpProxyAuth implements NestedAuthenticator {
+  private static final Logger LOG = LoggerFactory.getLogger(HttpProxyAuth.class);
 
-  @YInject
-  URI uri;
-
-  @YInject
-  int poolSize = 8;
-  
-  @YInject
-  int timeoutMillis = 60_000;
+  private final HttpProxyAuthConfig config;
   
   private Gson gson;
 
   private CloseableHttpAsyncClient httpClient;
 
-  public ProxyHttpAuth withUri(URI uri) {
-    this.uri = uri;
-    return this;
+  public HttpProxyAuth(@YInject(name="config") HttpProxyAuthConfig config) {
+    this.config = config;
   }
-
-  public ProxyHttpAuth withPoolSize(int poolSize) {
-    this.poolSize = poolSize;
-    return this;
-  }
-
-  public ProxyHttpAuth withTimeoutMillis(int timeoutMillis) {
-    this.timeoutMillis = timeoutMillis;
-    return this;
+  
+  public HttpProxyAuthConfig getConfig() {
+    return config;
   }
 
   @Override
-  public void init() throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+  public void attach(AuthConnector connector) throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
     
     final HostnameVerifier hostnameVerifier = (s, sslSession) -> true;
@@ -68,15 +53,15 @@ public final class ProxyHttpAuth implements Authenticator {
         .register("http", NoopIOSessionStrategy.INSTANCE)
         .register("https", new SSLIOSessionStrategy(getSSLContext(), hostnameVerifier)).build();
 
-    final int selectInterval = Math.min(1000, timeoutMillis);
+    final int selectInterval = Math.min(1000, config.timeoutMillis);
     final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
                                                                          .setSelectInterval(selectInterval)
-                                                                         .setSoTimeout(timeoutMillis)
-                                                                         .setConnectTimeout(timeoutMillis)
+                                                                         .setSoTimeout(config.timeoutMillis)
+                                                                         .setConnectTimeout(config.timeoutMillis)
                                                                          .build());
     final PoolingNHttpClientConnectionManager cm = new PoolingNHttpClientConnectionManager(ioReactor, sslSessionStrategy);
-    cm.setMaxTotal(poolSize);
-    cm.setDefaultMaxPerRoute(poolSize);
+    cm.setMaxTotal(config.poolSize);
+    cm.setDefaultMaxPerRoute(config.poolSize);
 
     httpClient = HttpAsyncClients.custom()
         .setConnectionManager(cm)
@@ -93,7 +78,7 @@ public final class ProxyHttpAuth implements Authenticator {
     final ProxyAuthRequest authReq = new ProxyAuthRequest(nexus.getSession().getAuth(), topic);
     final String reqJson = gson.toJson(authReq);
     final StringEntity reqEntity = new StringEntity(reqJson, ContentType.APPLICATION_JSON);
-    final HttpPost post = new HttpPost(uri);
+    final HttpPost post = new HttpPost(config.uri);
     post.setEntity(reqEntity);
     post.setHeader("Accept", ContentType.APPLICATION_JSON.getMimeType());
     httpClient.execute(post, new FutureCallbackAdapter<HttpResponse>() {
@@ -102,7 +87,7 @@ public final class ProxyHttpAuth implements Authenticator {
         switch (statusCode) {
           case 200:
           case 201:
-            handleNormalResponse(topic, res, outcome);
+            handleNormalResponse(nexus, topic, res, outcome);
             break;
             
           default:
@@ -117,16 +102,16 @@ public final class ProxyHttpAuth implements Authenticator {
     });
   }
   
-  private void handleNormalResponse(String topic, HttpResponse res, AuthenticationOutcome outcome) {
+  private void handleNormalResponse(EdgeNexus nexus, String topic, HttpResponse res, AuthenticationOutcome outcome) {
     try {
       final String resJson = EntityUtils.toString(res.getEntity());
       final ProxyAuthResponse authRes = gson.fromJson(resJson, ProxyAuthResponse.class);
-      if (authRes.getAllowMillis() != null) {
-        outcome.allow();
-        if (LOG.isDebugEnabled()) LOG.debug("Allowing topic {} for {} ms", topic, authRes.getAllowMillis());
+      if (authRes.isAllow()) {
+        outcome.allow(authRes.getAllowMillis());
+        if (LOG.isDebugEnabled()) LOG.debug("{}: allowing topic {} for {} ms", nexus, topic, authRes.getAllowMillis());
       } else {
         outcome.forbidden(topic);
-        if (LOG.isDebugEnabled()) LOG.debug("Denying topic {}", topic);
+        if (LOG.isDebugEnabled()) LOG.debug("{}: denying topic {}", nexus, topic);
       }
     } catch (Throwable e) {
       outcome.forbidden(topic);

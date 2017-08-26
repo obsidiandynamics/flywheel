@@ -1,0 +1,4 @@
+- type: au.com.williamhill.flywheel.edge.auth.AllowAllAuthenticator
+- type: au.com.williamhill.flywheel.edge.auth.AllowLocalAuthenticator
+- type: au.com.williamhill.flywheel.edge.auth.DenyAllAuthenticator
+- type: au.com.williamhill.flywheel.edge.auth.RemoteTopicAuthenticator

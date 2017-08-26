@@ -12,8 +12,9 @@ public interface Backplane extends AutoCloseable {
    *  Installs this backplane, attaching it to the node-local connector.
    *  
    *  @param connector The connector to attach to.
+   *  @throws Exception If an error occurs.
    */
-  void attach(BackplaneConnector connector);
+  void attach(BackplaneConnector connector) throws Exception;
   
   /**
    *  Invoked when a text message is published on the local node. The backplane is responsible

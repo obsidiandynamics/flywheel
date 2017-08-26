@@ -1,0 +1,5 @@
+pub:
+  topic: {type: au.com.williamhill.flywheel.edge.auth.AllowAllAuthenticator}
+  
+sub:
+  topic: {type: au.com.williamhill.flywheel.edge.auth.AllowAllAuthenticator}

@@ -8,7 +8,7 @@ import org.junit.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
-import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
+import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 
 public final class AuthChainTest {
@@ -26,7 +26,7 @@ public final class AuthChainTest {
   }
   
   private void alw(String topicPrefix) {
-    chain.set(topicPrefix, AllowAllAuth.instance());
+    chain.set(topicPrefix, AllowAllAuthenticator.instance());
   }
   
   private void dny(String topicPrefix) {
@@ -40,6 +40,12 @@ public final class AuthChainTest {
   @Test(expected=NoAuthenticatorException.class)
   public void testBlank() {
     assertOutcome("#");
+  }
+  
+  @Test
+  public void testOnlyPlausible() {
+    alw("foo");
+    assertOutcome("+");
   }
   
   @Test
@@ -243,7 +249,7 @@ public final class AuthChainTest {
         @Override public void deny(TopicAccessError error) {
           errors.add(error.getDescription());
         }
-        @Override public void allow() {}
+        @Override public void allow(long millis) {}
       });
     }
     return errors;

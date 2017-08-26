@@ -6,19 +6,19 @@ import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 
-@Y(RemoteTopicAuth.Mapper.class)
-public final class RemoteTopicAuth implements Authenticator {
+@Y(RemoteTopicAuthenticator.Mapper.class)
+public final class RemoteTopicAuthenticator implements Authenticator {
   public static final class Mapper implements TypeMapper {
     @Override public Object map(YObject y, Class<?> type) {
-      return INSTANCE;
+      return instance();
     }
   }
   
-  private static final RemoteTopicAuth INSTANCE = new RemoteTopicAuth();
+  private static final RemoteTopicAuthenticator INSTANCE = new RemoteTopicAuthenticator();
   
-  private RemoteTopicAuth() {}
+  private RemoteTopicAuthenticator() {}
   
-  public static RemoteTopicAuth instance() { return INSTANCE; }
+  public static RemoteTopicAuthenticator instance() { return INSTANCE; }
   
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
@@ -30,7 +30,7 @@ public final class RemoteTopicAuth implements Authenticator {
     
     final String allowedTopicPrefix = Flywheel.getSessionTopicPrefix(sessionId);
     if (topic.startsWith(allowedTopicPrefix)) {
-      outcome.allow();
+      outcome.allow(AuthenticationOutcome.INDEFINITE);
     } else{
       outcome.deny(new TopicAccessError(String.format("Restricted to %s/#", allowedTopicPrefix), topic));
     }

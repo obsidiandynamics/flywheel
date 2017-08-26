@@ -125,6 +125,45 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
       @Override public void onPong(E endpoint, ByteBuffer data) {}
     });
     
+    initAuthChains();
+    initBackplane();
+    initPlugins();
+  }
+  
+  private void initAuthChains() throws Exception {
+    final AuthConnector pubConnector = new AuthConnector() {
+      @Override public Collection<String> getActiveTopics(EdgeNexus nexus) {
+        return Collections.emptyList();
+      }
+      @Override public void expireTopic(EdgeNexus nexus, String topic) {
+        if (LOG.isDebugEnabled()) LOG.debug("{}: expiring topic {}", nexus, topic);
+      }
+    };
+    for (Authenticator auth : pubAuthChain.getFilters().values()) {
+      auth.attach(pubConnector);
+    }
+    
+    final AuthConnector subConnector = new AuthConnector() {
+      @Override public Collection<String> getActiveTopics(EdgeNexus nexus) {
+        return nexus.getSession().getSubscription().getTopics();
+      }
+      @Override public void expireTopic(EdgeNexus nexus, String topic) {
+        if (nexus.getSession().getSubscription().getTopics().contains(topic)) {
+          if (LOG.isDebugEnabled()) LOG.debug("{}: expiring topic {}", nexus, topic);
+          try {
+            nexus.close();
+          } catch (Exception e) {
+            LOG.warn("Error closing nexus", e);
+          }
+        }
+      }
+    };
+    for (Authenticator auth : subAuthChain.getFilters().values()) {
+      auth.attach(subConnector);
+    }
+  }
+  
+  private void initBackplane() throws Exception {
     backplane.attach(this);
     addTopicListener(new TopicLambdaListener() {
       @Override public void onPublish(EdgeNexus nexus, PublishTextFrame pub) {
@@ -139,7 +178,9 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
         }
       }
     });
-    
+  }
+  
+  private void initPlugins() throws Exception {
     for (Plugin plugin : plugins) {
       plugin.onRun(this);
     }
@@ -218,7 +259,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   }
   
   private void authenticateSubTopics(EdgeNexus nexus, UUID messageId, Set<String> topics, Runnable onSuccess) {
-    final CombinedMatches combined = subAuthChain.get(topics);
+    final CombinedMatches combined = subAuthChain.getMatches(topics);
     combined.invokeAll(nexus, errors -> {
       if (errors.isEmpty()) {
         onSuccess.run();
@@ -245,7 +286,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
   }
   
   private void authenticatePubTopic(EdgeNexus nexus, String topic, Runnable onSuccess) {
-    final CombinedMatches combined = pubAuthChain.get(Collections.singleton(topic));
+    final CombinedMatches combined = pubAuthChain.getMatches(topic);
     combined.invokeAll(nexus, errors -> {
       if (errors.isEmpty()) {
         onSuccess.run();
