@@ -28,11 +28,11 @@ public final class PubSubAuthConfigTest {
         .fromStream(PubSubAuthConfigTest.class.getClassLoader().getResourceAsStream("auth-chain-config.yaml"))
         .map(AuthChainSet.class);
     
-    doAssert(chains.pub);
-    doAssert(chains.sub);
+    assertChain(chains.pub);
+    assertChain(chains.sub);
   }
   
-  private static void doAssert(AuthChain<?> chain) {
+  private static void assertChain(AuthChain<?> chain) {
     assertNotNull(chain);
     assertNotNull(chain.toString());
     final CombinedMatches matches = chain.getMatches(Collections.singleton("topic"));
