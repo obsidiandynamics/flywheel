@@ -77,7 +77,7 @@ public final class HttpProxyAuth implements NestedAuthenticator {
 
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
-    final ProxyAuthRequest authReq = new ProxyAuthRequest(nexus.getSession().getAuth(), topic);
+    final ProxyAuthRequest authReq = new ProxyAuthRequest(nexus.getSession().getCredentials(), topic);
     final String reqJson = gson.toJson(authReq);
     final StringEntity reqEntity = new StringEntity(reqJson, ContentType.APPLICATION_JSON);
     final HttpPost post = new HttpPost(config.uri);

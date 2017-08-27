@@ -9,9 +9,9 @@ import au.com.williamhill.flywheel.frame.*;
 public final class ProxyAuthReqResTest {
   @Test
   public void testRequest() {
-    final BasicAuth auth = new BasicAuth("user", "pass");
+    final BasicAuthCredentials auth = new BasicAuthCredentials("user", "pass");
     final ProxyAuthRequest req = new ProxyAuthRequest(auth, "topic");
-    assertEquals(auth, req.getAuth());
+    assertEquals(auth, req.getCredentials());
     assertEquals("topic", req.getTopic());
     assertNotNull(req.toString());
   }

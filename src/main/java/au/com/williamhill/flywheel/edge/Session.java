@@ -9,7 +9,7 @@ public final class Session {
   
   private volatile String sessionId;
   
-  private volatile Auth auth;
+  private volatile AuthCredentials credentials;
   
   private volatile Subscription subscription = () -> Collections.emptySet();
   
@@ -32,12 +32,12 @@ public final class Session {
   }
   
   @SuppressWarnings("unchecked")
-  public <A extends Auth> A getAuth() {
-    return (A) auth;
+  public <C extends AuthCredentials> C getCredentials() {
+    return (C) credentials;
   }
   
-  public void setAuth(Auth auth) {
-    this.auth = auth;
+  public void setCredentials(AuthCredentials credentials) {
+    this.credentials = credentials;
   }
   
   @SuppressWarnings("unchecked")

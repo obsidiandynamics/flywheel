@@ -199,7 +199,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
     }
     
     if (bind.getAuth() != null) {
-      session.setAuth(bind.getAuth());
+      session.setCredentials(bind.getAuth());
     }
     
     final String newSessionId;
@@ -265,7 +265,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
         onSuccess.run();
       } else {
         if (loggingEnabled) LOG.warn("{}: subscriber authentication failed with errors {}, auth: {}", 
-                                     nexus, errors, nexus.getSession().getAuth());
+                                     nexus, errors, nexus.getSession().getCredentials());
         nexus.send(new BindResponseFrame(messageId, errors));
       }
     });
@@ -292,7 +292,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
         onSuccess.run();
       } else {
         if (loggingEnabled) LOG.warn("{}: publisher authentication failed with errors {}, auth: {}", 
-                                     nexus, errors, nexus.getSession().getAuth());
+                                     nexus, errors, nexus.getSession().getCredentials());
         sendErrors(nexus, errors);
       }
     });

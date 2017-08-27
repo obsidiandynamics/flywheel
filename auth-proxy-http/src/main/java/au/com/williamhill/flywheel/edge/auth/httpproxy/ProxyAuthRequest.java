@@ -3,17 +3,17 @@ package au.com.williamhill.flywheel.edge.auth.httpproxy;
 import au.com.williamhill.flywheel.frame.*;
 
 public final class ProxyAuthRequest {
-  private Auth auth;
+  private AuthCredentials credentials;
   
   private String topic;
   
-  public ProxyAuthRequest(Auth auth, String topic) {
-    this.auth = auth;
+  public ProxyAuthRequest(AuthCredentials credentials, String topic) {
+    this.credentials = credentials;
     this.topic = topic;
   }
 
-  public Auth getAuth() {
-    return auth;
+  public AuthCredentials getCredentials() {
+    return credentials;
   }
 
   public String getTopic() {
@@ -22,6 +22,6 @@ public final class ProxyAuthRequest {
 
   @Override
   public String toString() {
-    return "ProxyAuthRequest [auth=" + auth + ", topic=" + topic + "]";
+    return "ProxyAuthRequest [credentials=" + credentials + ", topic=" + topic + "]";
   }
 }

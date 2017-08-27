@@ -30,7 +30,7 @@ public final class WireTest implements TestSupport {
   public void testBind() {
     final Wire wire = new Wire(false, LocationHint.UNSPECIFIED);
     final UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426655440000");
-    final BindFrame orig = new BindFrame(id, "123", new BearerAuth("xyz"), 
+    final BindFrame orig = new BindFrame(id, "123", new BearerAuthCredentials("xyz"), 
                                          new String[]{"a", "a/b", "a/b/c"}, new String[0], "some-meta");
     final String enc = wire.encode(orig);
     log("encoded: '%s'\n", enc);

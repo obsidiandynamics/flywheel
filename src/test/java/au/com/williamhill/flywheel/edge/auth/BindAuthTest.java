@@ -86,7 +86,7 @@ public final class BindAuthTest extends AbstractAuthTest {
     // test with the right user/pass on the correct topic; should pass
     final BindFrame bind1 = new BindFrame(UUID.randomUUID(), 
                                           sessionId,
-                                          new BasicAuth("user", "pass"),
+                                          new BasicAuthCredentials("user", "pass"),
                                           new String[]{"a/b/c",
                                                        Flywheel.getRxTopicPrefix(sessionId) + "/#",
                                                        "custom/basic/1"},
@@ -98,7 +98,7 @@ public final class BindAuthTest extends AbstractAuthTest {
     // test with a wrong password; should fail
     final BindFrame bind2 = new BindFrame(UUID.randomUUID(), 
                                           sessionId,
-                                          new BasicAuth("user", "badpass"),
+                                          new BasicAuthCredentials("user", "badpass"),
                                           new String[]{"a/b/c",
                                                        Flywheel.getRxTopicPrefix(sessionId) + "/#",
                                                        "custom/basic/2"},
@@ -111,7 +111,7 @@ public final class BindAuthTest extends AbstractAuthTest {
     // test with a wrong password; should fail
     final BindFrame bind3 = new BindFrame(UUID.randomUUID(), 
                                           sessionId,
-                                          new BasicAuth("user", "badpass"),
+                                          new BasicAuthCredentials("user", "badpass"),
                                           new String[]{"custom/basic"},
                                           new String[]{},
                                           null);
@@ -133,7 +133,7 @@ public final class BindAuthTest extends AbstractAuthTest {
     // test with the right token on the correct topic; should pass
     final BindFrame bind5 = new BindFrame(UUID.randomUUID(), 
                                           sessionId,
-                                          new BearerAuth("token"),
+                                          new BearerAuthCredentials("token"),
                                           new String[]{"custom/bearer/1"},
                                           new String[]{},
                                           null);
@@ -143,7 +143,7 @@ public final class BindAuthTest extends AbstractAuthTest {
     // bind to a wildcard with the wrong token; should fail with multiple errors
     final BindFrame bind6 = new BindFrame(UUID.randomUUID(), 
                                           sessionId,
-                                          new BearerAuth("badtoken"),
+                                          new BearerAuthCredentials("badtoken"),
                                           new String[]{"#"},
                                           new String[]{},
                                           null);

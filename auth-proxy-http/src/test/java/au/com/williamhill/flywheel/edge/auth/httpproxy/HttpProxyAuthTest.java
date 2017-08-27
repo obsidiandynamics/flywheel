@@ -69,7 +69,7 @@ public final class HttpProxyAuthTest {
                         .withBody(gson.toJson(expected))));
 
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
-    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    nexus.getSession().setCredentials(new BasicAuthCredentials("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
@@ -93,7 +93,7 @@ public final class HttpProxyAuthTest {
                         .withBody(gson.toJson(expected))));
 
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
-    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    nexus.getSession().setCredentials(new BasicAuthCredentials("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
@@ -116,7 +116,7 @@ public final class HttpProxyAuthTest {
                         .withBody(gson.toJson(expected))));
 
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
-    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    nexus.getSession().setCredentials(new BasicAuthCredentials("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
@@ -136,7 +136,7 @@ public final class HttpProxyAuthTest {
                         .withStatus(404)));
 
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
-    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    nexus.getSession().setCredentials(new BasicAuthCredentials("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
@@ -158,7 +158,7 @@ public final class HttpProxyAuthTest {
                         .withBody("}{")));
 
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
-    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    nexus.getSession().setCredentials(new BasicAuthCredentials("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
@@ -182,7 +182,7 @@ public final class HttpProxyAuthTest {
                         .withBody("")));
 
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
-    nexus.getSession().setAuth(new BasicAuth("user", "pass"));
+    nexus.getSession().setCredentials(new BasicAuthCredentials("user", "pass"));
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 

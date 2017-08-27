@@ -134,7 +134,7 @@ public final class PubAuthTest extends AbstractAuthTest {
     // bind custom/basic with the wrong password
     assertTrue(remoteNexus.bind(new BindFrame(UUID.randomUUID(), 
                                               sessionId,
-                                              new BasicAuth("user", "badpass"),
+                                              new BasicAuthCredentials("user", "badpass"),
                                               new String[] {customBasic, customBasic + "/#"},
                                               new String[]{},
                                               null)).get().isSuccess());
@@ -159,7 +159,7 @@ public final class PubAuthTest extends AbstractAuthTest {
     // bind custom/bearer with the wrong password
     assertTrue(remoteNexus.bind(new BindFrame(UUID.randomUUID(), 
                                               sessionId,
-                                              new BearerAuth("badtoken"),
+                                              new BearerAuthCredentials("badtoken"),
                                               new String[] {customBearer, customBearer + "/#"},
                                               new String[]{},
                                               null)).get().isSuccess());
@@ -176,7 +176,7 @@ public final class PubAuthTest extends AbstractAuthTest {
     // bind custom/basic with the right password
     assertTrue(remoteNexus.bind(new BindFrame(UUID.randomUUID(), 
                                               sessionId,
-                                              new BasicAuth("user", "pass"),
+                                              new BasicAuthCredentials("user", "pass"),
                                               new String[] {customBasic, customBasic + "/#"},
                                               new String[]{},
                                               null)).get().isSuccess());
@@ -199,7 +199,7 @@ public final class PubAuthTest extends AbstractAuthTest {
     // bind custom/bearer with the right token
     assertTrue(remoteNexus.bind(new BindFrame(UUID.randomUUID(), 
                                               sessionId,
-                                              new BearerAuth("token"),
+                                              new BearerAuthCredentials("token"),
                                               new String[] {customBearer, customBearer + "/#"},
                                               new String[]{},
                                               null)).get().isSuccess());

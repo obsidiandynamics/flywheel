@@ -1,13 +1,13 @@
 package au.com.williamhill.flywheel.frame;
 
-public final class BasicAuth implements Auth {
+public final class BasicAuthCredentials implements AuthCredentials {
   public static String JSON_TYPE_NAME = "Basic";
   
   private final String username;
   
   private final String password;
 
-  public BasicAuth(String username, String password) {
+  public BasicAuthCredentials(String username, String password) {
     this.username = username;
     this.password = password;
   }
@@ -37,7 +37,7 @@ public final class BasicAuth implements Auth {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    BasicAuth other = (BasicAuth) obj;
+    BasicAuthCredentials other = (BasicAuthCredentials) obj;
     if (password == null) {
       if (other.password != null)
         return false;

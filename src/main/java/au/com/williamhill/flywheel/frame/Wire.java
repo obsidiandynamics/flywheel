@@ -33,9 +33,9 @@ public final class Wire {
                                     .registerSubtype(GeneralError.class, GeneralError.JSON_TYPE_NAME)
                                     .registerSubtype(TopicAccessError.class, TopicAccessError.JSON_TYPE_NAME))
         .registerTypeAdapterFactory(RuntimeTypeAdapterFactory
-                                    .of(Auth.class, "type")
-                                    .registerSubtype(BasicAuth.class, BasicAuth.JSON_TYPE_NAME)
-                                    .registerSubtype(BearerAuth.class, BearerAuth.JSON_TYPE_NAME));
+                                    .of(AuthCredentials.class, "type")
+                                    .registerSubtype(BasicAuthCredentials.class, BasicAuthCredentials.JSON_TYPE_NAME)
+                                    .registerSubtype(BearerAuthCredentials.class, BearerAuthCredentials.JSON_TYPE_NAME));
     if (prettyPrinting) builder.setPrettyPrinting();
     gson = builder.disableHtmlEscaping().create();
   }

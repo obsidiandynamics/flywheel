@@ -7,7 +7,7 @@ public final class BindFrame extends IdFrame implements TextEncodedFrame {
   
   private String sessionId;
   
-  private Auth auth;
+  private AuthCredentials auth;
   
   private String[] subscribe;
   
@@ -19,7 +19,7 @@ public final class BindFrame extends IdFrame implements TextEncodedFrame {
     this(null, null, null, null, null, null);
   }
 
-  public BindFrame(UUID messageId, String sessionId, Auth auth, 
+  public BindFrame(UUID messageId, String sessionId, AuthCredentials auth, 
                    String[] subscribe, String[] unsubscribe, Object metadata) {
     super(messageId);
     this.sessionId = sessionId;
@@ -48,11 +48,11 @@ public final class BindFrame extends IdFrame implements TextEncodedFrame {
     return this;
   }
   
-  public Auth getAuth() {
+  public AuthCredentials getAuth() {
     return auth;
   }
   
-  public BindFrame withAuth(Auth auth) {
+  public BindFrame withAuth(AuthCredentials auth) {
     this.auth = auth;
     return this;
   }

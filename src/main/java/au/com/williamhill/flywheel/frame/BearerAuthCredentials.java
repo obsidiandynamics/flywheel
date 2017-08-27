@@ -1,11 +1,11 @@
 package au.com.williamhill.flywheel.frame;
 
-public final class BearerAuth implements Auth {
+public final class BearerAuthCredentials implements AuthCredentials {
   public static String JSON_TYPE_NAME = "Bearer";
   
   private final String token;
   
-  public BearerAuth(String token) {
+  public BearerAuthCredentials(String token) {
     this.token = token;
   }
 
@@ -29,7 +29,7 @@ public final class BearerAuth implements Auth {
       return false;
     if (getClass() != obj.getClass())
       return false;
-    BearerAuth other = (BearerAuth) obj;
+    BearerAuthCredentials other = (BearerAuthCredentials) obj;
     if (token == null) {
       if (other.token != null)
         return false;
