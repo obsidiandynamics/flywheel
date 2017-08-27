@@ -29,4 +29,9 @@ public class HttpStubAuthConfig {
     this.timeoutMillis = timeoutMillis;
     return this;
   }
+
+  @Override
+  public String toString() {
+    return "HttpStubAuthConfig [uri: " + uri + ", poolSize: " + poolSize + ", timeoutMillis: " + timeoutMillis + "]";
+  }
 }

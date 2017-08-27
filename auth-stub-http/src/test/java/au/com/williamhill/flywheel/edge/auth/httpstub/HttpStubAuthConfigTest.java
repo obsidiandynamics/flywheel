@@ -19,6 +19,8 @@ public final class HttpStubAuthConfigTest {
       assertEquals(new URI("http://localhost:8090/auth"), auth.getConfig().uri);
       assertEquals(4, auth.getConfig().poolSize);
       assertEquals(30000, auth.getConfig().timeoutMillis);
+      assertNotNull(auth.toString());
+      assertNotNull(auth.getConfig().toString());
     }
   }
 }

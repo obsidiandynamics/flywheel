@@ -139,4 +139,9 @@ public final class HttpStubAuth implements NestedAuthenticator {
       httpClient = null;
     }
   }
+
+  @Override
+  public String toString() {
+    return "HttpStubAuth [config: " + config + "]";
+  }
 }
