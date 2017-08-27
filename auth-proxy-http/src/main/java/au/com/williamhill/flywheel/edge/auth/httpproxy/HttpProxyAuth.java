@@ -45,6 +45,8 @@ public final class HttpProxyAuth implements NestedAuthenticator {
 
   @Override
   public void attach(AuthConnector connector) throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+    if (gson != null) return;
+    
     gson = new GsonBuilder().disableHtmlEscaping().create();
     
     final HostnameVerifier hostnameVerifier = (s, sslSession) -> true;

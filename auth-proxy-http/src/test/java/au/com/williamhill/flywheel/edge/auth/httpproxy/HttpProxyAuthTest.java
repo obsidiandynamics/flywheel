@@ -47,6 +47,15 @@ public final class HttpProxyAuthTest {
 
     auth = null;
   }
+  
+  @Test
+  public void testRepeatAttachAndClose() throws Exception {
+    final AuthConnector connector = Mockito.mock(AuthConnector.class);
+    auth.attach(connector);
+    auth.attach(connector);
+    auth.close();
+    auth.close();
+  }
 
   @Test
   public void testAllow() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {

@@ -14,6 +14,9 @@ public class CachedAuthenticatorConfig {
   long minQueryIntervalMillis = 10_000;
   
   @YInject
+  long residenceTimeMillis = 60_000;
+  
+  @YInject
   int maxPendingQueries = 100;
 
   public CachedAuthenticatorConfig withRunIntervalMillis(long runIntervalMillis) {
@@ -31,6 +34,11 @@ public class CachedAuthenticatorConfig {
     return this;
   }
   
+  public CachedAuthenticatorConfig withResidenceTimeMillis(long residenceTimeMillis) {
+    this.residenceTimeMillis = residenceTimeMillis;
+    return this;
+  }
+  
   public CachedAuthenticatorConfig withMaxPendingQueries(int maxPendingQueries) {
     this.maxPendingQueries = maxPendingQueries;
     return this;
@@ -39,7 +47,7 @@ public class CachedAuthenticatorConfig {
   @Override
   public String toString() {
     return "CachedAuthenticatorConfig [runIntervalMillis: " + runIntervalMillis + ", queryBeforeExpiryMillis: "
-           + queryBeforeExpiryMillis + ", minQueryIntervalMillis: " + minQueryIntervalMillis 
-           + ", maxPendingQueries: " + maxPendingQueries + "]";
+           + queryBeforeExpiryMillis + ", minQueryIntervalMillis: " + minQueryIntervalMillis + ", residenceTimeMillis: "
+           + residenceTimeMillis + ", maxPendingQueries: " + maxPendingQueries + "]";
   }
 }

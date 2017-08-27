@@ -136,7 +136,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
         return Collections.emptyList();
       }
       @Override public void expireTopic(EdgeNexus nexus, String topic) {
-        if (LOG.isDebugEnabled()) LOG.debug("{}: expiring topic {}", nexus, topic);
+        if (LOG.isDebugEnabled()) LOG.debug("{}: expiring {}", nexus, topic);
       }
     };
     for (Authenticator auth : pubAuthChain.getFilters().values()) {

@@ -24,6 +24,8 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
     volatile long expiryTime;
     
     volatile long lastQueriedTime = System.currentTimeMillis();
+    
+    volatile long lastActiveTime = lastQueriedTime;
 
     long getRemainingMillis(long now) {
       return expiryTime == 0 ? Long.MAX_VALUE : expiryTime - now;
@@ -31,6 +33,10 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
     
     long getQueriedAgo(long now) {
       return now - lastQueriedTime;
+    }
+    
+    long getActiveAgo(long now) {
+      return now - lastActiveTime;
     }
   }
   
@@ -75,7 +81,8 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
       
       for (Map.Entry<String, ActiveTopic> activeTopicEntry : activeTopics.map.entrySet()) {
         final String topic = activeTopicEntry.getKey();
-        if (! currentlyActive.contains(topic)) {
+        final ActiveTopic activeTopic = activeTopicEntry.getValue();
+        if (activeTopic.getActiveAgo(now) > config.residenceTimeMillis && ! currentlyActive.contains(topic)) {
           activeTopics.map.remove(topic);
           if (activeTopics.map.isEmpty()) {
             nexusTopics.remove(nexus);
@@ -85,7 +92,6 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
         
         if (pendingQueries.get() >= config.maxPendingQueries) return;
         
-        final ActiveTopic activeTopic = activeTopicEntry.getValue();
         final long remaining = activeTopic.getRemainingMillis(now);
         if (remaining < config.queryBeforeExpiryMillis) {
           final long queriedAgo = activeTopic.getQueriedAgo(now);
@@ -132,6 +138,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   
   @Override
   public void attach(AuthConnector connector) throws Exception {
+    if (isAlive()) return;
     this.connector = connector;
     start();
     delegate.attach(connector);
@@ -155,6 +162,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
     if (cachedRemainingMillis > 0) {
       // was cached, and the cached entry is still allowed
       outcome.allow(cachedRemainingMillis == Long.MAX_VALUE ? AuthenticationOutcome.INDEFINITE : cachedRemainingMillis);
+      existing.lastActiveTime = now;
       return;
     } else {
       // not cached, or the cached entry has expired

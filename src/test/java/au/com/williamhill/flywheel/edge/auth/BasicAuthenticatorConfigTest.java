@@ -34,9 +34,13 @@ public final class BasicAuthenticatorConfigTest {
     
     assertEquals(4, auths.size());
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
+    final AuthConnector connector = Mockito.mock(AuthConnector.class);
     for (Authenticator auth : auths) {
       assertNotNull(auth.toString());
+      auth.attach(connector);
+      auth.attach(connector);
       auth.verify(nexus, "topic", Mockito.mock(AuthenticationOutcome.class));
+      auth.close();
       auth.close();
     }
   }
