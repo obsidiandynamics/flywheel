@@ -12,8 +12,6 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.junit.runners.*;
 
-import com.obsidiandynamics.indigo.util.*;
-
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
@@ -41,7 +39,7 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
     final MockAuthenticator spied = spy(new MockAuthenticator(30_000));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
-                                .withResidenceTimeMillis(100)
+                                .withResidenceTimeMillis(60_000)
                                 .withMinQueryIntervalMillis(1), 
                                 spied);
     setupEdgeNode(new PubAuthChain(),
@@ -82,8 +80,8 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                           null);
     final BindResponseFrame bind2Res = remoteNexus.bind(bind2).get();
     assertTrue(bind2Res.isSuccess());
-    verify(spied, atLeast(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, atLeast(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
 
     final BindFrame unbind2 = new BindFrame(UUID.randomUUID(), 
                                             sessionId,
@@ -96,11 +94,8 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
     verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
     verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
     
-    // wait enough time for the entries to be purged from the cache
-    TestSupport.sleep(200);
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
-    
+    // settings this has no effect on topic1 and topic2, as the entry is cached for a long time;
+    // however, topic3 should be queried aggressively
     spied.set(1000L);
     final BindFrame bind3 = new BindFrame(UUID.randomUUID(), 
                                           sessionId,
@@ -111,14 +106,11 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
     final BindResponseFrame bind3Res = remoteNexus.bind(bind3).get();
     assertTrue(bind3Res.isSuccess());
     
-    // this time the bind should cause a query, since the cache would have been cleared
-    verify(spied, atLeast(2)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, atLeast(2)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
     verify(spied, atLeast(1)).verify(notNull(EdgeNexus.class), eq("topic3/+"), notNull(AuthenticationOutcome.class));
     
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-      verify(spied, atLeast(10)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-      verify(spied, atLeast(10)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
       verify(spied, atLeast(10)).verify(notNull(EdgeNexus.class), eq("topic3/+"), notNull(AuthenticationOutcome.class));
     });
   }
