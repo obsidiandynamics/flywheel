@@ -5,7 +5,7 @@ def packageName = 'flywheel-standalone'
 
 dependencies {
   compile project(':')
-  compile project(':flywheel-auth-proxy-http')
+  compile project(':flywheel-auth-stub-http')
   compile project(':flywheel-plugin-beacon')
   compile project(':flywheel-plugin-toplog')
   
