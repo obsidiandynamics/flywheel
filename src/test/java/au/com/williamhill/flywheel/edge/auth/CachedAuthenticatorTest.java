@@ -16,7 +16,7 @@ import org.mockito.*;
 import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 
 @RunWith(Parameterized.class)
@@ -50,7 +50,7 @@ public final class CachedAuthenticatorTest {
 
   @Test
   public void testAllowFinite() throws Exception {
-    final NestedAuthenticator spied = spy(new MockAuthenticator(30000L));
+    final Authenticator<AuthConnector> spied = spy(new MockAuthenticator(30000L));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0), 
@@ -80,7 +80,7 @@ public final class CachedAuthenticatorTest {
 
   @Test
   public void testAllowIndefinite() throws Exception {
-    final NestedAuthenticator spied = spy(new MockAuthenticator(AuthenticationOutcome.INDEFINITE));
+    final Authenticator<AuthConnector> spied = spy(new MockAuthenticator(AuthenticationOutcome.INDEFINITE));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1000)
                                 .withResidenceTimeMillis(0), 
@@ -102,7 +102,7 @@ public final class CachedAuthenticatorTest {
 
   @Test
   public void testDeny() throws Exception {
-    final NestedAuthenticator spied = spy(new MockAuthenticator(-1));
+    final Authenticator<AuthConnector> spied = spy(new MockAuthenticator(-1));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(0)
                                 .withResidenceTimeMillis(0), 
@@ -125,7 +125,7 @@ public final class CachedAuthenticatorTest {
   @Test
   public void testCacheRefreshShortMinIntervalThenPurge() throws Exception {
     final MockAuthenticator mock = new MockAuthenticator(1000L);
-    final CountingAuthenticator spied = spy(new CountingAuthenticator(mock));
+    final CountingAuthenticator<AuthConnector> spied = spy(new CountingAuthenticator<>(mock));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0)
@@ -160,9 +160,9 @@ public final class CachedAuthenticatorTest {
   
   @Test
   public void testCacheRefreshShortMinIntervalCappedPending() throws Exception {
-    final NestedAuthenticator delegate = new MockAuthenticator(1000L);
-    final DelayedAuthenticator delayed = new DelayedAuthenticator(delegate, 100);
-    final NestedAuthenticator spied = spy(new CountingAuthenticator(delayed));
+    final MockAuthenticator delegate = new MockAuthenticator(1000L);
+    final DelayedAuthenticator<AuthConnector> delayed = new DelayedAuthenticator<>(delegate, 100);
+    final CountingAuthenticator<AuthConnector> spied = spy(new CountingAuthenticator<>(delayed));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0)
@@ -192,7 +192,7 @@ public final class CachedAuthenticatorTest {
   
   @Test
   public void testCacheRefreshShortMinIntervalLongExpiry() throws Exception {
-    final NestedAuthenticator spied = spy(new MockAuthenticator(30_000));
+    final MockAuthenticator spied = spy(new MockAuthenticator(30_000));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0)
@@ -215,7 +215,7 @@ public final class CachedAuthenticatorTest {
   
   @Test
   public void testCacheRefreshLongMinInterval() throws Exception {
-    final NestedAuthenticator spied = spy(new MockAuthenticator(1000L));
+    final MockAuthenticator spied = spy(new MockAuthenticator(1000L));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0)
@@ -238,7 +238,7 @@ public final class CachedAuthenticatorTest {
   @Test
   public void testCacheFiniteThenIndefinite() throws Exception {
     final MockAuthenticator mock = new MockAuthenticator(1000);
-    final CountingAuthenticator spied = spy(new CountingAuthenticator(mock));
+    final CountingAuthenticator<AuthConnector> spied = spy(new CountingAuthenticator<>(mock));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0)
@@ -269,7 +269,7 @@ public final class CachedAuthenticatorTest {
   @Test
   public void testCacheFiniteThenDeny() throws Exception {
     final MockAuthenticator mock = new MockAuthenticator(1000);
-    final CountingAuthenticator spied = spy(new CountingAuthenticator(mock));
+    final CountingAuthenticator<AuthConnector> spied = spy(new CountingAuthenticator<>(mock));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0)

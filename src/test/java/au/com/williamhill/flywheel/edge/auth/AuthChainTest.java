@@ -8,7 +8,7 @@ import org.junit.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
-import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 
 public final class AuthChainTest {
@@ -30,7 +30,7 @@ public final class AuthChainTest {
   }
   
   private void dny(String topicPrefix) {
-    chain.set(topicPrefix, new Authenticator() {
+    chain.set(topicPrefix, new Authenticator<AuthConnector>() {
       @Override public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
         outcome.deny(new TopicAccessError(topicPrefix, topic));
       }
@@ -237,14 +237,14 @@ public final class AuthChainTest {
   }
   
   private void assertOutcome(String topic, String ... errorDescriptions) {
-    final List<Authenticator> matchingAuthenticators = chain.get(topic);
+    final List<Authenticator<AuthConnector>> matchingAuthenticators = chain.get(topic);
     final Set<String> actualErrors = collectErrors(matchingAuthenticators, topic);
     assertEquals(new HashSet<>(Arrays.asList(errorDescriptions)), actualErrors);
   }
 
-  private static Set<String> collectErrors(List<Authenticator> authenticators, String topic) {
+  private static Set<String> collectErrors(List<Authenticator<AuthConnector>> authenticators, String topic) {
     final Set<String> errors = new HashSet<>();
-    for (Authenticator auth : authenticators) {
+    for (Authenticator<AuthConnector> auth : authenticators) {
       auth.verify(null, topic, new AuthenticationOutcome() {
         @Override public void deny(TopicAccessError error) {
           errors.add(error.getDescription());

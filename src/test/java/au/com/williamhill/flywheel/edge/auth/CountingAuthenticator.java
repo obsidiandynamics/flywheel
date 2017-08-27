@@ -7,17 +7,17 @@ import java.util.concurrent.atomic.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.util.*;
 
-public class CountingAuthenticator implements Authenticator {
-  private final NestedAuthenticator delegate;
+public class CountingAuthenticator<C extends AuthConnector> implements Authenticator<C> {
+  private final Authenticator<C> delegate;
   
   private final Map<EdgeNexus, Map<String, AtomicInteger>> counters = new ConcurrentHashMap<>();
 
-  public CountingAuthenticator(NestedAuthenticator delegate) {
+  public CountingAuthenticator(Authenticator<C> delegate) {
     this.delegate = delegate;
   }
   
   @Override
-  public void attach(AuthConnector connector) throws Exception {
+  public void attach(C connector) throws Exception {
     delegate.attach(connector);
   }
   

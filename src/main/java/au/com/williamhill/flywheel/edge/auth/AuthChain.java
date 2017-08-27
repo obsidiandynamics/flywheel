@@ -12,7 +12,7 @@ import org.slf4j.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.topic.*;
 
@@ -22,6 +22,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
   abstract static class AuthChainMapper<A extends AuthChain<A>> implements TypeMapper {
     abstract AuthChain<A> getBaseChain();
 
+    @SuppressWarnings("unchecked")
     @Override
     public Object map(YObject y, Class<?> type) {
       final AuthChain<A> chain = getBaseChain();
@@ -53,7 +54,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       final List<TopicAccessError> errors = new CopyOnWriteArrayList<>();
       
       for (MatchedAuthenticators match : matches) {
-        for (Authenticator authenticator : match.authenticators) {
+        for (Authenticator<AuthConnector> authenticator : match.authenticators) {
           authenticator.verify(nexus, match.topic, new AuthenticationOutcome() {
             @Override public void allow(long millis) {
               complete();
@@ -81,9 +82,9 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
   
   public static final class MatchedAuthenticators {
     public final String topic;
-    public final List<Authenticator> authenticators;
+    public final List<Authenticator<AuthConnector>> authenticators;
     
-    MatchedAuthenticators(String topic, List<Authenticator> authenticators) {
+    MatchedAuthenticators(String topic, List<Authenticator<AuthConnector>> authenticators) {
       this.topic = topic;
       this.authenticators = authenticators;
     }
@@ -105,7 +106,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
     final List<MatchedAuthenticators> mappings = new ArrayList<>(topics.size());
     int numAuthenticators = 0;
     for (String topic : topics) {
-      final List<Authenticator> authenticators = get(topic);
+      final List<Authenticator<AuthConnector>> authenticators = get(topic);
       mappings.add(new MatchedAuthenticators(topic, authenticators));
       numAuthenticators += authenticators.size();
     }
@@ -119,7 +120,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
    *  @return The matches for this topic.
    */
   public final CombinedMatches getMatches(String topic) {
-    final List<Authenticator> authenticators = get(topic);
+    final List<Authenticator<AuthConnector>> authenticators = get(topic);
     final List<MatchedAuthenticators> mappings = Collections.singletonList(new MatchedAuthenticators(topic, authenticators));
     return new CombinedMatches(mappings, authenticators.size());
   }
@@ -130,7 +131,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
     NoAuthenticatorException(String m) { super(m); }
   }
   
-  private final Map<Topic, Authenticator> filters = new TreeMap<>(AuthChain::byLengthDescending);
+  private final Map<Topic, Authenticator<AuthConnector>> filters = new TreeMap<>(AuthChain::byLengthDescending);
   
   private static int byLengthDescending(Topic t1, Topic t2) {
     final int lengthComparison = Integer.compare(t2.length(), t1.length());
@@ -143,7 +144,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
   
   protected AuthChain() {}
   
-  public final Map<Topic, Authenticator> getFilters() {
+  public final Map<Topic, Authenticator<AuthConnector>> getFilters() {
     return Collections.unmodifiableMap(filters);
   }
   
@@ -156,7 +157,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
     return topic.isEmpty() ? Topic.root() : Topic.of(topic);
   }
   
-  public final AuthChain<A> set(String topicPrefix, Authenticator authenticator) {
+  public final AuthChain<A> set(String topicPrefix, Authenticator<AuthConnector> authenticator) {
     filters.put(create(topicPrefix), authenticator);
     return this;
   }
@@ -257,7 +258,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
    *  @return The matching authenticators.
    *  @exception NoAuthenticatorException If no matches were found.
    */
-  public final List<Authenticator> get(String topic) {
+  public final List<Authenticator<AuthConnector>> get(String topic) {
     final Topic original = Topic.of(topic);
     final String[] stripped = stripMLWildcard(original);
     final boolean exactOrSL = stripped.length == original.length();
@@ -265,10 +266,10 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
                                         original, original.length(), Arrays.toString(stripped), 
                                         stripped.length, exactOrSL);
     
-    final List<Authenticator> definite = new ArrayList<>();
-    final List<Authenticator> plausible = new ArrayList<>();
+    final List<Authenticator<AuthConnector>> definite = new ArrayList<>();
+    final List<Authenticator<AuthConnector>> plausible = new ArrayList<>();
     int longestDefiniteMatch = 0;
-    for (Map.Entry<Topic, Authenticator> entry : filters.entrySet()) {
+    for (Map.Entry<Topic, Authenticator<AuthConnector>> entry : filters.entrySet()) {
       final Topic filter = entry.getKey();
       final Match match = Match.common(filter.getParts(), stripped);
       if (LOG.isTraceEnabled()) LOG.trace("  filter={}, match: {}", filter, match);
@@ -288,7 +289,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
       throw new NoAuthenticatorException("No match for topic " + topic + ", filters=" + filters.keySet());
     }
     
-    final List<Authenticator> all = definite;
+    final List<Authenticator<AuthConnector>> all = definite;
     all.addAll(plausible);
     return all;
   }
@@ -299,7 +300,7 @@ public abstract class AuthChain<A extends AuthChain<A>> implements AutoCloseable
   
   @Override
   public final void close() throws Exception {
-    for (Authenticator auth : filters.values()) {
+    for (Authenticator<AuthConnector> auth : filters.values()) {
       auth.close();
     }
   }

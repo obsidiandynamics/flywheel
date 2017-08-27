@@ -5,7 +5,7 @@ import com.obsidiandynamics.yconf.*;
 import au.com.williamhill.flywheel.edge.*;
 
 @Y(AllowAllAuthenticator.Mapper.class)
-public final class AllowAllAuthenticator implements Authenticator {
+public final class AllowAllAuthenticator implements Authenticator<AuthConnector> {
   public static final class Mapper implements TypeMapper {
     @Override public Object map(YObject y, Class<?> type) {
       return instance();

@@ -2,7 +2,7 @@ package au.com.williamhill.flywheel.edge.auth;
 
 import au.com.williamhill.flywheel.edge.*;
 
-class MockAuthenticator implements NestedAuthenticator {
+class MockAuthenticator implements Authenticator<AuthConnector> {
   private volatile long allowMillis;
   
   MockAuthenticator(long allowMillis) {

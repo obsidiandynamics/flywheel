@@ -17,12 +17,12 @@ import com.github.tomakehurst.wiremock.junit.*;
 import com.google.gson.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.*;
-import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
+import au.com.williamhill.flywheel.edge.auth.CachedAuthenticator.*;
 import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
 import au.com.williamhill.flywheel.frame.*;
 
-public final class HttpStubAuthTest {
+public final class HttpStubAuthenticatorTest {
   private static final String MOCK_PATH = "/auth";
 
   private static final String TOPIC = "test";
@@ -32,12 +32,12 @@ public final class HttpStubAuthTest {
                                                          .dynamicPort()
                                                          .dynamicHttpsPort());
   private Gson gson;
-  private HttpStubAuth auth;
+  private HttpStubAuthenticator auth;
 
   @Before
   public void before() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
-    auth = new HttpStubAuth(new HttpStubAuthConfig().withURI(getURI(false)).withPoolSize(4));
+    auth = new HttpStubAuthenticator(new HttpStubAuthenticatorConfig().withURI(getURI(false)).withPoolSize(4));
     auth.close(); // tests close() before init()
   }
 
@@ -50,7 +50,7 @@ public final class HttpStubAuthTest {
   
   @Test
   public void testRepeatAttachAndClose() throws Exception {
-    final AuthConnector connector = Mockito.mock(AuthConnector.class);
+    final CachedAuthConnector connector = Mockito.mock(CachedAuthConnector.class);
     auth.attach(connector);
     auth.attach(connector);
     auth.close();
@@ -59,7 +59,7 @@ public final class HttpStubAuthTest {
 
   @Test
   public void testAllow() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(Mockito.mock(AuthConnector.class));
+    auth.attach(Mockito.mock(CachedAuthConnector.class));
     final StubAuthResponse expected = new StubAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -83,7 +83,7 @@ public final class HttpStubAuthTest {
   @Test
   public void testAllowHttps() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
     auth.getConfig().withURI(getURI(true));
-    auth.attach(Mockito.mock(AuthConnector.class));
+    auth.attach(Mockito.mock(CachedAuthConnector.class));
     final StubAuthResponse expected = new StubAuthResponse(1000L);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -106,7 +106,7 @@ public final class HttpStubAuthTest {
 
   @Test
   public void testDeny() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(Mockito.mock(AuthConnector.class));
+    auth.attach(Mockito.mock(CachedAuthConnector.class));
     final StubAuthResponse expected = new StubAuthResponse(null);
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
@@ -129,7 +129,7 @@ public final class HttpStubAuthTest {
 
   @Test
   public void testBadStatusCode() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(Mockito.mock(AuthConnector.class));
+    auth.attach(Mockito.mock(CachedAuthConnector.class));
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -149,7 +149,7 @@ public final class HttpStubAuthTest {
 
   @Test
   public void testBadEntity() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
-    auth.attach(Mockito.mock(AuthConnector.class));
+    auth.attach(Mockito.mock(CachedAuthConnector.class));
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()
@@ -172,7 +172,7 @@ public final class HttpStubAuthTest {
   @Test
   public void testTimeout() throws URISyntaxException, KeyManagementException, IOReactorException, NoSuchAlgorithmException, KeyStoreException {
     auth.getConfig().withTimeoutMillis(1);
-    auth.attach(Mockito.mock(AuthConnector.class));
+    auth.attach(Mockito.mock(CachedAuthConnector.class));
     stubFor(post(urlEqualTo(MOCK_PATH))
             .withHeader("Accept", equalTo("application/json"))
             .willReturn(aResponse()

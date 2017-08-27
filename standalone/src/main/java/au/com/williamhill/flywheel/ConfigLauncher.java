@@ -106,7 +106,7 @@ public final class ConfigLauncher implements Launcher  {
   }
   
   private static void listChain(AuthChain<?> chain, StringBuilder sb) {
-    for (Map.Entry<Topic, Authenticator> entry : chain.getFilters().entrySet()) {
+    for (Map.Entry<Topic, Authenticator<AuthConnector>> entry : chain.getFilters().entrySet()) {
       sb.append("\n    '").append(entry.getKey()).append("' -> ").append(entry.getValue());
     }
   }

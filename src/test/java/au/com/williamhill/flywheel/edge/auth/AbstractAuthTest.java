@@ -119,8 +119,8 @@ public abstract class AbstractAuthTest {
     return Long.toHexString(Crypto.machineRandom());
   }
   
-  protected static Authenticator createBasicAuth(String username, String password) {
-    return new Authenticator() {
+  protected static Authenticator<AuthConnector> createBasicAuth(String username, String password) {
+    return new Authenticator<AuthConnector>() {
       @Override public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
         if (nexus.getSession().getCredentials() instanceof BasicAuthCredentials) {
           final BasicAuthCredentials basic = nexus.getSession().getCredentials();
@@ -136,8 +136,8 @@ public abstract class AbstractAuthTest {
     };
   }
 
-  protected static Authenticator createBearerAuth(String token) {
-    return new Authenticator() {
+  protected static Authenticator<AuthConnector> createBearerAuth(String token) {
+    return new Authenticator<AuthConnector>() {
       @Override public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
         if (nexus.getSession().getCredentials() instanceof BearerAuthCredentials) {
           final BearerAuthCredentials bearer = nexus.getSession().getCredentials();

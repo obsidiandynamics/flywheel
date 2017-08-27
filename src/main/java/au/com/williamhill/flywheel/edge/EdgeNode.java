@@ -139,7 +139,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
         if (LOG.isDebugEnabled()) LOG.debug("{}: expiring {}", nexus, topic);
       }
     };
-    for (Authenticator auth : pubAuthChain.getFilters().values()) {
+    for (Authenticator<AuthConnector> auth : pubAuthChain.getFilters().values()) {
       auth.attach(pubConnector);
     }
     
@@ -158,7 +158,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
         }
       }
     };
-    for (Authenticator auth : subAuthChain.getFilters().values()) {
+    for (Authenticator<AuthConnector> auth : subAuthChain.getFilters().values()) {
       auth.attach(subConnector);
     }
   }

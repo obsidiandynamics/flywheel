@@ -13,8 +13,28 @@ import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.util.*;
 
 @Y
-public final class CachedAuthenticator extends Thread implements Authenticator {
+public final class CachedAuthenticator extends Thread implements Authenticator<AuthConnector> {
   private static final Logger LOG = LoggerFactory.getLogger(CachedAuthenticator.class);
+  
+  public interface CachedAuthConnector extends AuthConnector {}
+  
+  static final class CachedAuthConnectorImpl implements CachedAuthConnector {
+    private final AuthConnector connector;
+    
+    CachedAuthConnectorImpl(AuthConnector connector) {
+      this.connector = connector;
+    }
+
+    @Override
+    public Collection<String> getActiveTopics(EdgeNexus nexus) {
+      return connector.getActiveTopics(nexus);
+    }
+
+    @Override
+    public void expireTopic(EdgeNexus nexus, String topic) {
+      connector.expireTopic(nexus, topic);
+    }
+  }
   
   private static final class ActiveTopics {
     final Map<String, ActiveTopic> map = new ConcurrentHashMap<>();
@@ -44,7 +64,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   
   private final CachedAuthenticatorConfig config;
   
-  private final NestedAuthenticator delegate;
+  private final Authenticator<? super CachedAuthConnector> delegate;
   
   private final AtomicInteger pendingQueries = new AtomicInteger();
   
@@ -53,7 +73,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
   private volatile boolean running = true;
   
   public CachedAuthenticator(@YInject(name="config") CachedAuthenticatorConfig config, 
-                             @YInject(name="delegate") NestedAuthenticator delegate) {
+                             @YInject(name="delegate") Authenticator<? super CachedAuthConnector> delegate) {
     super(String.format("CachedAuthenticatorWatchdog[runInterval=%dms]", config.runIntervalMillis));
     this.config = config;
     this.delegate = delegate;
@@ -141,7 +161,7 @@ public final class CachedAuthenticator extends Thread implements Authenticator {
     if (isAlive()) return;
     this.connector = connector;
     start();
-    delegate.attach(connector);
+    delegate.attach(new CachedAuthConnectorImpl(connector));
   }
   
   @Override

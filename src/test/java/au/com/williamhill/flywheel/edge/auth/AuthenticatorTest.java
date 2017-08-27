@@ -8,17 +8,18 @@ import org.junit.*;
 import org.mockito.*;
 
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 
 public final class AuthenticatorTest {
   @Test
   public void testLifecycle() throws Exception {
-    final Authenticator auth = Mockito.mock(Authenticator.class);
+    @SuppressWarnings("unchecked")
+    final Authenticator<AuthConnector> auth = Mockito.mock(Authenticator.class);
     final PubAuthChain chain = new PubAuthChain();
     chain.set("test", auth);
     auth.attach(Mockito.mock(AuthConnector.class));
     Mockito.verify(auth).attach(Mockito.any());
-    final List<Authenticator> auths = chain.get("test");
+    final List<Authenticator<AuthConnector>> auths = chain.get("test");
     assertEquals(1, auths.size());
     assertEquals(auth, auths.get(0));
     auths.get(0).verify(null, "test", Mockito.mock(AuthenticationOutcome.class));

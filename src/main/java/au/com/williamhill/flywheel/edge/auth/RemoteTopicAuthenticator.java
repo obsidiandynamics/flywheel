@@ -7,7 +7,7 @@ import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 
 @Y(RemoteTopicAuthenticator.Mapper.class)
-public final class RemoteTopicAuthenticator implements Authenticator {
+public final class RemoteTopicAuthenticator implements Authenticator<AuthConnector> {
   public static final class Mapper implements TypeMapper {
     @Override public Object map(YObject y, Class<?> type) {
       return instance();

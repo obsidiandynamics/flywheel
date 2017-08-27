@@ -1,17 +1,18 @@
 package au.com.williamhill.flywheel.edge.auth;
 
 import au.com.williamhill.flywheel.edge.*;
+import au.com.williamhill.flywheel.edge.auth.CachedAuthenticator.*;
 
-public final class AuthenticatorWrapper implements Authenticator {
-  private final NestedAuthenticator delegate;
+public final class CachedAuthenticatorWrapper implements Authenticator<AuthConnector> {
+  private final Authenticator<CachedAuthConnector> delegate;
   
-  public AuthenticatorWrapper(NestedAuthenticator delegate) {
+  public CachedAuthenticatorWrapper(Authenticator<CachedAuthConnector> delegate) {
     this.delegate = delegate;
   }
 
   @Override
   public void attach(AuthConnector connector) throws Exception {
-    delegate.attach(connector);
+    delegate.attach(new CachedAuthConnectorImpl(connector));
   }
   
   @Override

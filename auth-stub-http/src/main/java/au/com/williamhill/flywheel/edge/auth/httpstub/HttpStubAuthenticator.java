@@ -24,27 +24,28 @@ import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
+import au.com.williamhill.flywheel.edge.auth.CachedAuthenticator.*;
 
 @Y
-public final class HttpStubAuth implements NestedAuthenticator {
-  private static final Logger LOG = LoggerFactory.getLogger(HttpStubAuth.class);
+public final class HttpStubAuthenticator implements Authenticator<CachedAuthConnector> {
+  private static final Logger LOG = LoggerFactory.getLogger(HttpStubAuthenticator.class);
 
-  private final HttpStubAuthConfig config;
+  private final HttpStubAuthenticatorConfig config;
   
   private Gson gson;
 
   private CloseableHttpAsyncClient httpClient;
 
-  public HttpStubAuth(@YInject(name="config") HttpStubAuthConfig config) {
+  public HttpStubAuthenticator(@YInject(name="config") HttpStubAuthenticatorConfig config) {
     this.config = config;
   }
   
-  public HttpStubAuthConfig getConfig() {
+  public HttpStubAuthenticatorConfig getConfig() {
     return config;
   }
 
   @Override
-  public void attach(AuthConnector connector) throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+  public void attach(CachedAuthConnector connector) throws IOReactorException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
     if (gson != null) return;
     
     gson = new GsonBuilder().disableHtmlEscaping().create();

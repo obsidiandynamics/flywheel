@@ -2,10 +2,7 @@ package au.com.williamhill.flywheel.edge.auth.httpstub;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.net.*;
 import java.util.*;
@@ -16,13 +13,13 @@ import com.github.tomakehurst.wiremock.junit.*;
 import com.google.gson.*;
 
 import au.com.williamhill.flywheel.edge.auth.*;
-import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import au.com.williamhill.flywheel.edge.auth.Authenticator.*;
 import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 
-public final class HttpStubAuthUncachedPubTest extends AbstractAuthTest {
-  private static final boolean USE_HTTPS = false;
+public final class HttpStubAuthenticatorUncachedBindTest extends AbstractAuthTest {
+  private static final boolean USE_HTTPS = true;
 
   private static final String MOCK_PATH = "/auth";
 
@@ -49,10 +46,11 @@ public final class HttpStubAuthUncachedPubTest extends AbstractAuthTest {
 
   @SuppressWarnings("resource")
   private void setupAuthChains() throws URISyntaxException, Exception {
-    setupEdgeNode(new PubAuthChain().set(TOPIC, 
-                                         new AuthenticatorWrapper(new HttpStubAuth(new HttpStubAuthConfig()
-                                                                                    .withURI(getURI(USE_HTTPS))))),
-                  new SubAuthChain());
+    setupEdgeNode(new PubAuthChain(), 
+                  new SubAuthChain()
+                  .set(TOPIC, 
+                       new CachedAuthenticatorWrapper(new HttpStubAuthenticator(new HttpStubAuthenticatorConfig()
+                                                                                .withURI(getURI(USE_HTTPS))))));
   }
 
   @Test
@@ -67,28 +65,34 @@ public final class HttpStubAuthUncachedPubTest extends AbstractAuthTest {
     final RemoteNexus remoteNexus = openNexus();
     final String sessionId = generateSessionId();
 
-    final BindFrame bind = new BindFrame(UUID.randomUUID(), 
-                                         sessionId,
-                                         null,
-                                         new String[]{TOPIC},
-                                         new String[]{},
-                                         null);
-    final BindResponseFrame bindRes = remoteNexus.bind(bind).get();
-    assertTrue(bindRes.isSuccess());
-    verify(0, postRequestedFor(urlMatching(MOCK_PATH)));
-
-    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
-    awaitReceived();
-    assertNull(errors);
-    assertEquals(new TextFrame(TOPIC, "hello"), text);
-    clearReceived();
+    final BindFrame bind1 = new BindFrame(UUID.randomUUID(), 
+                                          sessionId,
+                                          null,
+                                          new String[]{TOPIC},
+                                          new String[]{},
+                                          null);
+    final BindResponseFrame bind1Res = remoteNexus.bind(bind1).get();
+    assertTrue(bind1Res.isSuccess());
     verify(1, postRequestedFor(urlMatching(MOCK_PATH)));
 
-    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
-    awaitReceived();
-    assertNull(errors);
-    assertEquals(new TextFrame(TOPIC, "hello"), text);
-    clearReceived();
+    final BindFrame unbind1 = new BindFrame(UUID.randomUUID(), 
+                                            sessionId,
+                                            null,
+                                            new String[]{},
+                                            new String[]{TOPIC},
+                                            null);
+    final BindResponseFrame unbind1Res = remoteNexus.bind(unbind1).get();
+    assertTrue(unbind1Res.isSuccess());
+    verify(1, postRequestedFor(urlMatching(MOCK_PATH)));
+
+    final BindFrame bind2 = new BindFrame(UUID.randomUUID(), 
+                                          sessionId,
+                                          null,
+                                          new String[]{TOPIC},
+                                          new String[]{},
+                                          null);
+    final BindResponseFrame bind2Res = remoteNexus.bind(bind2).get();
+    assertTrue(bind2Res.isSuccess());
     verify(2, postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
@@ -111,28 +115,9 @@ public final class HttpStubAuthUncachedPubTest extends AbstractAuthTest {
                                          new String[]{},
                                          null);
     final BindResponseFrame bindRes = remoteNexus.bind(bind).get();
-    assertTrue(bindRes.isSuccess());
-    verify(0, postRequestedFor(urlMatching(MOCK_PATH)));
-
-    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
-    awaitReceived();
-    assertNotNull(errors);
-    assertNull(text);
-    assertNull(binary);
-    assertEquals(1, errors.getErrors().length);
-    assertEquals(new TopicAccessError("Forbidden", TOPIC), errors.getErrors()[0]);
-    clearReceived();
+    assertFalse(bindRes.isSuccess());
+    assertEquals(1, bindRes.getErrors().length);
     verify(1, postRequestedFor(urlMatching(MOCK_PATH)));
-
-    remoteNexus.publish(new PublishTextFrame(TOPIC, "hello"));
-    awaitReceived();
-    assertNotNull(errors);
-    assertNull(text);
-    assertNull(binary);
-    assertEquals(1, errors.getErrors().length);
-    assertEquals(new TopicAccessError("Forbidden", TOPIC), errors.getErrors()[0]);
-    clearReceived();
-    verify(2, postRequestedFor(urlMatching(MOCK_PATH)));
   }
 
   private static String toJson(Object obj) {
