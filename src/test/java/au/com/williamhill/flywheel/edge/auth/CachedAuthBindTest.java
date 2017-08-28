@@ -160,7 +160,7 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
     final MockAuthenticator spied = spy(new MockAuthenticator(1_000));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
-                                .withResidenceTimeMillis(100)
+                                .withResidenceTimeMillis(1000)
                                 .withMinQueryIntervalMillis(1), 
                                 spied);
     setupEdgeNode(new PubAuthChain(),
