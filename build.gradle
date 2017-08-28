@@ -7,6 +7,8 @@ apply plugin: 'com.jfrog.bintray'
 allprojects {
   apply plugin: 'java'
   apply plugin: 'jacoco'
+  apply plugin: 'maven-publish'
+  apply plugin: 'com.jfrog.bintray'
 
   repositories {
     jcenter()
@@ -25,6 +27,11 @@ allprojects {
       xml.enabled = true
       csv.enabled = false
     }
+  }
+
+  // invoke this task when ready to publish to Bintray
+  bintrayUpload {
+    dependsOn ':bintrayCredentialsCheck'
   }
 }
 
@@ -91,10 +98,23 @@ task setBuild() {
   }
 }
 
+def packageName = 'flywheel-core'
+
 group = 'au.com.williamhill.flywheel'
 version = packageVersion
 
-def packageName = 'flywheel-core'
+def envUser = 'BINTRAY_USER'
+def envKey = 'BINTRAY_KEY'
+task bintrayCredentialsCheck {
+  doLast {
+    if (System.getenv(envUser) == null) {
+      throw new GradleException("No Bintray username specified; set with 'export ${envUser}=<username>'")
+    }
+    if (System.getenv(envKey) == null) {
+      throw new GradleException("No Bintray key specified; set with 'export ${envKey}=<key>'")
+    }
+  }
+}
 
 repositories {
   jcenter()
@@ -120,41 +140,30 @@ dependencies {
   testRuntime 'log4j:log4j:1.2.17'
 }
 
-def envUser = 'BINTRAY_USER'
-def envKey = 'BINTRAY_KEY'
-task bintrayCredentialsCheck {
-  doLast {
-    if (System.getenv(envUser) == null) {
-      throw new GradleException("No Bintray username specified; set with 'export ${envUser}=<username>'")
-    }
-    if (System.getenv(envKey) == null) {
-      throw new GradleException("No Bintray key specified; set with 'export ${envKey}=<key>'")
-    }
-  }
-}
-
 def packageDesc = 'A simple, fast, WebSocket-based IoT message broker'
+def repoName = 'flywheel'
 bintray {
   user = System.getenv(envUser)
   key = System.getenv(envKey)
   publications = ['mavenJava']
   pkg {
-    repo = 'flywheel'
+    repo = "${repoName}"
     name = packageName
     userOrg = 'william-hill-community'
     desc = packageDesc
-    websiteUrl = 'https://github.com/william-hill-community/flywheel'
+    websiteUrl = "https://github.com/william-hill-community/${repoName}"
     licenses = ['BSD New']
-    vcsUrl = 'https://github.com/william-hill-community/flywheel.git'
+    vcsUrl = "https://github.com/william-hill-community/${repoName}"
+    issueTrackerUrl = "https://github.com/william-hill-community/${repoName}/issues"
     publicDownloadNumbers = true
-    githubRepo = 'william-hill-community/flywheel'
+    githubRepo = "william-hill-community/${repoName}"
     override = true
     publish = false
     version {
-      name = packageVersion
+      name = project(':').version
       desc = packageDesc
       released  = new Date()
-      vcsTag = packageVersion
+      vcsTag = project(':').version
     }
   }
 }

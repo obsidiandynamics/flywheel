@@ -1,7 +1,5 @@
-group = project(':').group
-version = project(':').version
-
 def packageName = 'flywheel-backplane-kafka'
+version = project(':').version
 
 dependencies {
   compile project(':')
@@ -23,4 +21,70 @@ task integrationTest(type: Test, description: 'Runs integration tests.', group: 
 
 jar {
   baseName packageName
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  baseName packageName
+  classifier = 'javadoc'
+  from "$buildDir/docs/javadoc"
+}
+ 
+task sourcesJar(type: Jar) {
+  baseName packageName
+  from sourceSets.main.allSource
+  classifier = 'sources'
+}
+ 
+artifacts {
+  archives jar
+  archives javadocJar
+  archives sourcesJar
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      groupId project(':').group
+      artifactId packageName
+      version project(':').version
+      from components.java
+      artifact sourcesJar
+      artifact javadocJar
+    }
+  }
+  repositories {
+    maven {
+      url "${project(':').projectDir}/../repo"
+    }
+  }
+}
+
+def envUser = 'BINTRAY_USER'
+def envKey = 'BINTRAY_KEY'
+def packageDesc = 'Kafka backplane implementation for Flywheel'
+def repoName = 'flywheel'
+bintray {
+  user = System.getenv(envUser)
+  key = System.getenv(envKey)
+  publications = ['mavenJava']
+  pkg {
+    repo = "${repoName}"
+    name = packageName
+    userOrg = 'william-hill-community'
+    desc = packageDesc
+    websiteUrl = "https://github.com/william-hill-community/${repoName}"
+    licenses = ['BSD New']
+    vcsUrl = "https://github.com/william-hill-community/${repoName}"
+    issueTrackerUrl = "https://github.com/william-hill-community/${repoName}/issues"
+    publicDownloadNumbers = true
+    githubRepo = "william-hill-community/${repoName}"
+    override = true
+    publish = false
+    version {
+      name = project(':').version
+      desc = packageDesc
+      released  = new Date()
+      vcsTag = project(':').version
+    }
+  }
 }

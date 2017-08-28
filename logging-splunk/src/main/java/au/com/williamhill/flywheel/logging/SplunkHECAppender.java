@@ -8,7 +8,7 @@ import org.apache.log4j.spi.*;
 
 
 /**
- *  Log4j Appender for sending events to Splunk via HEC Endpoint.<p/>
+ *  Log4j Appender for sending events to Splunk via HEC Endpoint.<p>
  *  
  *  Adapted from https://github.com/damiendallimore/SplunkJavaLogging.
  */
