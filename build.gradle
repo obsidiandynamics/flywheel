@@ -56,11 +56,12 @@ task jacocoRootReport(type: JacocoReport) {
 }
 
 def versionFile(extension) {
-  sourceSets.main.resources.srcDirs[0].path + '/' + project.name + extension
+  return new File(sourceSets.main.resources.srcDirs[0].path + '/' + project.name + extension)
 }
 
 def getVersion(extension) {
   def versionFile = versionFile extension
+  if (! versionFile.exists()) return '0'
   def reader = new BufferedReader(new FileReader(versionFile))
   def version = reader.readLine().trim()
   reader.close()
