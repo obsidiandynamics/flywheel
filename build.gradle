@@ -83,11 +83,10 @@ task getBuild() {
   }
 }
 
-task nextBuild() {
+task setBuild() {
   doLast {
-    def build = Integer.parseInt(getVersion('.build'))
-    setVersion('.build', build + 1)
-    println "At ${getVersion('.version')}_${getVersion('.build')}"
+    def timestamp = new java.text.SimpleDateFormat('yyMMddHHmm').format(new Date())
+    setVersion('.build', timestamp)
   }
 }
 
@@ -162,6 +161,10 @@ bintray {
 // invoke this task when ready to publish to Bintray
 bintrayUpload {
   dependsOn bintrayCredentialsCheck
+}
+
+processResources {
+  dependsOn setBuild
 }
 
 jar {
