@@ -5,7 +5,7 @@ import java.net.*;
 import com.obsidiandynamics.yconf.*;
 
 @Y
-public class HttpStubAuthConfig {
+public class HttpStubAuthenticatorConfig {
   @YInject
   URI uri;
 
@@ -15,17 +15,17 @@ public class HttpStubAuthConfig {
   @YInject
   int timeoutMillis = 60_000;
   
-  public HttpStubAuthConfig withURI(URI uri) {
+  public HttpStubAuthenticatorConfig withURI(URI uri) {
     this.uri = uri;
     return this;
   }
 
-  public HttpStubAuthConfig withPoolSize(int poolSize) {
+  public HttpStubAuthenticatorConfig withPoolSize(int poolSize) {
     this.poolSize = poolSize;
     return this;
   }
 
-  public HttpStubAuthConfig withTimeoutMillis(int timeoutMillis) {
+  public HttpStubAuthenticatorConfig withTimeoutMillis(int timeoutMillis) {
     this.timeoutMillis = timeoutMillis;
     return this;
   }

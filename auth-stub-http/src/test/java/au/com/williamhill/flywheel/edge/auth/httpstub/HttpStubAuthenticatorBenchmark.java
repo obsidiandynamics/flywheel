@@ -29,7 +29,7 @@ import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
 import au.com.williamhill.flywheel.frame.*;
 import junit.framework.*;
 
-public final class HttpStubAuthBenchmark implements TestSupport {
+public final class HttpStubAuthenticatorBenchmark implements TestSupport {
   abstract static class Config implements Spec {
     int n;
     int maxOutstanding;
@@ -71,7 +71,7 @@ public final class HttpStubAuthBenchmark implements TestSupport {
 
     @Override
     public Summary run() throws Exception {
-      return HttpStubAuthBenchmark.test(this);
+      return HttpStubAuthenticatorBenchmark.test(this);
     }
   }
 
@@ -143,7 +143,7 @@ public final class HttpStubAuthBenchmark implements TestSupport {
     c.beforeRun.run();
     final Summary summary = new Summary();
     final long timedStart;
-    try (HttpStubAuth auth = new HttpStubAuth(new HttpStubAuthConfig().withURI(c.uri).withPoolSize(c.poolSize))) {
+    try (HttpStubAuthenticator auth = new HttpStubAuthenticator(new HttpStubAuthenticatorConfig().withURI(c.uri).withPoolSize(c.poolSize))) {
       auth.attach(Mockito.mock(AuthConnector.class));
       final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
       final int progressInterval = Math.max(1, c.n / 25);
@@ -172,7 +172,7 @@ public final class HttpStubAuthBenchmark implements TestSupport {
     return summary;
   }
   
-  private static void runSeries(Config c, EdgeNexus nexus, HttpStubAuth auth, ResponseCounter counter, 
+  private static void runSeries(Config c, EdgeNexus nexus, HttpStubAuthenticator auth, ResponseCounter counter, 
                                 int runs, int progressInterval, Stats stats) {
     counter.reset();
     for (int i = 0; i < runs; i++) {

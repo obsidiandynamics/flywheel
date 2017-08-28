@@ -22,7 +22,7 @@ import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
 import au.com.williamhill.flywheel.frame.*;
 
-public final class HttpStubAuthTest {
+public final class HttpStubAuthenticatorTest {
   private static final String MOCK_PATH = "/auth";
 
   private static final String TOPIC = "test";
@@ -32,12 +32,12 @@ public final class HttpStubAuthTest {
                                                          .dynamicPort()
                                                          .dynamicHttpsPort());
   private Gson gson;
-  private HttpStubAuth auth;
+  private HttpStubAuthenticator auth;
 
   @Before
   public void before() throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException, IOException {
     gson = new GsonBuilder().disableHtmlEscaping().create();
-    auth = new HttpStubAuth(new HttpStubAuthConfig().withURI(getURI(false)).withPoolSize(4));
+    auth = new HttpStubAuthenticator(new HttpStubAuthenticatorConfig().withURI(getURI(false)).withPoolSize(4));
     auth.close(); // tests close() before init()
   }
 

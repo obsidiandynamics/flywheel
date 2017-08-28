@@ -26,20 +26,20 @@ import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 
 @Y
-public final class HttpStubAuth implements NestedAuthenticator {
-  private static final Logger LOG = LoggerFactory.getLogger(HttpStubAuth.class);
+public final class HttpStubAuthenticator implements NestedAuthenticator {
+  private static final Logger LOG = LoggerFactory.getLogger(HttpStubAuthenticator.class);
 
-  private final HttpStubAuthConfig config;
+  private final HttpStubAuthenticatorConfig config;
   
   private Gson gson;
 
   private CloseableHttpAsyncClient httpClient;
 
-  public HttpStubAuth(@YInject(name="config") HttpStubAuthConfig config) {
+  public HttpStubAuthenticator(@YInject(name="config") HttpStubAuthenticatorConfig config) {
     this.config = config;
   }
   
-  public HttpStubAuthConfig getConfig() {
+  public HttpStubAuthenticatorConfig getConfig() {
     return config;
   }
 
@@ -142,6 +142,6 @@ public final class HttpStubAuth implements NestedAuthenticator {
 
   @Override
   public String toString() {
-    return "HttpStubAuth [config: " + config + "]";
+    return "HttpStubAuthenticator [config: " + config + "]";
   }
 }
