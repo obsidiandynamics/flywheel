@@ -10,14 +10,14 @@ import au.com.williamhill.flywheel.socketx.*;
 final class JettyEndpointManager extends WebSocketHandler implements XEndpointManager<JettyEndpoint> {
   private final int idleTimeoutMillis;
   
-  private final XEndpointConfig config;
+  private final XEndpointConfig<?> config;
   
   private final XEndpointListener<? super JettyEndpoint> listener;
   
   private final XEndpointScanner<JettyEndpoint> scanner;
 
   JettyEndpointManager(XEndpointScanner<JettyEndpoint> scanner, int idleTimeoutMillis, 
-                       XEndpointConfig config, XEndpointListener<? super JettyEndpoint> listener) {
+                       XEndpointConfig<?> config, XEndpointListener<? super JettyEndpoint> listener) {
     this.idleTimeoutMillis = idleTimeoutMillis;
     this.config = config;
     this.listener = listener;
@@ -54,7 +54,7 @@ final class JettyEndpointManager extends WebSocketHandler implements XEndpointMa
     return listener;
   }
   
-  XEndpointConfig getConfig() {
+  XEndpointConfig<?> getConfig() {
     return config;
   }
   

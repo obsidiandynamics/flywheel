@@ -71,18 +71,18 @@ public final class ConfigLauncher implements Launcher  {
     
     sb.append("\n  Server config:")
     .append("\n    port: ").append(serverConfig.port)
+    .append("\n    HTTPS port: ").append(serverConfig.httpsPort)
     .append("\n    path: ").append(serverConfig.path)
     .append("\n    idle timeout: ").append(serverConfig.idleTimeoutMillis).append(" ms")
     .append("\n    ping interval: ").append(serverConfig.pingIntervalMillis).append(" ms")
-    .append("\n    scan interval: ").append(serverConfig.scanIntervalMillis).append(" ms");
+    .append("\n    scan interval: ").append(serverConfig.scanIntervalMillis).append(" ms")
+    .append("\n    high-water mark: ").append(serverConfig.highWaterMark)
+    .append("\n    SSL: ").append(serverConfig.sslConfig);
 
     sb.append("\n    servlets:");
     for (XMappedServlet mappedServlet : serverConfig.servlets) {
       sb.append("\n      ").append(mappedServlet);
     }
-    
-    sb.append("\n    endpoint config:")
-    .append("\n      high-water mark: ").append(serverConfig.endpointConfig.highWaterMark);
     
     sb.append("\n  Pub auth chain:");
     listChain(pubAuthChain, sb);

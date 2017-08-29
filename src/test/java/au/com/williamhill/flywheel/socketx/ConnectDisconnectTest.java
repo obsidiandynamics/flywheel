@@ -61,7 +61,7 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
   private void test(boolean clean, int connections, boolean https,
                     XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig();
+    final XServerConfig serverConfig = getDefaultServerConfig(https);
     serverConfig.scanIntervalMillis = 1;
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);

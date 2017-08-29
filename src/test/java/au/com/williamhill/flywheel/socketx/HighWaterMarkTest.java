@@ -34,9 +34,9 @@ public final class HighWaterMarkTest extends BaseClientServerTest {
   private void test(XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
     final int highWaterMark = 1;
-    final XServerConfig serverConfig = getDefaultServerConfig();
+    final XServerConfig serverConfig = getDefaultServerConfig(false);
     serverConfig.scanIntervalMillis = 1;
-    serverConfig.endpointConfig.highWaterMark = highWaterMark;
+    serverConfig.highWaterMark = highWaterMark;
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
 

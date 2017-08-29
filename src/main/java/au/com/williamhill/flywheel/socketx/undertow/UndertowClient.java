@@ -39,7 +39,7 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
     final ByteBufferPool pool = new DefaultByteBufferPool(UndertowProperties.directBuffers, bufferSize);
     final KeyStore keyStore = SSL
         .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
-    final SSLContext sslContext = SSL.createSSLContext(keyStore, keyStore, "keypass");
+    final SSLContext sslContext = SSL.createSSLContext(keyStore, "keypass", keyStore);
 
     final ByteBufferPool sslBufferPool = new DefaultByteBufferPool(UndertowProperties.directBuffers, 17 * 1024);
     final XnioSsl ssl = new UndertowXnioSsl(worker.getXnio(), OptionMap.EMPTY, sslBufferPool, sslContext);
@@ -51,7 +51,7 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
     if (config.hasIdleTimeout()) {
       channel.setIdleTimeout(config.idleTimeoutMillis);
     }
-    final UndertowEndpoint endpoint = UndertowEndpoint.clientOf(scanner, channel, new XEndpointConfig(), listener);
+    final UndertowEndpoint endpoint = UndertowEndpoint.clientOf(scanner, channel, config, listener);
     channel.getReceiveSetter().set(endpoint);
     channel.resumeReceives();
     return endpoint;

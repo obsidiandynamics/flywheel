@@ -29,7 +29,7 @@ public final class JettyClient implements XClient<JettyEndpoint> {
 
   @Override
   public JettyEndpoint connect(URI uri, XEndpointListener<? super JettyEndpoint> listener) throws Exception {
-    final JettyEndpoint endpoint = JettyEndpoint.clientOf(scanner, new XEndpointConfig(), listener);
+    final JettyEndpoint endpoint = JettyEndpoint.clientOf(scanner, config, listener);
     client.connect(endpoint, uri).get();
     return endpoint;
   }

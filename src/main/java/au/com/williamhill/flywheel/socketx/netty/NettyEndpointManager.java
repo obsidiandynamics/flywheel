@@ -7,7 +7,7 @@ import au.com.williamhill.flywheel.socketx.*;
 import io.netty.channel.*;
 
 final class NettyEndpointManager implements XEndpointManager<NettyEndpoint> {
-  private final XEndpointConfig config;
+  private final XEndpointConfig<?> config;
   
   private final XEndpointListener<? super NettyEndpoint> listener;
   
@@ -15,7 +15,7 @@ final class NettyEndpointManager implements XEndpointManager<NettyEndpoint> {
   
   private final XEndpointScanner<NettyEndpoint> scanner;
   
-  NettyEndpointManager(XEndpointScanner<NettyEndpoint> scanner, XEndpointConfig config, 
+  NettyEndpointManager(XEndpointScanner<NettyEndpoint> scanner, XEndpointConfig<?> config, 
                        XEndpointListener<? super NettyEndpoint> listener) {
     this.scanner = scanner;
     this.config = config;
@@ -44,7 +44,7 @@ final class NettyEndpointManager implements XEndpointManager<NettyEndpoint> {
     return listener;
   }
   
-  XEndpointConfig getConfig() {
+  XEndpointConfig<?> getConfig() {
     return config;
   }
 

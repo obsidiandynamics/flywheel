@@ -23,7 +23,7 @@ public final class NettyServer implements XServer<NettyEndpoint> {
     this.config = config;
     
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
-    manager = new NettyEndpointManager(scanner, config.endpointConfig, listener);
+    manager = new NettyEndpointManager(scanner, config, listener);
     bossGroup = new NioEventLoopGroup(1);
     workerGroup = new NioEventLoopGroup();
     
