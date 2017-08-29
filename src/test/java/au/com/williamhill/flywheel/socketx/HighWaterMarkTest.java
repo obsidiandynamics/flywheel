@@ -54,7 +54,7 @@ public final class HighWaterMarkTest extends BaseClientServerTest {
             TestSupport.await(receiveComplete);
           }
         });
-    openClientEndpoint(serverConfig.port, clientListener);
+    openClientEndpoint(false, serverConfig.port, clientListener);
     
     Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
     .until(() -> ! server.getEndpointManager().getEndpoints().isEmpty());

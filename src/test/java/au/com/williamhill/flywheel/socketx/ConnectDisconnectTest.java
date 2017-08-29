@@ -24,28 +24,33 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
 
   @Test
   public void testJtJt() throws Exception {
-    test(true, CYCLES, CONNECTIONS, JettyServer.factory(), JettyClient.factory());
-    test(false, CYCLES, CONNECTIONS, JettyServer.factory(), JettyClient.factory());
+    test(true, CYCLES, CONNECTIONS, false, JettyServer.factory(), JettyClient.factory());
+    test(false, CYCLES, CONNECTIONS, false, JettyServer.factory(), JettyClient.factory());
   }
 
   @Test
   public void testUtUt() throws Exception {
-    test(true, CYCLES, CONNECTIONS, UndertowServer.factory(), UndertowClient.factory());
-    test(false, CYCLES, CONNECTIONS, UndertowServer.factory(), UndertowClient.factory());
+    test(true, CYCLES, CONNECTIONS, false, UndertowServer.factory(), UndertowClient.factory());
+    test(false, CYCLES, CONNECTIONS, false, UndertowServer.factory(), UndertowClient.factory());
+  }
+
+  @Test
+  public void testUtUtHttps() throws Exception {
+    test(true, CYCLES, CONNECTIONS, true, UndertowServer.factory(), UndertowClient.factory());
   }
 
   @Test
   public void testNtUt() throws Exception {
-    test(true, CYCLES, CONNECTIONS, NettyServer.factory(), UndertowClient.factory());
-    test(false, CYCLES, CONNECTIONS, NettyServer.factory(), UndertowClient.factory());
+    test(true, CYCLES, CONNECTIONS, false, NettyServer.factory(), UndertowClient.factory());
+    test(false, CYCLES, CONNECTIONS, false, NettyServer.factory(), UndertowClient.factory());
   }
 
-  private void test(boolean clean, int cycles, int connections,
+  private void test(boolean clean, int cycles, int connections, boolean https,
                     XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
     for (int cycle = 0; cycle < cycles; cycle++) {
       if (cycle != 0) init();
-      test(clean, connections, serverFactory, clientFactory);
+      test(clean, connections, https, serverFactory, clientFactory);
       dispose();
       if (PROGRESS_INTERVAL != 0 && cycle % PROGRESS_INTERVAL == PROGRESS_INTERVAL - 1) {
         LOG_STREAM.format("cycle %,d\n", cycle);
@@ -53,7 +58,7 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     }
   }
 
-  private void test(boolean clean, int connections,
+  private void test(boolean clean, int connections, boolean https,
                     XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
     final XServerConfig serverConfig = getDefaultServerConfig();
@@ -69,7 +74,8 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     
     // connect all endpoints
     for (int i = 0; i < connections; i++) {
-      endpoints.add(openClientEndpoint(serverConfig.port, clientListener));
+      final int port = https ? serverConfig.httpsPort : serverConfig.port;
+      endpoints.add(openClientEndpoint(https, port, clientListener));
     }
 
     // assert connections on server

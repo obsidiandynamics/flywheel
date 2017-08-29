@@ -1,12 +1,12 @@
-package au.com.williamhill.flywheel.edge.auth.httpstub.util;
+package au.com.williamhill.flywheel.socketx.util;
 
 import java.io.*;
 import java.security.*;
 
 import javax.net.ssl.*;
 
-public final class SSLUtils {
-  private SSLUtils() {}
+public final class SSL {
+  private SSL() {}
 
   public static SSLContext createSSLContext(final KeyStore keyStore, final KeyStore trustStore, String keyPassword) throws Exception {
     final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());

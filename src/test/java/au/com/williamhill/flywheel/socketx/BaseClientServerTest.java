@@ -15,12 +15,12 @@ public abstract class BaseClientServerTest implements TestSupport {
   protected XClient<? extends XEndpoint> client;
   
   @Before
-  public final void setup() throws Exception {
+  public final void before() throws Exception {
     init();
   }
 
   @After
-  public final void teardown() throws Exception {
+  public final void after() throws Exception {
     dispose();
   }
   
@@ -37,6 +37,7 @@ public abstract class BaseClientServerTest implements TestSupport {
   protected static XServerConfig getDefaultServerConfig() {
     return new XServerConfig() {{
       port = SocketTestSupport.getAvailablePort(8080);
+      httpsPort = SocketTestSupport.getAvailablePort(8443);
     }};
   }
 
@@ -48,8 +49,8 @@ public abstract class BaseClientServerTest implements TestSupport {
   protected final void createServer(XServerFactory<? extends XEndpoint> serverFactory,
                                     XServerConfig config, XEndpointListener<XEndpoint> serverListener) throws Exception {
     server = serverFactory.create(config, Mocks.logger(XEndpointListener.class, 
-                                                             serverListener,
-                                                             new LoggingInterceptor<>("s: ")));
+                                                       serverListener,
+                                                       new LoggingInterceptor<>("s: ")));
   }
   
   protected final void createClient(XClientFactory<? extends XEndpoint> clientFactory, XClientConfig config) throws Exception {
@@ -57,8 +58,8 @@ public abstract class BaseClientServerTest implements TestSupport {
   }
   
   @SuppressWarnings("unchecked")
-  protected final XEndpoint openClientEndpoint(int port, XEndpointListener<XEndpoint> clientListener) throws URISyntaxException, Exception {
-    return client.connect(new URI("ws://localhost:" + port + "/"),
+  protected final XEndpoint openClientEndpoint(boolean https, int port, XEndpointListener<XEndpoint> clientListener) throws URISyntaxException, Exception {
+    return client.connect(new URI(String.format("%s://localhost:%d/", https ? "wss" : "ws", port)),
                           Mocks.logger(XEndpointListener.class, 
                                        clientListener,
                                        new LoggingInterceptor<>("c: ")));

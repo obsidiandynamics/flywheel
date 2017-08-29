@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.*;
 
 import javax.net.ssl.*;
 
-import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.util.*;
 import io.undertow.*;
 import io.undertow.server.*;
@@ -30,15 +30,15 @@ final class UndertowMockServer {
   private final String responseJson;
 
   UndertowMockServer(String path, String responseJson) throws Exception {
-    final KeyStore keyStore = SSLUtils
+    final KeyStore keyStore = SSL
         .loadKeyStore(HttpStubAuthBenchmark.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
-    final SSLContext context = SSLUtils.createSSLContext(keyStore, keyStore, "keypass");
+    final SSLContext sslContext = SSL.createSSLContext(keyStore, keyStore, "keypass");
     httpPort = SocketTestSupport.getAvailablePort(8090);
     httpsPort = SocketTestSupport.getAvailablePort(8443);
     this.responseJson = responseJson;
     server = Undertow.builder()
         .addHttpListener(httpPort, "0.0.0.0")
-        .addHttpsListener(httpsPort, "0.0.0.0", context)
+        .addHttpsListener(httpsPort, "0.0.0.0", sslContext)
         .setHandler(Handlers.routing().post(path, this::post))
         .build();
   }

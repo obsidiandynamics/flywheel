@@ -3,17 +3,22 @@ package au.com.williamhill.flywheel.socketx;
 import com.obsidiandynamics.yconf.*;
 
 @Y
-public class XEndpointConfig {
+public class XEndpointConfig<C extends XEndpointConfig<C>> {
   @YInject
   public long highWaterMark = Long.MAX_VALUE;
   
-  public XEndpointConfig withHighWaterMark(long highWaterMark) {
+  @YInject
+  public SSLConfig sslConfig = SSLConfig.getDefault();
+  
+  @SuppressWarnings("unchecked")
+  public C withHighWaterMark(long highWaterMark) {
     this.highWaterMark = highWaterMark;
-    return this;
+    return (C) this;
   }
-
-  @Override
-  public String toString() {
-    return "XEndpointConfig [highWaterMark=" + highWaterMark + "]";
+  
+  @SuppressWarnings("unchecked")
+  public C withSSLConfig(SSLConfig sslConfig) {
+    this.sslConfig = sslConfig;
+    return (C) this;
   }
 }

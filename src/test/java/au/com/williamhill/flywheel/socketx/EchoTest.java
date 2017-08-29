@@ -69,7 +69,7 @@ public final class EchoTest extends BaseClientServerTest {
     
     // connect all endpoints
     for (int i = 0; i < connections; i++) {
-      endpoints.add(openClientEndpoint(serverConfig.port, clientListener));
+      endpoints.add(openClientEndpoint(false, serverConfig.port, clientListener));
     }
     
     // send one text and one binary frame over each client connection

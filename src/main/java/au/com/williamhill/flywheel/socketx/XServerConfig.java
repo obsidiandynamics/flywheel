@@ -5,9 +5,12 @@ import java.util.*;
 import com.obsidiandynamics.yconf.*;
 
 @Y
-public class XServerConfig {
+public class XServerConfig extends XEndpointConfig<XServerConfig> {
   @YInject
   public int port = 8080;
+  
+  @YInject
+  public int httpsPort = 8443;
   
   @YInject
   public String path = "/";
@@ -24,11 +27,13 @@ public class XServerConfig {
   @YInject
   public XMappedServlet[] servlets = new XMappedServlet[0];
   
-  @YInject
-  public XEndpointConfig endpointConfig = new XEndpointConfig();
-  
   public XServerConfig withPort(int port) {
     this.port = port;
+    return this;
+  }
+  
+  public XServerConfig withHttpsPort(int httpsPort) {
+    this.httpsPort = httpsPort;
     return this;
   }
   
@@ -57,15 +62,11 @@ public class XServerConfig {
     return this;
   }
 
-  public XServerConfig withEndpointConfig(XEndpointConfig endpointConfig) {
-    this.endpointConfig = endpointConfig;
-    return this;
-  }
-
   @Override
   public String toString() {
-    return "XServerConfig [port=" + port + ", path=" + path + ", idleTimeoutMillis=" + idleTimeoutMillis
-           + ", pingIntervalMillis=" + pingIntervalMillis + ", scanIntervalMillis=" + scanIntervalMillis + ", servlets="
-           + Arrays.toString(servlets) + ", endpointConfig=" + endpointConfig + "]";
+    return "XServerConfig [port: " + port + ", httpsPort: " + httpsPort + ", path: " + path + ", idleTimeoutMillis: "
+           + idleTimeoutMillis + ", pingIntervalMillis: " + pingIntervalMillis + ", scanIntervalMillis: "
+           + scanIntervalMillis + ", servlets: " + Arrays.toString(servlets) + ", highWaterMark: " + highWaterMark
+           + ", sslConfig: " + sslConfig + "]";
   }
 }

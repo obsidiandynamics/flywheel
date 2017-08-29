@@ -54,7 +54,7 @@ public final class KeepAliveTest extends BaseClientServerTest {
     createClient(clientFactory, clientConfig);
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
-    openClientEndpoint(serverConfig.port, clientListener);
+    openClientEndpoint(false, serverConfig.port, clientListener);
     await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
       Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
       Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());

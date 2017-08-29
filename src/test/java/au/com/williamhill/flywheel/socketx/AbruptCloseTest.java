@@ -55,7 +55,7 @@ public final class AbruptCloseTest extends BaseClientServerTest {
     createClient(clientFactory, clientConfig);
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
-    final XEndpoint endpoint = openClientEndpoint(serverConfig.port, clientListener);
+    final XEndpoint endpoint = openClientEndpoint(false, serverConfig.port, clientListener);
     await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
       Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
       Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
@@ -80,7 +80,7 @@ public final class AbruptCloseTest extends BaseClientServerTest {
     createClient(clientFactory, clientConfig);
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
-    openClientEndpoint(serverConfig.port, clientListener);
+    openClientEndpoint(false, serverConfig.port, clientListener);
     
     await().dontCatchUncaughtExceptions().atMost(60, SECONDS).until(this::hasServerEndpoint);
     
