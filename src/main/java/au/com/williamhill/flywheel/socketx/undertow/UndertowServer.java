@@ -48,18 +48,21 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
     final PathHandler handler = Handlers.path()
         .addPrefixPath("/", servletManager.start())
         .addPrefixPath(config.path, Handlers.websocket(manager));
-
-    final KeyStore keyStore = SSL
-        .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
-    final SSLContext sslContext = SSL.createSSLContext(keyStore, keyStore, "keypass");
-    server = Undertow.builder()
-        .setWorker(worker)
-        .addHttpListener(config.port, "0.0.0.0")
-        .addHttpsListener(config.httpsPort, "0.0.0.0", sslContext)
-        .setHandler(handler)
-        .setBufferSize(UndertowProperties.bufferSize)
-        .setDirectBuffers(UndertowProperties.directBuffers)
-        .build();
+    final Undertow.Builder builder = Undertow.builder()
+    .setWorker(worker)
+    .addHttpListener(config.port, "0.0.0.0")
+    .setHandler(handler)
+    .setBufferSize(UndertowProperties.bufferSize)
+    .setDirectBuffers(UndertowProperties.directBuffers);
+    
+    if (config.httpsPort != 0) {
+      final KeyStore keyStore = SSL
+          .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
+      final SSLContext sslContext = SSL.createSSLContext(keyStore, "keypass", keyStore);
+      builder.addHttpsListener(config.httpsPort, "0.0.0.0", sslContext);
+    }
+    
+    server = builder.build();
     server.start();
   }
 

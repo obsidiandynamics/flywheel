@@ -21,10 +21,4 @@ public final class XClientConfigTest {
   public void testScanInterval() {
     assertEquals(2000, new XClientConfig().withScanInterval(2000).scanIntervalMillis);
   }
-
-  @Test
-  public void testEndpointConfig() {
-    final XEndpointConfig c = new XEndpointConfig();
-    assertEquals(c, new XClientConfig().withEndpointConfig(c).endpointConfig);
-  }
 }

@@ -34,10 +34,10 @@ public abstract class BaseClientServerTest implements TestSupport {
     client = null;
   }
 
-  protected static XServerConfig getDefaultServerConfig() {
+  protected static XServerConfig getDefaultServerConfig(boolean enableHttps) {
     return new XServerConfig() {{
       port = SocketTestSupport.getAvailablePort(8080);
-      httpsPort = SocketTestSupport.getAvailablePort(8443);
+      httpsPort = enableHttps ? SocketTestSupport.getAvailablePort(8443) : 0;
     }};
   }
 

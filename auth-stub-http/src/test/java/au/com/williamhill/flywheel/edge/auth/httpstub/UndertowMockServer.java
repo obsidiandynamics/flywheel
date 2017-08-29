@@ -32,7 +32,7 @@ final class UndertowMockServer {
   UndertowMockServer(String path, String responseJson) throws Exception {
     final KeyStore keyStore = SSL
         .loadKeyStore(HttpStubAuthBenchmark.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
-    final SSLContext sslContext = SSL.createSSLContext(keyStore, keyStore, "keypass");
+    final SSLContext sslContext = SSL.createSSLContext(keyStore, "keypass", keyStore);
     httpPort = SocketTestSupport.getAvailablePort(8090);
     httpsPort = SocketTestSupport.getAvailablePort(8443);
     this.responseJson = responseJson;

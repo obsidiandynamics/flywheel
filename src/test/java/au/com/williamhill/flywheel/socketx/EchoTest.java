@@ -54,7 +54,7 @@ public final class EchoTest extends BaseClientServerTest {
   private void test(int connections, int messages,
                     XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig();
+    final XServerConfig serverConfig = getDefaultServerConfig(false);
     serverConfig.scanIntervalMillis = 1;
     final XEndpointListener<XEndpoint> serverListener = new XEndpointLambdaListener<>()
         .onText((endpoint, message) -> endpoint.send(message, null))

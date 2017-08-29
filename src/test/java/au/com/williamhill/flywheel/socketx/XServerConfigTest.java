@@ -49,10 +49,4 @@ public final class XServerConfigTest {
     final XMappedServlet[] servlets = new XMappedServlet[] { new XMappedServlet("/health", "health", HealthServlet.class) };
     assertEquals(servlets, new XServerConfig().withServlets(servlets).servlets);
   }
-
-  @Test
-  public void testEndpointConfig() {
-    final XEndpointConfig c = new XEndpointConfig();
-    assertEquals(c, new XServerConfig().withEndpointConfig(c).endpointConfig);
-  }
 }

@@ -55,7 +55,9 @@ public abstract class ClusterTest implements TestSupport {
   
   protected final EdgeNode createEdgeNode(int port, Backplane backplane) throws Exception {
     final EdgeNode edge = EdgeNode.builder()
-    .withServerConfig(new XServerConfig().withPort(SocketTestSupport.getAvailablePort(port)))
+    .withServerConfig(new XServerConfig()
+                      .withPort(SocketTestSupport.getAvailablePort(port))
+                      .withHttpsPort(0))
     .withBackplane(backplane)
     .build();
     

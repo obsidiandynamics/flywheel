@@ -8,7 +8,7 @@ import javax.net.ssl.*;
 public final class SSL {
   private SSL() {}
 
-  public static SSLContext createSSLContext(final KeyStore keyStore, final KeyStore trustStore, String keyPassword) throws Exception {
+  public static SSLContext createSSLContext(KeyStore keyStore, String keyPassword, KeyStore trustStore) throws Exception {
     final KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
     keyManagerFactory.init(keyStore, keyPassword.toCharArray());
     final KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();

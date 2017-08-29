@@ -81,8 +81,7 @@ public final class NettyEndpoint implements XEndpoint {
   }
   
   private boolean isBelowHWM() {
-    final XEndpointConfig config = manager.getConfig();
-    return backlog.get() < config.highWaterMark;
+    return backlog.get() < manager.getConfig().highWaterMark;
   }
   
   @Override

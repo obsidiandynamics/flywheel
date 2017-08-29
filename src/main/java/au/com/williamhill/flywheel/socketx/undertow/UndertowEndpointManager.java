@@ -15,13 +15,13 @@ final class UndertowEndpointManager implements WebSocketConnectionCallback, XEnd
   
   private final int idleTimeoutMillis;
   
-  private final XEndpointConfig config;
+  private final XEndpointConfig<?> config;
   
   private final XEndpointListener<? super UndertowEndpoint> listener;
   
   private final XEndpointScanner<UndertowEndpoint> scanner;
   
-  UndertowEndpointManager(XEndpointScanner<UndertowEndpoint> scanner, int idleTimeoutMillis, XEndpointConfig config, 
+  UndertowEndpointManager(XEndpointScanner<UndertowEndpoint> scanner, int idleTimeoutMillis, XEndpointConfig<?> config, 
                           XEndpointListener<? super UndertowEndpoint> listener) {
     this.idleTimeoutMillis = idleTimeoutMillis;
     this.config = config;
@@ -55,7 +55,7 @@ final class UndertowEndpointManager implements WebSocketConnectionCallback, XEnd
     return listener;
   }
   
-  XEndpointConfig getConfig() {
+  XEndpointConfig<?> getConfig() {
     return config;
   }
   

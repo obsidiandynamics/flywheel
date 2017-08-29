@@ -51,10 +51,10 @@ public class SSLConfig {
     return this;
   }
   
-  SSLContext buildSSLContext() throws Exception {
+  final SSLContext buildSSLContext() throws Exception {
     final KeyStore keyStore = SSL.loadKeyStore(ResourceLocator.asStream(new URI(keyStoreLocation)), keyStorePassword);
     final KeyStore trustStore = SSL.loadKeyStore(ResourceLocator.asStream(new URI(trustStoreLocation)), trustStorePassword);
-    return SSL.createSSLContext(keyStore, trustStore, keyPassword);
+    return SSL.createSSLContext(keyStore, keyPassword, trustStore);
   }
   
   public static SSLConfig getDefault() {

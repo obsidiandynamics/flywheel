@@ -26,7 +26,7 @@ public final class JettyServer implements XServer<JettyEndpoint> {
     
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
     manager = new JettyEndpointManager(scanner, config.idleTimeoutMillis, 
-                                       config.endpointConfig, listener);
+                                       config, listener);
     final ContextHandler wsContext = new ContextHandler(config.path);
     wsContext.setHandler(manager);
     handlers.addHandler(wsContext);

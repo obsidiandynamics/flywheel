@@ -45,7 +45,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig();
+    final XServerConfig serverConfig = getDefaultServerConfig(false);
     serverConfig.scanIntervalMillis = 1;
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
@@ -71,7 +71,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   private void testServerTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig();
+    final XServerConfig serverConfig = getDefaultServerConfig(false);
     serverConfig.scanIntervalMillis = 1;
     serverConfig.idleTimeoutMillis = idleTimeoutMillis;
     final XEndpointListener<XEndpoint> serverListener = createMockListener();

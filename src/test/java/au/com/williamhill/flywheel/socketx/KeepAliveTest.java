@@ -41,7 +41,7 @@ public final class KeepAliveTest extends BaseClientServerTest {
 
   private void testKeepAlive(XServerFactory<? extends XEndpoint> serverFactory,
                              XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig();
+    final XServerConfig serverConfig = getDefaultServerConfig(false);
     serverConfig.scanIntervalMillis = 1;
     serverConfig.pingIntervalMillis = 1;
     serverConfig.idleTimeoutMillis = 2000;
