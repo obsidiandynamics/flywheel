@@ -5,6 +5,8 @@ import java.net.*;
 
 import com.obsidiandynamics.yconf.*;
 
+import au.com.williamhill.flywheel.socketx.util.*;
+
 public final class TopicLibrary {
   private TopicLibrary() {}
   
@@ -20,24 +22,10 @@ public final class TopicLibrary {
         .build();
   }
   
-  public static TopicSpec load(String uri) throws FileNotFoundException, IOException, URISyntaxException {
+  public static TopicSpec load(String location) throws IOException, URISyntaxException {
     return new MappingContext()
         .withParser(new SnakeyamlParser())
-        .fromStream(getStream(new URI(uri)))
+        .fromStream(ResourceLocator.asStream(new URI(location)))
         .map(TopicSpec.class);
-  }
-  
-  private static InputStream getStream(URI uri) throws FileNotFoundException {
-    switch (uri.getScheme()) {
-      case "file":
-        return new FileInputStream(new File(uri.getHost() + uri.getPath()));
-        
-      case "cp":
-      case "classpath":
-        return TopicLibrary.class.getClassLoader().getResourceAsStream(uri.getHost() + uri.getPath());
-        
-      default:
-        throw new IllegalArgumentException("Unsupported URI scheme " + uri.getScheme());
-    }
   }
 }

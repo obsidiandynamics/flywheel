@@ -20,6 +20,11 @@ public final class XServerConfigTest {
   }
 
   @Test
+  public void testHttpsPort() {
+    assertEquals(9443, new XServerConfig().withHttpsPort(9443).httpsPort);
+  }
+
+  @Test
   public void testPath() {
     assertEquals("/foo/bar", new XServerConfig().withPath("/foo/bar").path);
   }

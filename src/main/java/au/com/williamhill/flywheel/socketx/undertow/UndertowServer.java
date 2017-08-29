@@ -1,8 +1,13 @@
 package au.com.williamhill.flywheel.socketx.undertow;
 
+import java.security.*;
+
+import javax.net.ssl.*;
+
 import org.xnio.*;
 
 import au.com.williamhill.flywheel.socketx.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import io.undertow.*;
 import io.undertow.server.handlers.*;
 import io.undertow.servlet.*;
@@ -27,7 +32,7 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
                                              .getMap());
 
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
-    manager = new UndertowEndpointManager(scanner, config.idleTimeoutMillis, config.endpointConfig, listener);
+    manager = new UndertowEndpointManager(scanner, config.idleTimeoutMillis, config, listener);
 
     final DeploymentInfo servletBuilder = Servlets.deployment()
         .setClassLoader(UndertowServer.class.getClassLoader())
@@ -44,9 +49,13 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
         .addPrefixPath("/", servletManager.start())
         .addPrefixPath(config.path, Handlers.websocket(manager));
 
+    final KeyStore keyStore = SSL
+        .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
+    final SSLContext sslContext = SSL.createSSLContext(keyStore, keyStore, "keypass");
     server = Undertow.builder()
         .setWorker(worker)
         .addHttpListener(config.port, "0.0.0.0")
+        .addHttpsListener(config.httpsPort, "0.0.0.0", sslContext)
         .setHandler(handler)
         .setBufferSize(UndertowProperties.bufferSize)
         .setDirectBuffers(UndertowProperties.directBuffers)

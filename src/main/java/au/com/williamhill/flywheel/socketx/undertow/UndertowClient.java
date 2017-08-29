@@ -2,12 +2,18 @@ package au.com.williamhill.flywheel.socketx.undertow;
 
 import java.io.*;
 import java.net.*;
+import java.security.*;
 import java.util.*;
 
+import javax.net.ssl.*;
+
 import org.xnio.*;
+import org.xnio.ssl.*;
 
 import au.com.williamhill.flywheel.socketx.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import io.undertow.connector.*;
+import io.undertow.protocols.ssl.*;
 import io.undertow.server.*;
 import io.undertow.websockets.client.*;
 import io.undertow.websockets.core.*;
@@ -31,7 +37,17 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
   @Override
   public UndertowEndpoint connect(URI uri, XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
     final ByteBufferPool pool = new DefaultByteBufferPool(UndertowProperties.directBuffers, bufferSize);
-    final WebSocketChannel channel = WebSocketClient.connectionBuilder(worker, pool, uri).connect().get();
+    final KeyStore keyStore = SSL
+        .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
+    final SSLContext sslContext = SSL.createSSLContext(keyStore, keyStore, "keypass");
+
+    final ByteBufferPool sslBufferPool = new DefaultByteBufferPool(UndertowProperties.directBuffers, 17 * 1024);
+    final XnioSsl ssl = new UndertowXnioSsl(worker.getXnio(), OptionMap.EMPTY, sslBufferPool, sslContext);
+
+    final WebSocketChannel channel = WebSocketClient.connectionBuilder(worker, pool, uri)
+        .setSsl(ssl)
+        .connect()
+        .get();
     if (config.hasIdleTimeout()) {
       channel.setIdleTimeout(config.idleTimeoutMillis);
     }
