@@ -2,6 +2,7 @@
 # launching the broker JVM process.
 
 if [ -z ${FLYWHEEL_JVM_OPTS} ]; then
+  mkdir -p log
   export FLYWHEEL_JVM_OPTS="-XX:-MaxFDLimit -Djava.net.preferIPv4Stack=true -Xms1G -Xmx2G -Xss1M -XX:MaxDirectMemorySize=2G \
                             -XX:+ExplicitGCInvokesConcurrent -Xloggc:log/gc-%t.log -XX:+PrintGCDetails -XX:+PrintGCTimeStamps \
                             -XX:+PrintGCApplicationStoppedTime \
