@@ -5,12 +5,12 @@ def packageName = 'flywheel-standalone'
 
 dependencies {
   compile project(':')
-  compile project(':flywheel-auth-stub-http')
-  compile project(':flywheel-plugin-beacon')
-  compile project(':flywheel-plugin-toplog')
   
+  runtime project(':flywheel-auth-stub-http')
   runtime project(':flywheel-backplane-kafka')
   runtime project(':flywheel-logging-splunk')
+  runtime project(':flywheel-plugin-beacon')
+  runtime project(':flywheel-plugin-toplog')
   
   testCompile project(':').sourceSets.test.output
   testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
