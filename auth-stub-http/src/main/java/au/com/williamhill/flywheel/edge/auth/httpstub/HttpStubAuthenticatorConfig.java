@@ -32,6 +32,6 @@ public class HttpStubAuthenticatorConfig {
 
   @Override
   public String toString() {
-    return "HttpStubAuthConfig [uri: " + uri + ", poolSize: " + poolSize + ", timeoutMillis: " + timeoutMillis + "]";
+    return "HttpStubAuthenticatorConfig [uri: " + uri + ", poolSize: " + poolSize + ", timeoutMillis: " + timeoutMillis + "]";
   }
 }
