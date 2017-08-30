@@ -44,4 +44,9 @@ public final class InVMBackplane implements Backplane {
   public void close() throws Exception {
     cluster.getConnectors().clear();
   }
+
+  @Override
+  public String toString() {
+    return InVMBackplane.class.getSimpleName();
+  }
 }

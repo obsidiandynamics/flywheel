@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.edge.backplane;
 
+import static org.junit.Assert.*;
+
 import org.junit.*;
 
 public final class InVMBackplaneTest extends BackplaneTest {
@@ -39,5 +41,10 @@ public final class InVMBackplaneTest extends BackplaneTest {
     final int expectedMessages = expectedPartitions * messagesPerTopic;
     test(CYCLES, false, connectors, topics, messagesPerTopic, expectedPartitions, expectedMessages);
     test(CYCLES, true, connectors, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+  }
+  
+  @Test
+  public void testToString() {
+    assertNotNull(new InVMCluster().createBackplane().toString());
   }
 }

@@ -7,6 +7,7 @@ import javax.net.ssl.*;
 
 import com.obsidiandynamics.yconf.*;
 
+import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.util.*;
 
 @Y
@@ -52,9 +53,9 @@ public class SSLConfig {
   }
   
   final SSLContext buildSSLContext() throws Exception {
-    final KeyStore keyStore = SSL.loadKeyStore(ResourceLocator.asStream(new URI(keyStoreLocation)), keyStorePassword);
-    final KeyStore trustStore = SSL.loadKeyStore(ResourceLocator.asStream(new URI(trustStoreLocation)), trustStorePassword);
-    return SSL.createSSLContext(keyStore, keyPassword, trustStore);
+    final KeyStore keyStore = JKS.loadKeyStore(ResourceLocator.asStream(new URI(keyStoreLocation)), keyStorePassword);
+    final KeyStore trustStore = JKS.loadKeyStore(ResourceLocator.asStream(new URI(trustStoreLocation)), trustStorePassword);
+    return JKS.createSSLContext(keyStore, keyPassword, trustStore);
   }
   
   public static SSLConfig getDefault() {

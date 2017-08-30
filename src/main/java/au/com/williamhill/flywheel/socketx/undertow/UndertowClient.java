@@ -11,6 +11,7 @@ import org.xnio.*;
 import org.xnio.ssl.*;
 
 import au.com.williamhill.flywheel.socketx.*;
+import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.util.*;
 import io.undertow.connector.*;
 import io.undertow.protocols.ssl.*;
@@ -37,9 +38,9 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
   @Override
   public UndertowEndpoint connect(URI uri, XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
     final ByteBufferPool pool = new DefaultByteBufferPool(UndertowProperties.directBuffers, bufferSize);
-    final KeyStore keyStore = SSL
+    final KeyStore keyStore = JKS
         .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
-    final SSLContext sslContext = SSL.createSSLContext(keyStore, "keypass", keyStore);
+    final SSLContext sslContext = JKS.createSSLContext(keyStore, "keypass", keyStore);
 
     final ByteBufferPool sslBufferPool = new DefaultByteBufferPool(UndertowProperties.directBuffers, 17 * 1024);
     final XnioSsl ssl = new UndertowXnioSsl(worker.getXnio(), OptionMap.EMPTY, sslBufferPool, sslContext);
