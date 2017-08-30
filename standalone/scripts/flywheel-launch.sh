@@ -1,11 +1,19 @@
 #!/bin/sh
 
+cd $(dirname "$0")/..
+
 # The application can define additional startup commands in ./conf/bootrc and/or ./ext/bootrc.
 if [ -e conf/bootrc ]; then
   . conf/bootrc
 fi
 if [ -e ext/bootrc ]; then
   . ext/bootrc
+fi
+
+if [ -e '../gradlew' ]; then
+  cd ..
+  ./gradlew :flywheel-standalone:build -x test
+  cd -
 fi
 
 CYAN='\033[0;36m'
@@ -48,7 +56,7 @@ else
   fi
 
   CMD="java $FLYWHEEL_JVM_OPTS \
-       -cp build/libs/flywheel-*jar \
+       -cp build/libs/flywheel-standalone-full-*jar \
        au.com.williamhill.flywheel.Launchpad \
        $@"
   echo "> Starting $CMD"
