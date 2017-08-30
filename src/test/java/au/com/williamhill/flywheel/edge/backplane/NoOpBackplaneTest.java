@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.edge.backplane;
 
+import static org.junit.Assert.*;
+
 import org.junit.*;
 
 public final class NoOpBackplaneTest extends BackplaneTest {
@@ -31,5 +33,11 @@ public final class NoOpBackplaneTest extends BackplaneTest {
     final int expectedMessages = 0;
     test(CYCLES, false, connectors, topics, messagesPerTopic, expectedPartitions, expectedMessages);
     test(CYCLES, true, connectors, topics, messagesPerTopic, expectedPartitions, expectedMessages);
+  }
+  
+  @SuppressWarnings("resource")
+  @Test
+  public void testToString() {
+    assertNotNull(new NoOpBackplane().toString());
   }
 }

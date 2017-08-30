@@ -7,6 +7,7 @@ import javax.net.ssl.*;
 import org.xnio.*;
 
 import au.com.williamhill.flywheel.socketx.*;
+import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.util.*;
 import io.undertow.*;
 import io.undertow.server.handlers.*;
@@ -56,9 +57,9 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
     .setDirectBuffers(UndertowProperties.directBuffers);
     
     if (config.httpsPort != 0) {
-      final KeyStore keyStore = SSL
+      final KeyStore keyStore = JKS
           .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
-      final SSLContext sslContext = SSL.createSSLContext(keyStore, "keypass", keyStore);
+      final SSLContext sslContext = JKS.createSSLContext(keyStore, "keypass", keyStore);
       builder.addHttpsListener(config.httpsPort, "0.0.0.0", sslContext);
     }
     
