@@ -77,7 +77,7 @@ public final class ConfigLauncher implements Launcher  {
     .append("\n    ping interval: ").append(serverConfig.pingIntervalMillis).append(" ms")
     .append("\n    scan interval: ").append(serverConfig.scanIntervalMillis).append(" ms")
     .append("\n    high-water mark: ").append(serverConfig.highWaterMark)
-    .append("\n    SSL: ").append(serverConfig.sslConfig);
+    .append("\n    SSL: ").append(serverConfig.sslContextProvider);
 
     sb.append("\n    servlets:");
     for (XMappedServlet mappedServlet : serverConfig.servlets) {

@@ -34,14 +34,14 @@ public final class HighWaterMarkTest extends BaseClientServerTest {
   private void test(XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
     final int highWaterMark = 1;
-    final XServerConfig serverConfig = getDefaultServerConfig(false);
-    serverConfig.scanIntervalMillis = 1;
-    serverConfig.highWaterMark = highWaterMark;
+    final XServerConfig serverConfig = getDefaultServerConfig(false)
+        .withScanInterval(1)
+        .withHighWaterMark(highWaterMark);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
 
-    final XClientConfig clientConfig = getDefaultClientConfig();
-    clientConfig.scanIntervalMillis = 1;
+    final XClientConfig clientConfig = getDefaultClientConfig()
+        .withScanInterval(1);
     createClient(clientFactory, clientConfig);
     
     final CyclicBarrier receiveStarted = new CyclicBarrier(2);

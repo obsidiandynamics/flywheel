@@ -4,6 +4,8 @@ import java.util.*;
 
 import com.obsidiandynamics.yconf.*;
 
+import au.com.williamhill.flywheel.socketx.ssl.*;
+
 @Y
 public class XServerConfig extends XEndpointConfig<XServerConfig> {
   @YInject
@@ -26,6 +28,10 @@ public class XServerConfig extends XEndpointConfig<XServerConfig> {
   
   @YInject
   public XMappedServlet[] servlets = new XMappedServlet[0];
+  
+  {
+    sslContextProvider = CompositeSSLContextProvider.getDevServerDefault();
+  }
   
   public XServerConfig withPort(int port) {
     this.port = port;
@@ -67,6 +73,6 @@ public class XServerConfig extends XEndpointConfig<XServerConfig> {
     return "XServerConfig [port: " + port + ", httpsPort: " + httpsPort + ", path: " + path + ", idleTimeoutMillis: "
            + idleTimeoutMillis + ", pingIntervalMillis: " + pingIntervalMillis + ", scanIntervalMillis: "
            + scanIntervalMillis + ", servlets: " + Arrays.toString(servlets) + ", highWaterMark: " + highWaterMark
-           + ", sslConfig: " + sslConfig + "]";
+           + ", sslContextProvider: " + sslContextProvider + "]";
   }
 }
