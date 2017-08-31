@@ -2,6 +2,8 @@ package au.com.williamhill.flywheel.socketx;
 
 import com.obsidiandynamics.yconf.*;
 
+import au.com.williamhill.flywheel.socketx.ssl.*;
+
 @Y
 public class XClientConfig extends XEndpointConfig<XClientConfig> {
   @YInject
@@ -9,6 +11,10 @@ public class XClientConfig extends XEndpointConfig<XClientConfig> {
   
   @YInject
   public int scanIntervalMillis = 1_000;
+  
+  {
+    sslContextProvider = new DefaultSSLContextProvider();
+  }
   
   public boolean hasIdleTimeout() {
     return idleTimeoutMillis != 0;
@@ -27,6 +33,6 @@ public class XClientConfig extends XEndpointConfig<XClientConfig> {
   @Override
   public String toString() {
     return "XClientConfig [idleTimeoutMillis: " + idleTimeoutMillis + ", scanIntervalMillis: " + scanIntervalMillis
-           + ", highWaterMark: " + highWaterMark + ", sslConfig: " + sslConfig + "]";
+           + ", highWaterMark: " + highWaterMark + ", sslContextProvider: " + sslContextProvider + "]";
   }
 }

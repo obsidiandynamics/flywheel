@@ -2,7 +2,6 @@ package au.com.williamhill.flywheel.socketx.undertow;
 
 import java.io.*;
 import java.net.*;
-import java.security.*;
 import java.util.*;
 
 import javax.net.ssl.*;
@@ -11,12 +10,11 @@ import org.xnio.*;
 import org.xnio.ssl.*;
 
 import au.com.williamhill.flywheel.socketx.*;
-import au.com.williamhill.flywheel.socketx.ssl.*;
-import au.com.williamhill.flywheel.socketx.util.*;
 import io.undertow.connector.*;
 import io.undertow.protocols.ssl.*;
 import io.undertow.server.*;
 import io.undertow.websockets.client.*;
+import io.undertow.websockets.client.WebSocketClient.*;
 import io.undertow.websockets.core.*;
 
 public final class UndertowClient implements XClient<UndertowEndpoint> {
@@ -38,17 +36,16 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
   @Override
   public UndertowEndpoint connect(URI uri, XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
     final ByteBufferPool pool = new DefaultByteBufferPool(UndertowProperties.directBuffers, bufferSize);
-    final KeyStore keyStore = JKS
-        .loadKeyStore(XServer.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
-    final SSLContext sslContext = JKS.createSSLContext(keyStore, "keypass", keyStore);
 
-    final ByteBufferPool sslBufferPool = new DefaultByteBufferPool(UndertowProperties.directBuffers, 17 * 1024);
-    final XnioSsl ssl = new UndertowXnioSsl(worker.getXnio(), OptionMap.EMPTY, sslBufferPool, sslContext);
+    final ConnectionBuilder builder = WebSocketClient.connectionBuilder(worker, pool, uri);
+    if (uri.getScheme().equals("wss")) {
+      final SSLContext sslContext = config.sslContextProvider.getSSLContext();
+      final ByteBufferPool sslBufferPool = new DefaultByteBufferPool(UndertowProperties.directBuffers, 17 * 1024);
+      final XnioSsl ssl = new UndertowXnioSsl(worker.getXnio(), OptionMap.EMPTY, sslBufferPool, sslContext);
+      builder.setSsl(ssl);
+    }
 
-    final WebSocketChannel channel = WebSocketClient.connectionBuilder(worker, pool, uri)
-        .setSsl(ssl)
-        .connect()
-        .get();
+    final WebSocketChannel channel = builder.connect().get(); 
     if (config.hasIdleTimeout()) {
       channel.setIdleTimeout(config.idleTimeoutMillis);
     }

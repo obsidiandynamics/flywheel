@@ -41,16 +41,16 @@ public final class KeepAliveTest extends BaseClientServerTest {
 
   private void testKeepAlive(XServerFactory<? extends XEndpoint> serverFactory,
                              XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig(false);
-    serverConfig.scanIntervalMillis = 1;
-    serverConfig.pingIntervalMillis = 1;
-    serverConfig.idleTimeoutMillis = 2000;
+    final XServerConfig serverConfig = getDefaultServerConfig(false)
+        .withScanInterval(1)
+        .withPingInterval(1)
+        .withIdleTimeout(2000);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
 
-    final XClientConfig clientConfig = getDefaultClientConfig();
-    clientConfig.scanIntervalMillis = 1;
-    clientConfig.idleTimeoutMillis = 2000;
+    final XClientConfig clientConfig = getDefaultClientConfig()
+        .withScanInterval(1)
+        .withIdleTimeout(2000);
     createClient(clientFactory, clientConfig);
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();

@@ -3,10 +3,10 @@ package au.com.williamhill.flywheel.socketx.ssl;
 import javax.net.ssl.*;
 
 public class CompositeSSLContextProvider implements SSLContextProvider {
-  KeyManagerProvider keyManagerProvider;
-  
-  TrustManagerProvider trustManagerProvider;
-  
+  KeyManagerProvider keyManagerProvider = new NullKeyManagerProvider();
+
+  TrustManagerProvider trustManagerProvider = new NullTrustManagerProvider();
+
   public final CompositeSSLContextProvider withKeyManagerProvider(KeyManagerProvider keyManagerProvider) {
     this.keyManagerProvider = keyManagerProvider;
     return this;
@@ -29,6 +29,22 @@ public class CompositeSSLContextProvider implements SSLContextProvider {
   @Override
   public final String toString() {
     return "CompositeSSLContextProvider [keyManagerProvider: " + keyManagerProvider + ", trustManagerProvider: "
-           + trustManagerProvider + "]";
+        + trustManagerProvider + "]";
+  }
+
+  public static CompositeSSLContextProvider getDevServerDefault() {
+    return new CompositeSSLContextProvider()
+        .withKeyManagerProvider(new JKSKeyManagerProvider()
+                                .withLocation("cp://keystore.jks")
+                                .withStorePassword("storepass")
+                                .withKeyPassword("keypass"))
+        .withTrustManagerProvider(new JKSTrustManagerProvider()
+                                  .withLocation("cp://keystore.jks")
+                                  .withStorePassword("storepass"));
+  }
+  
+  public static CompositeSSLContextProvider getDevClientDefault() {
+    return new CompositeSSLContextProvider()
+        .withTrustManagerProvider(new LenientX509TrustManagerProvider());
   }
 }

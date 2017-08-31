@@ -45,14 +45,14 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig(false);
-    serverConfig.scanIntervalMillis = 1;
+    final XServerConfig serverConfig = getDefaultServerConfig(false)
+        .withScanInterval(1);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
 
-    final XClientConfig clientConfig = getDefaultClientConfig();
-    clientConfig.idleTimeoutMillis = idleTimeoutMillis;
-    clientConfig.scanIntervalMillis = 1;
+    final XClientConfig clientConfig = getDefaultClientConfig()
+        .withScanInterval(1)
+        .withIdleTimeout(idleTimeoutMillis);
     createClient(clientFactory, clientConfig);
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
@@ -71,14 +71,14 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   private void testServerTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig(false);
-    serverConfig.scanIntervalMillis = 1;
-    serverConfig.idleTimeoutMillis = idleTimeoutMillis;
+    final XServerConfig serverConfig = getDefaultServerConfig(false)
+        .withScanInterval(1)
+        .withIdleTimeout(idleTimeoutMillis);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
 
-    final XClientConfig clientConfig = getDefaultClientConfig();
-    clientConfig.scanIntervalMillis = 1;
+    final XClientConfig clientConfig = getDefaultClientConfig()
+        .withScanInterval(1);
     createClient(clientFactory, clientConfig);
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();

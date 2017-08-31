@@ -1,5 +1,6 @@
 package au.com.williamhill.flywheel.edge.auth.httpstub;
 
+import java.net.*;
 import java.security.*;
 import java.util.concurrent.atomic.*;
 
@@ -32,7 +33,7 @@ final class UndertowMockServer {
 
   UndertowMockServer(String path, String responseJson) throws Exception {
     final KeyStore keyStore = JKS
-        .loadKeyStore(HttpStubAuthBenchmark.class.getClassLoader().getResourceAsStream("keystore.jks"), "storepass");
+        .loadKeyStore(ResourceLocator.asStream(new URI("cp://eystore.jks")), "storepass");
     final SSLContext sslContext = JKS.createSSLContext(keyStore, "keypass", keyStore);
     httpPort = SocketTestSupport.getAvailablePort(8090);
     httpsPort = SocketTestSupport.getAvailablePort(8443);

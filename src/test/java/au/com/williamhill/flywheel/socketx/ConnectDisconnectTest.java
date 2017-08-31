@@ -12,6 +12,7 @@ import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
+import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
 import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
@@ -61,13 +62,14 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
   private void test(boolean clean, int connections, boolean https,
                     XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig(https);
-    serverConfig.scanIntervalMillis = 1;
+    final XServerConfig serverConfig = getDefaultServerConfig(https)
+        .withScanInterval(1);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
 
-    final XClientConfig clientConfig = getDefaultClientConfig();
-    clientConfig.scanIntervalMillis = 1;
+    final XClientConfig clientConfig = getDefaultClientConfig()
+        .withScanInterval(1)
+        .withSSLContextProvider(CompositeSSLContextProvider.getDevClientDefault());
     createClient(clientFactory, clientConfig);
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     final List<XEndpoint> endpoints = new ArrayList<>(connections);

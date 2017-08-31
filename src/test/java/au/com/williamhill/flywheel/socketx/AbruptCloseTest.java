@@ -45,13 +45,13 @@ public final class AbruptCloseTest extends BaseClientServerTest {
 
   private void testClientClose(XServerFactory<? extends XEndpoint> serverFactory,
                                XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
-    final XServerConfig serverConfig = getDefaultServerConfig(false);
-    serverConfig.scanIntervalMillis = 1;
+    final XServerConfig serverConfig = getDefaultServerConfig(false)
+        .withScanInterval(1);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
     createServer(serverFactory, serverConfig, serverListener);
     
-    final XClientConfig clientConfig = getDefaultClientConfig();
-    clientConfig.scanIntervalMillis = 1;
+    final XClientConfig clientConfig = getDefaultClientConfig()
+        .withScanInterval(1);
     createClient(clientFactory, clientConfig);
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();

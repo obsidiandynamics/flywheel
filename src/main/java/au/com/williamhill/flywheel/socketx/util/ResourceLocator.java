@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 
 public final class ResourceLocator {
+  private ResourceLocator() {}
+  
   public static InputStream asStream(URI uri) throws FileNotFoundException {
     switch (uri.getScheme()) {
       case "file":
