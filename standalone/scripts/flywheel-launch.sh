@@ -2,12 +2,15 @@
 
 cd $(dirname "$0")/..
 
-# The application can define additional startup commands in ./conf/bootrc and/or ./ext/bootrc.
+# The application can define additional startup commands in /etc/default/flywheel-env, ./conf/bootrc and/or ./ext/bootrc.
 if [ -e conf/bootrc ]; then
   . conf/bootrc
 fi
 if [ -e ext/bootrc ]; then
   . ext/bootrc
+fi
+if [ -e /etc/default/flywheel-env ]; then
+  . /etc/default/flywheel-env
 fi
 
 if [ -e '../gradlew' ]; then
