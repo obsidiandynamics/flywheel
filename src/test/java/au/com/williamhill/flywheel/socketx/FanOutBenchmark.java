@@ -23,6 +23,13 @@ import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
 import au.com.williamhill.flywheel.util.*;
 
+/**
+ *  Benchmarks message throughput.<p>
+ *  
+ *  Run with:
+ *  -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking 
+ *  -Xms1G -Xmx4G -Xss1M -XX:+UseParallelGC
+ */
 public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static final int PREFERRED_PORT = 8080;
   private static final int BACKLOG_HWM = 1_000_000;
