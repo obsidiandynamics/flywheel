@@ -18,6 +18,9 @@ import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
 public final class ConnectDisconnectTest extends BaseClientServerTest {
+  private static final boolean HTTP = false;
+  private static final boolean HTTPS = true;
+  
   private static final int CYCLES = 2;
   private static final int CONNECTIONS = 5;
   private static final int PROGRESS_INTERVAL = 10;
@@ -25,25 +28,30 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
 
   @Test
   public void testJtJt() throws Exception {
-    test(true, CYCLES, CONNECTIONS, false, JettyServer.factory(), JettyClient.factory());
-    test(false, CYCLES, CONNECTIONS, false, JettyServer.factory(), JettyClient.factory());
+    test(true, CYCLES, CONNECTIONS, HTTP, JettyServer.factory(), JettyClient.factory());
+    test(false, CYCLES, CONNECTIONS, HTTP, JettyServer.factory(), JettyClient.factory());
+  }
+
+  @Test
+  public void testJtJtHttps() throws Exception {
+    test(true, CYCLES, CONNECTIONS, HTTPS, JettyServer.factory(), JettyClient.factory());
   }
 
   @Test
   public void testUtUt() throws Exception {
-    test(true, CYCLES, CONNECTIONS, false, UndertowServer.factory(), UndertowClient.factory());
-    test(false, CYCLES, CONNECTIONS, false, UndertowServer.factory(), UndertowClient.factory());
+    test(true, CYCLES, CONNECTIONS, HTTP, UndertowServer.factory(), UndertowClient.factory());
+    test(false, CYCLES, CONNECTIONS, HTTP, UndertowServer.factory(), UndertowClient.factory());
   }
 
   @Test
   public void testUtUtHttps() throws Exception {
-    test(true, CYCLES, CONNECTIONS, true, UndertowServer.factory(), UndertowClient.factory());
+    test(true, CYCLES, CONNECTIONS, HTTPS, UndertowServer.factory(), UndertowClient.factory());
   }
 
   @Test
   public void testNtUt() throws Exception {
-    test(true, CYCLES, CONNECTIONS, false, NettyServer.factory(), UndertowClient.factory());
-    test(false, CYCLES, CONNECTIONS, false, NettyServer.factory(), UndertowClient.factory());
+    test(true, CYCLES, CONNECTIONS, HTTP, NettyServer.factory(), UndertowClient.factory());
+    test(false, CYCLES, CONNECTIONS, HTTP, NettyServer.factory(), UndertowClient.factory());
   }
 
   private void test(boolean clean, int cycles, int connections, boolean https,

@@ -19,6 +19,7 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.socketx.fake.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
+import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
 import au.com.williamhill.flywheel.util.*;
 
@@ -110,7 +111,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   }
   
   private static HttpClient createHttpClient() throws Exception {
-    return JettyClient.createDefaultHttpClient();
+    return JettyClient.createDefaultHttpClient(new DefaultSSLContextProvider());
   }
   
   @SuppressWarnings("unchecked")
