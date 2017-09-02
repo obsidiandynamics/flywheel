@@ -156,7 +156,7 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
   
   @SuppressWarnings("resource")
   @Test
-  public void testAllowThenExpireAndDisconect() throws Exception {
+  public void testAllowThenExpireAndDisconnect() throws Exception {
     final MockAuthenticator spied = spy(new MockAuthenticator(1_000));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
