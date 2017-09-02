@@ -73,6 +73,6 @@ public class XServerConfig extends XEndpointConfig<XServerConfig> {
     return "XServerConfig [port: " + port + ", httpsPort: " + httpsPort + ", path: " + path + ", idleTimeoutMillis: "
            + idleTimeoutMillis + ", pingIntervalMillis: " + pingIntervalMillis + ", scanIntervalMillis: "
            + scanIntervalMillis + ", servlets: " + Arrays.toString(servlets) + ", highWaterMark: " + highWaterMark
-           + ", sslContextProvider: " + sslContextProvider + "]";
+           + ", sslContextProvider: " + sslContextProvider + ", attributes: " + attributes + "]";
   }
 }

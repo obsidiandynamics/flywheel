@@ -9,17 +9,15 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import org.awaitility.*;
-import org.eclipse.jetty.client.*;
 import org.junit.*;
-import org.xnio.*;
 
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
+import au.com.williamhill.flywheel.socketx.attribute.*;
 import au.com.williamhill.flywheel.socketx.fake.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
-import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
 import au.com.williamhill.flywheel.util.*;
 
@@ -32,7 +30,7 @@ import au.com.williamhill.flywheel.util.*;
  */
 public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static final int PREFERRED_PORT = 8080;
-  private static final int BACKLOG_HWM = 1_000_000;
+  private static final int BACKLOG_HWM = 100_000;
   private static final int BYTES = 16;
   private static final int IDLE_TIMEOUT = 0;
   
@@ -113,21 +111,9 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     return clients.stream().mapToLong(c -> c.sent.get()).sum();
   }
   
-  private static XnioWorker createXnioWorker() throws IllegalArgumentException, IOException {
-    return UndertowClient.createDefaultXnioWorker();
-  }
-  
-  private static HttpClient createHttpClient() throws Exception {
-    return JettyClient.createDefaultHttpClient(new DefaultSSLContextProvider());
-  }
-  
   @SuppressWarnings("unchecked")
   private static <T> T unsafeCast(Object obj) {
     return (T) obj;
-  }
-  
-  private static int getUtBufferSize(int bytes) {
-    return Math.max(1024, bytes);
   }
   
   private static ServerHarnessFactory serverHarnessFactory(XServerFactory<? extends XEndpoint> serverFactory) throws Exception {
@@ -135,6 +121,8 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
       port = port_;
       path = "/";
       idleTimeoutMillis = idleTimeout;
+      attributes = new AttributeMap()
+          .with(UndertowAtts.BUFFER_SIZE, Math.max(1024, BYTES));
     }}, unsafeCast(serverFactory), progress);
   }
   
@@ -145,6 +133,8 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static XClient<?> createClient(XClientFactory<? extends XEndpoint> clientFactory, int idleTimeout) throws Exception {
     return unsafeCast(clientFactory.create(new XClientConfig() {{
       idleTimeoutMillis = idleTimeout;
+      attributes = new AttributeMap()
+          .with(UndertowAtts.BUFFER_SIZE, Math.max(1024, BYTES));
     }}));
   }
 
@@ -154,7 +144,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testNtUt() throws Exception {
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(UndertowClient.factory(), IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(NettyServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -165,7 +155,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testUtUt_noEcho_binary() throws Exception {
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(UndertowClient.factory(), IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -176,7 +166,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testUtUt_echo_binary() throws Exception {
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(UndertowClient.factory(), IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -187,7 +177,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testUtUt_noEcho_text() throws Exception {
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(UndertowClient.factory(), IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -198,7 +188,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testUtUt_echo_text() throws Exception {
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(UndertowClient.factory(), IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -219,7 +209,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testJtJt() throws Exception {
-    final XClient<?> client = createClient(JettyClient.factory(createHttpClient()), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(JettyClient.factory(), IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(JettyServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -230,7 +220,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testUtJt() throws Exception {
-    final XClient<?> client = createClient(JettyClient.factory(createHttpClient()),  IDLE_TIMEOUT);
+    final XClient<?> client = createClient(JettyClient.factory(),  IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -241,7 +231,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   @Test
   public void testJtUt() throws Exception {
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(UndertowClient.factory(), IDLE_TIMEOUT);
     new Config() {{
       serverHarnessFactory = serverHarnessFactory(JettyServer.factory());
       clientHarnessFactory = clientHarnessFactory(client);
@@ -483,7 +473,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
+    final XClient<?> client = createClient(UndertowClient.factory(), IDLE_TIMEOUT);
     try {
       new Config() {{
         serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());

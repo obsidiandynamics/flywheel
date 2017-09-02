@@ -22,25 +22,24 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
   
   private final XnioWorker worker;
   
-  private final int bufferSize;
-  
   private final XEndpointScanner<UndertowEndpoint> scanner;
   
   private UndertowClient(XClientConfig config, XnioWorker worker, int bufferSize) {
     this.config = config;
     this.worker = worker;
-    this.bufferSize = bufferSize;
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, 0);
   }
 
   @Override
   public UndertowEndpoint connect(URI uri, XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
-    final ByteBufferPool pool = new DefaultByteBufferPool(UndertowProperties.directBuffers, bufferSize);
+    final int bufferSize = UndertowAtts.BUFFER_SIZE.get(config.attributes);
+    final boolean directBuffers = UndertowAtts.DIRECT_BUFFERS.get(config.attributes);
+    final ByteBufferPool pool = new DefaultByteBufferPool(directBuffers, bufferSize);
 
     final ConnectionBuilder builder = WebSocketClient.connectionBuilder(worker, pool, uri);
     if (uri.getScheme().equals("wss")) {
       final SSLContext sslContext = config.sslContextProvider.getSSLContext();
-      final ByteBufferPool sslBufferPool = new DefaultByteBufferPool(UndertowProperties.directBuffers, 17 * 1024);
+      final ByteBufferPool sslBufferPool = new DefaultByteBufferPool(directBuffers, 17 * 1024);
       final XnioSsl ssl = new UndertowXnioSsl(worker.getXnio(), OptionMap.EMPTY, sslBufferPool, sslContext);
       builder.setSsl(ssl);
     }
@@ -74,7 +73,8 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
   
   public static final class Factory implements XClientFactory<UndertowEndpoint> {
     @Override public XClient<UndertowEndpoint> create(XClientConfig config) throws Exception {
-      return new UndertowClient(config, createDefaultXnioWorker(), UndertowProperties.bufferSize);
+      final int bufferSize = UndertowAtts.BUFFER_SIZE.get(config.attributes);
+      return new UndertowClient(config, createXnioWorker(config), bufferSize);
     }
   }
   
@@ -82,18 +82,17 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
     return new Factory();
   }
   
-  public static XClientFactory<UndertowEndpoint> factory(XnioWorker worker, int bufferSize) {
-    return config -> new UndertowClient(config, worker, bufferSize);
-  }
-  
-  public static XnioWorker createDefaultXnioWorker() throws IllegalArgumentException, IOException {
+  private static XnioWorker createXnioWorker(XClientConfig config) throws IllegalArgumentException, IOException {
+    final int ioThreads = UndertowAtts.IO_THREADS.get(config.attributes);
+    final int coreTaskThreads = UndertowAtts.CORE_TASK_THREADS.get(config.attributes);
+    final int maxTaskThreads = UndertowAtts.MAX_TASK_THREADS.get(config.attributes);
     return Xnio.getInstance().createWorker(OptionMap.builder()
-                                           .set(Options.WORKER_IO_THREADS, UndertowProperties.ioThreads)
+                                           .set(Options.WORKER_IO_THREADS, ioThreads)
                                            .set(Options.THREAD_DAEMON, true)
                                            .set(Options.CONNECTION_HIGH_WATER, 1_000_000)
                                            .set(Options.CONNECTION_LOW_WATER, 1_000_000)
-                                           .set(Options.WORKER_TASK_CORE_THREADS, UndertowProperties.coreTaskThreads)
-                                           .set(Options.WORKER_TASK_MAX_THREADS, UndertowProperties.maxTaskThreads)
+                                           .set(Options.WORKER_TASK_CORE_THREADS, coreTaskThreads)
+                                           .set(Options.WORKER_TASK_MAX_THREADS, maxTaskThreads)
                                            .set(Options.TCP_NODELAY, true)
                                            .getMap());
   }
