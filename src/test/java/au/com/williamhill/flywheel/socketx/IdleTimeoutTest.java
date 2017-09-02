@@ -3,7 +3,11 @@ package au.com.williamhill.flywheel.socketx;
 import static java.util.concurrent.TimeUnit.*;
 import static org.awaitility.Awaitility.*;
 
+import java.util.*;
+
 import org.junit.*;
+import org.junit.runner.*;
+import org.junit.runners.*;
 import org.mockito.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -12,7 +16,15 @@ import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
 
+@RunWith(Parameterized.class)
 public final class IdleTimeoutTest extends BaseClientServerTest {
+  private static final int REPEAT = 1;
+  
+  @Parameterized.Parameters
+  public static List<Object[]> data() {
+    return Arrays.asList(new Object[REPEAT][0]);
+  }
+  
   @Test
   public void testJtJtServerTimeout() throws Exception {
     // Note: Jetty requires more idle time allowance than others, otherwise the connection
