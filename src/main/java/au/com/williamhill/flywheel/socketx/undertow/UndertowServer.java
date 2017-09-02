@@ -18,11 +18,14 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
   private UndertowServer(XServerConfig config,
                          XEndpointListener<? super UndertowEndpoint> listener) throws Exception {
     this.config = config;
+    final int ioThreads = UndertowAtts.IO_THREADS.get(config.attributes);
+    final int coreTaskThreads = UndertowAtts.CORE_TASK_THREADS.get(config.attributes);
+    final int maxTaskThreads = UndertowAtts.MAX_TASK_THREADS.get(config.attributes);
     worker = Xnio.getInstance().createWorker(OptionMap.builder()
-                                             .set(Options.WORKER_IO_THREADS, UndertowProperties.ioThreads)
+                                             .set(Options.WORKER_IO_THREADS, ioThreads)
                                              .set(Options.THREAD_DAEMON, true)
-                                             .set(Options.WORKER_TASK_CORE_THREADS, UndertowProperties.coreTaskThreads)
-                                             .set(Options.WORKER_TASK_MAX_THREADS, UndertowProperties.maxTaskThreads)
+                                             .set(Options.WORKER_TASK_CORE_THREADS, coreTaskThreads)
+                                             .set(Options.WORKER_TASK_MAX_THREADS, maxTaskThreads)
                                              .set(Options.TCP_NODELAY, true)
                                              .getMap());
 
@@ -43,12 +46,15 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
     final PathHandler handler = Handlers.path()
         .addPrefixPath("/", servletManager.start())
         .addPrefixPath(config.path, Handlers.websocket(manager));
+    
+    final int bufferSize = UndertowAtts.BUFFER_SIZE.get(config.attributes);
+    final boolean directBuffers = UndertowAtts.DIRECT_BUFFERS.get(config.attributes);
     final Undertow.Builder builder = Undertow.builder()
     .setWorker(worker)
     .addHttpListener(config.port, "0.0.0.0")
     .setHandler(handler)
-    .setBufferSize(UndertowProperties.bufferSize)
-    .setDirectBuffers(UndertowProperties.directBuffers);
+    .setBufferSize(bufferSize)
+    .setDirectBuffers(directBuffers);
     
     if (config.httpsPort != 0) {
       builder.addHttpsListener(config.httpsPort, "0.0.0.0", config.sslContextProvider.getSSLContext());

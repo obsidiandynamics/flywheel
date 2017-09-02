@@ -33,6 +33,7 @@ public class XClientConfig extends XEndpointConfig<XClientConfig> {
   @Override
   public String toString() {
     return "XClientConfig [idleTimeoutMillis: " + idleTimeoutMillis + ", scanIntervalMillis: " + scanIntervalMillis
-           + ", highWaterMark: " + highWaterMark + ", sslContextProvider: " + sslContextProvider + "]";
+           + ", highWaterMark: " + highWaterMark + ", sslContextProvider: " + sslContextProvider
+           + ", attributes: " + attributes + "]";
   }
 }

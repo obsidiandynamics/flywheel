@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.socketx;
 
+import java.util.*;
+
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.socketx.ssl.*;
@@ -12,6 +14,9 @@ public abstract class XEndpointConfig<C extends XEndpointConfig<C>> {
   @YInject
   public SSLContextProvider sslContextProvider;
   
+  @YInject
+  public Map<String, Object> attributes = Collections.emptyMap();
+  
   public C withHighWaterMark(long highWaterMark) {
     this.highWaterMark = highWaterMark;
     return self();
@@ -19,6 +24,11 @@ public abstract class XEndpointConfig<C extends XEndpointConfig<C>> {
   
   public C withSSLContextProvider(SSLContextProvider sslContextProvider) {
     this.sslContextProvider = sslContextProvider;
+    return self();
+  }
+  
+  public C withAttributes(Map<String, Object> attributes) {
+    this.attributes = attributes;
     return self();
   }
   
