@@ -483,18 +483,16 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
-    final int bytes_ = 16;
-    final int idleTimeout_ = 0;
-    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(bytes_)), idleTimeout_);
+    final XClient<?> client = createClient(UndertowClient.factory(createXnioWorker(), getUtBufferSize(BYTES)), IDLE_TIMEOUT);
     try {
       new Config() {{
         serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
         clientHarnessFactory = clientHarnessFactory(client);
         port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
-        idleTimeout = idleTimeout_;
+        idleTimeout = IDLE_TIMEOUT;
         n = 300_000;
         m = 100;
-        bytes = bytes_;
+        bytes = BYTES;
         echo = false;
         flush = false;
         text = false;
