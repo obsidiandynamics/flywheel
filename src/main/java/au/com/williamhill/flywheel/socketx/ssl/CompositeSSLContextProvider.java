@@ -2,9 +2,14 @@ package au.com.williamhill.flywheel.socketx.ssl;
 
 import javax.net.ssl.*;
 
+import com.obsidiandynamics.yconf.*;
+
+@Y
 public class CompositeSSLContextProvider implements SSLContextProvider {
+  @YInject
   KeyManagerProvider keyManagerProvider = new NullKeyManagerProvider();
 
+  @YInject
   TrustManagerProvider trustManagerProvider = new NullTrustManagerProvider();
 
   public final CompositeSSLContextProvider withKeyManagerProvider(KeyManagerProvider keyManagerProvider) {
