@@ -24,15 +24,15 @@ public final class NettyServer implements XServer<NettyEndpoint> {
     
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
     manager = new NettyEndpointManager(scanner, config, listener);
-    bossGroup = new NioEventLoopGroup(1);
+    final int eventLoopThreads = NettyAtts.EVENT_LOOP_THREADS.get(config.attributes);
+    bossGroup = new NioEventLoopGroup(eventLoopThreads);
     workerGroup = new NioEventLoopGroup();
     
     final ServerBootstrap b = new ServerBootstrap();
     b.group(bossGroup, workerGroup)
     .channel(NioServerSocketChannel.class)
     .handler(new LoggingHandler(LogLevel.INFO))
-    .childHandler(new WebSocketServerInitializer(manager, config.path, null, 
-                                                 config.idleTimeoutMillis));
+    .childHandler(new WebSocketServerInitializer(manager, config.path, null, config.idleTimeoutMillis));
 
     channel = b.bind(config.port).sync().channel();
   }
