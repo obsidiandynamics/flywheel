@@ -6,6 +6,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.*;
 import io.netty.channel.socket.nio.*;
 import io.netty.handler.logging.*;
+import io.netty.handler.ssl.*;
 
 public final class NettyServer implements XServer<NettyEndpoint> {
   private final XServerConfig config;
@@ -15,8 +16,9 @@ public final class NettyServer implements XServer<NettyEndpoint> {
   private final XEndpointScanner<NettyEndpoint> scanner;
   
   private final Channel channel;
+  private final Channel httpsChannel;
   
-  private NettyServer(XServerConfig config, XEndpointListener<? super NettyEndpoint> listener) throws InterruptedException {
+  private NettyServer(XServerConfig config, XEndpointListener<? super NettyEndpoint> listener) throws Exception {
     if (config.servlets.length != 0) {
       throw new UnsupportedOperationException("Servlets are not supported by " + NettyServer.class.getSimpleName());
     }
@@ -28,13 +30,28 @@ public final class NettyServer implements XServer<NettyEndpoint> {
     bossGroup = new NioEventLoopGroup(eventLoopThreads);
     workerGroup = new NioEventLoopGroup();
     
-    final ServerBootstrap b = new ServerBootstrap();
-    b.group(bossGroup, workerGroup)
+    channel = createChannel(bossGroup, workerGroup, manager, config.path, null, config.idleTimeoutMillis, config.port);
+    
+    if (config.httpsPort != 0) {
+      final SslContext sslContext = new JdkSslContext(config.sslContextProvider.getSSLContext(), false, ClientAuth.NONE);
+      httpsChannel = createChannel(bossGroup, workerGroup, manager, config.path, sslContext,
+                                   config.idleTimeoutMillis, config.httpsPort);
+    } else {
+      httpsChannel = null;
+    }
+  }
+  
+  private static Channel createChannel(EventLoopGroup bossGroup, EventLoopGroup workerGroup, 
+                                       NettyEndpointManager manager, String path, SslContext sslContext, 
+                                       int idleTimeoutMillis, int port) throws InterruptedException {
+    return new ServerBootstrap()
+    .group(bossGroup, workerGroup)
     .channel(NioServerSocketChannel.class)
     .handler(new LoggingHandler(LogLevel.INFO))
-    .childHandler(new WebSocketServerInitializer(manager, config.path, null, config.idleTimeoutMillis));
-
-    channel = b.bind(config.port).sync().channel();
+    .childHandler(new WebSocketServerInitializer(manager, path, sslContext, idleTimeoutMillis))
+    .bind(port)
+    .sync()
+    .channel();
   }
   
   @Override
@@ -43,6 +60,7 @@ public final class NettyServer implements XServer<NettyEndpoint> {
     bossGroup.shutdownGracefully();
     workerGroup.shutdownGracefully();
     channel.closeFuture().sync();
+    if (httpsChannel != null) httpsChannel.closeFuture().sync();
   }
 
   @Override
