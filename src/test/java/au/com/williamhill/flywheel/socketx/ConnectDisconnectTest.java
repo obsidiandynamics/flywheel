@@ -54,6 +54,11 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     test(false, CYCLES, CONNECTIONS, HTTP, NettyServer.factory(), UndertowClient.factory());
   }
 
+  @Test
+  public void testNtUtHttps() throws Exception {
+    test(true, CYCLES, CONNECTIONS, HTTPS, NettyServer.factory(), UndertowClient.factory());
+  }
+
   private void test(boolean clean, int cycles, int connections, boolean https,
                     XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
