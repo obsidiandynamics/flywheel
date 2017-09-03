@@ -11,11 +11,9 @@ import org.junit.*;
 import au.com.williamhill.flywheel.socketx.ssl.*;
 
 public final class XEndpointConfigTest {
-  private static final class DerivedConfig extends XEndpointConfig<DerivedConfig> {};
-  
   @Test
   public void testHighWaterMark() {
-    assertEquals(1000, new DerivedConfig().withHighWaterMark(1000).highWaterMark);
+    assertEquals(1000, new DerivedEndpointConfig().withHighWaterMark(1000).highWaterMark);
   }
   
   @Test
@@ -26,13 +24,13 @@ public final class XEndpointConfigTest {
       }
     }
     assertEquals(TestSSLContextProvider.class, 
-                 new DerivedConfig()
+                 new DerivedEndpointConfig()
                  .withSSLContextProvider(new TestSSLContextProvider()).sslContextProvider.getClass());
   }
 
   @Test
   public void testAttributes() {
     final Map<String, Object> atts = Collections.singletonMap("foo", "bar");
-    assertEquals(atts, new DerivedConfig().withAttributes(atts).attributes);
+    assertEquals(atts, new DerivedEndpointConfig().withAttributes(atts).attributes);
   }
 }

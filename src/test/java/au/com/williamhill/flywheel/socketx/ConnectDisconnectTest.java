@@ -1,6 +1,7 @@
 package au.com.williamhill.flywheel.socketx;
 
 import static java.util.concurrent.TimeUnit.*;
+import static junit.framework.TestCase.*;
 import static org.awaitility.Awaitility.*;
 
 import java.util.*;
@@ -84,6 +85,7 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
         .withScanInterval(1)
         .withSSLContextProvider(CompositeSSLContextProvider.getDevClientDefault());
     createClient(clientFactory, clientConfig);
+    assertNotNull(client.getConfig());
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     final List<XEndpoint> endpoints = new ArrayList<>(connections);
     
