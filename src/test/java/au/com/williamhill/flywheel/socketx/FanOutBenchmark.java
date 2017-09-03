@@ -18,6 +18,7 @@ import au.com.williamhill.flywheel.socketx.attribute.*;
 import au.com.williamhill.flywheel.socketx.fake.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
+import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
 import au.com.williamhill.flywheel.util.*;
 
@@ -139,6 +140,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     return unsafeCast(clientFactory.create(new XClientConfig() {{
       idleTimeoutMillis = idleTimeout;
       attributes = getAttributes();
+      sslContextProvider = CompositeSSLContextProvider.getDevClientDefault();
     }}));
   }
 

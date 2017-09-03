@@ -9,7 +9,6 @@ import org.eclipse.jetty.util.thread.*;
 import org.eclipse.jetty.websocket.client.*;
 
 import au.com.williamhill.flywheel.socketx.*;
-import au.com.williamhill.flywheel.socketx.ssl.*;
 
 public final class JettyClient implements XClient<JettyEndpoint> {
   private final XClientConfig config;
@@ -53,17 +52,19 @@ public final class JettyClient implements XClient<JettyEndpoint> {
     return config;
   }
   
-  private static HttpClient createDefaultHttpClient(SSLContextProvider sslContextProvider) throws Exception {
+  private static HttpClient createDefaultHttpClient(XClientConfig config) throws Exception {
     final SslContextFactory sslContextFactory = new SslContextFactory();
-    sslContextFactory.setSslContext(sslContextProvider.getSSLContext());
+    sslContextFactory.setSslContext(config.sslContextProvider.getSSLContext());
     final HttpClient httpClient = new HttpClient(sslContextFactory);
     
-    httpClient.setExecutor(new QueuedThreadPool(10_000, 100));
+    final int minThreads = JettyAtts.MIN_THREADS.get(config.attributes);
+    final int maxThreads = JettyAtts.MAX_THREADS.get(config.attributes);
+    httpClient.setExecutor(new QueuedThreadPool(maxThreads, minThreads));
     httpClient.start();
     return httpClient;
   }
   
   public static XClientFactory<JettyEndpoint> factory() {
-    return config -> new JettyClient(config, createDefaultHttpClient(config.sslContextProvider));
+    return config -> new JettyClient(config, createDefaultHttpClient(config));
   }
 }

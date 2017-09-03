@@ -22,7 +22,9 @@ public final class JettyServer implements XServer<JettyEndpoint> {
   private JettyServer(XServerConfig config,
                       XEndpointListener<? super JettyEndpoint> listener) throws Exception {
     this.config = config;
-    server = new Server(new QueuedThreadPool(100));
+    final int minThreads = JettyAtts.MIN_THREADS.get(config.attributes);
+    final int maxThreads = JettyAtts.MAX_THREADS.get(config.attributes);
+    server = new Server(new QueuedThreadPool(maxThreads, minThreads));
 
     final List<Connector> connectors = new ArrayList<>(2);
     final ServerConnector httpConnector = 
@@ -45,8 +47,7 @@ public final class JettyServer implements XServer<JettyEndpoint> {
     server.setHandler(handlers);
 
     scanner = new XEndpointScanner<>(config.scanIntervalMillis, config.pingIntervalMillis);
-    manager = new JettyEndpointManager(scanner, config.idleTimeoutMillis, 
-                                       config, listener);
+    manager = new JettyEndpointManager(scanner, config.idleTimeoutMillis, config, listener);
     final ContextHandler wsContext = new ContextHandler(config.path);
     wsContext.setHandler(manager);
     handlers.addHandler(wsContext);
