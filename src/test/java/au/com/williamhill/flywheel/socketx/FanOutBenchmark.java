@@ -20,6 +20,7 @@ import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.socketx.util.URIBuilder.*;
 import au.com.williamhill.flywheel.util.*;
 
 /**
@@ -32,6 +33,7 @@ import au.com.williamhill.flywheel.util.*;
  */
 public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static final int PREFERRED_PORT = 8080;
+  private static final int PREFERRED_HTTPS_PORT = 8443;
   private static final int BACKLOG_HWM = 100_000;
   private static final int BYTES = 16;
   private static final int IDLE_TIMEOUT = 0;
@@ -44,6 +46,8 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     ServerHarnessFactory serverHarnessFactory;
     ClientHarnessFactory clientHarnessFactory;
     int port;
+    int httpsPort;
+    boolean https;
     int idleTimeout;
     int n;               // number of outgoing messages per connection
     int m;               // number of connections
@@ -77,6 +81,8 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     
     SpecMultiplier assignDefaults() {
       port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+      httpsPort = SocketTestSupport.getAvailablePort(PREFERRED_HTTPS_PORT);
+      https = false;
       idleTimeout = IDLE_TIMEOUT;
       n = 100;
       m = 10;
@@ -89,6 +95,10 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
       }};
       rxtxInterval = 5_000;
       return times(2);
+    }
+    
+    Ports getPorts() {
+      return new Ports(port, httpsPort);
     }
 
     @Override
@@ -133,7 +143,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   }
   
   private static ClientHarnessFactory clientHarnessFactory(XClient<?> client) {
-    return (port, echo) -> new DefaultClientHarness(client, port, echo);
+    return (ports, https, echo) -> new DefaultClientHarness(client, ports, https, echo);
   }
   
   private static XClient<?> createClient(XClientFactory<? extends XEndpoint> clientFactory, int idleTimeout) throws Exception {
@@ -145,7 +155,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   }
 
   private static ClientHarnessFactory fakeClientFactory(int bytes) {
-    return (port, echo) -> new FakeClientHarness(port, bytes);
+    return (ports, https, echo) -> new FakeClientHarness(ports.getPort(false), bytes);
   }
   
   @Test
@@ -344,7 +354,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     final int waitScale = 1 + (int) (((long) c.backlogHwm * (long) c.m * Math.sqrt(c.bytes)) / 1_000_000_000l);
     if (c.log.stages) c.log.out.format("s: wait scale x%d\n", waitScale);
     for (int i = 0; i < c.m; i++) {
-      clients.add(c.clientHarnessFactory.create(c.port, c.echo)); 
+      clients.add(c.clientHarnessFactory.create(c.getPorts(), c.https, c.echo)); 
     }
 
     if (c.log.stages) c.log.out.format("s: awaiting server.connected\n");
@@ -493,6 +503,8 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
         serverHarnessFactory = serverHarnessFactory(UndertowServer.factory());
         clientHarnessFactory = clientHarnessFactory(client);
         port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+        httpsPort = SocketTestSupport.getAvailablePort(PREFERRED_HTTPS_PORT);
+        https = false;
         idleTimeout = IDLE_TIMEOUT;
         n = 300_000;
         m = 100;

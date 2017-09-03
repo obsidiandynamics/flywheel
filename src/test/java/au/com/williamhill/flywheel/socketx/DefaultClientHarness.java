@@ -1,16 +1,18 @@
 package au.com.williamhill.flywheel.socketx;
 
-import java.net.*;
 import java.nio.*;
 
 import com.obsidiandynamics.indigo.util.*;
+
+import au.com.williamhill.flywheel.socketx.util.*;
+import au.com.williamhill.flywheel.socketx.util.URIBuilder.*;
 
 public final class DefaultClientHarness extends ClientHarness implements TestSupport {
   private final XSendCallback writeCallback;
   
   private final XEndpoint endpoint;
   
-  DefaultClientHarness(XClient<?> client, int port, boolean echo) throws Exception {
+  DefaultClientHarness(XClient<?> client, Ports ports, boolean https, boolean echo) throws Exception {
     final XEndpointListener<XEndpoint> clientListener = new XEndpointListener<XEndpoint>() {
       @Override public void onConnect(XEndpoint endpoint) {
         log("c: connected: %s\n", endpoint.getRemoteAddress());
@@ -57,7 +59,15 @@ public final class DefaultClientHarness extends ClientHarness implements TestSup
       }
     };
     
-    endpoint = client.connect(URI.create("ws://127.0.0.1:" + port + "/"), clientListener);
+    endpoint = client.connect(URIBuilder
+                              .create()
+                              .withWebSocket(true)
+                              .withHttps(https)
+                              .withHost("localhost")
+                              .withPortProvider(ports)
+                              .withPath("/")
+                              .build(), 
+                              clientListener);
     
     writeCallback = new XSendCallback() {
       @Override public void onComplete(XEndpoint endpoint) {

@@ -8,8 +8,8 @@ public final class JettyAtts {
       .withDefault(Constant.of(8));
   
   public static final Attribute<Integer> MAX_THREADS = new Attribute<Integer>("socketx.jetty.maxThreads")
-      .withMin(atts -> MIN_THREADS.get(atts))
-      .withDefault(Constant.of(8));
+      .withMin(atts -> MIN_THREADS.get(atts) + 4)
+      .withDefault(Constant.of(128));
   
   private JettyAtts() {}
 }
