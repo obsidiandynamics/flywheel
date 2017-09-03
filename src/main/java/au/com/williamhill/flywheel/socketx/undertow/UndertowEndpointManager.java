@@ -36,12 +36,17 @@ final class UndertowEndpointManager implements WebSocketConnectionCallback, XEnd
     channel.resumeReceives();
   }
   
+  static final class OptionAssignmentException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+    OptionAssignmentException(String m, Exception cause) { super(m, cause); }
+  }
+  
   UndertowEndpoint createEndpoint(WebSocketChannel channel) {
     final UndertowEndpoint endpoint = new UndertowEndpoint(this, channel);
     try {
       channel.setOption(Options.TCP_NODELAY, NODELAY);
     } catch (IOException e) {
-      e.printStackTrace();
+      throw new OptionAssignmentException("Error setting option", e);
     }
     if (idleTimeoutMillis != 0) {
       channel.setIdleTimeout(idleTimeoutMillis);
