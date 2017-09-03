@@ -22,7 +22,8 @@ import au.com.williamhill.flywheel.socketx.undertow.*;
 import au.com.williamhill.flywheel.util.*;
 
 /**
- *  Benchmarks message throughput.<p>
+ *  Benchmarks message throughput in a server-initiated fan-out scenario, with optional
+ *  client responses.<p>
  *  
  *  Run with:
  *  -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking 
@@ -116,13 +117,17 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     return (T) obj;
   }
   
+  private static AttributeMap getAttributes() {
+    return new AttributeMap()
+    .with(UndertowAtts.BUFFER_SIZE, Math.max(1024, BYTES));
+  }
+  
   private static ServerHarnessFactory serverHarnessFactory(XServerFactory<? extends XEndpoint> serverFactory) throws Exception {
     return (port_, progress, idleTimeout) -> new DefaultServerHarness(new XServerConfig() {{
       port = port_;
       path = "/";
       idleTimeoutMillis = idleTimeout;
-      attributes = new AttributeMap()
-          .with(UndertowAtts.BUFFER_SIZE, Math.max(1024, BYTES));
+      attributes = getAttributes();
     }}, unsafeCast(serverFactory), progress);
   }
   
@@ -133,8 +138,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static XClient<?> createClient(XClientFactory<? extends XEndpoint> clientFactory, int idleTimeout) throws Exception {
     return unsafeCast(clientFactory.create(new XClientConfig() {{
       idleTimeoutMillis = idleTimeout;
-      attributes = new AttributeMap()
-          .with(UndertowAtts.BUFFER_SIZE, Math.max(1024, BYTES));
+      attributes = getAttributes();
     }}));
   }
 
@@ -335,8 +339,8 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
                               List<ClientHarness> clients,
                               ServerHarness server) throws Exception {
     final int sendThreads = 1;
-    final int waitScale = 1 + (int) (((long) c.n * (long) c.m) / 1_000_000_000l);
-    
+    final int waitScale = 1 + (int) (((long) c.backlogHwm * (long) c.m * Math.sqrt(c.bytes)) / 1_000_000_000l);
+    if (c.log.stages) c.log.out.format("s: wait scale x%d\n", waitScale);
     for (int i = 0; i < c.m; i++) {
       clients.add(c.clientHarnessFactory.create(c.port, c.echo)); 
     }
@@ -406,11 +410,15 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
       }
     }).run();
 
+    long checkpoint;
+    checkpoint = System.currentTimeMillis();
     if (c.log.stages) c.log.out.format("s: awaiting server.sent\n");
     final long expectedReceive = (long) c.m * c.n;
     Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.sent.get() >= expectedReceive);
     assertEquals(expectedReceive, server.sent.get());
+    if (c.log.stages) c.log.out.format("s: took %,d ms\n", System.currentTimeMillis() - checkpoint);
 
+    checkpoint = System.currentTimeMillis();
     if (c.log.stages) c.log.out.format("s: awaiting client.received\n");
     final long waitStart = System.currentTimeMillis();
     long lastPrint = System.currentTimeMillis();
@@ -426,21 +434,25 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
         Thread.sleep(10);
       }
     }
-    
     assertEquals(expectedReceive, totalReceived(clients));
+    if (c.log.stages) c.log.out.format("s: took %,d ms\n", System.currentTimeMillis() - checkpoint);
 
     if (c.echo) {
+      checkpoint = System.currentTimeMillis();
       if (c.log.stages) c.log.out.format("s: awaiting client.sent (echo mode was enabled)\n");
       Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> totalSent(clients) >= expectedReceive);
       assertEquals(expectedReceive, totalSent(clients));
+      if (c.log.stages) c.log.out.format("s: took %,d ms\n", System.currentTimeMillis() - checkpoint);
     } else {
       assertEquals(0, totalSent(clients));
     }
 
     if (c.echo) {
+      checkpoint = System.currentTimeMillis();
       if (c.log.stages) c.log.out.format("s: awaiting server.received (echo mode was enabled)\n");
       Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.received.get() == expectedReceive);
       assertEquals(expectedReceive, server.received.get());
+      if (c.log.stages) c.log.out.format("s: took %,d ms\n", System.currentTimeMillis() - checkpoint);
     } else {
       assertEquals(0, server.received.get());
     }

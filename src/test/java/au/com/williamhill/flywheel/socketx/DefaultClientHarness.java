@@ -39,7 +39,7 @@ public final class DefaultClientHarness extends ClientHarness implements TestSup
       
       @Override public void onError(XEndpoint endpoint, Throwable cause) {
         log("c: socket error\n");
-        System.err.println("client socket error");
+        System.err.println("c: client socket error");
         cause.printStackTrace();
       }
 
@@ -65,7 +65,7 @@ public final class DefaultClientHarness extends ClientHarness implements TestSup
       }
 
       @Override public void onError(XEndpoint endpoint, Throwable throwable) {
-        System.err.println("client write error");
+        System.err.println("c: client write error");
         throwable.printStackTrace();
       }
 

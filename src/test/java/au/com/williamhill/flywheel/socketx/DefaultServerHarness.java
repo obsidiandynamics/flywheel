@@ -36,7 +36,7 @@ final class DefaultServerHarness extends ServerHarness implements TestSupport {
       
       @Override public void onError(XEndpoint endpoint, Throwable cause) {
         log("s: socket error\n");
-        System.err.println("server socket error");
+        System.err.println("s: server socket error");
         cause.printStackTrace();
       }
 
@@ -62,7 +62,7 @@ final class DefaultServerHarness extends ServerHarness implements TestSupport {
       }
 
       @Override public void onError(XEndpoint endpoint, Throwable cause) {
-        System.err.println("server write error");
+        System.err.println("s: server write error");
         cause.printStackTrace();
       }
 
