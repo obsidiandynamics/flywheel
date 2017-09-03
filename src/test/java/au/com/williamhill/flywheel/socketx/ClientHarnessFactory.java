@@ -1,6 +1,8 @@
 package au.com.williamhill.flywheel.socketx;
 
+import au.com.williamhill.flywheel.socketx.util.URIBuilder.*;
+
 @FunctionalInterface
 interface ClientHarnessFactory {
-  ClientHarness create(int port, boolean echo) throws Exception;
+  ClientHarness create(Ports ports, boolean https, boolean echo) throws Exception;
 }
