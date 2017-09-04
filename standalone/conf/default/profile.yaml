@@ -15,8 +15,7 @@ launchers:
     - path: /health/*
       name: health
       servletClass: au.com.williamhill.flywheel.health.HealthServlet  
-    endpointConfig:
-      highWaterMark: ${maxLong}
+    highWaterMark: ${maxLong}
   pubAuthChain:
   subAuthChain:
   plugins:
