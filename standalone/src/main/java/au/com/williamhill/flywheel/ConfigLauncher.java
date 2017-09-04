@@ -119,6 +119,6 @@ public final class ConfigLauncher implements Launcher  {
 
   @Override
   public void close() throws Exception {
-    edge.close();
+    if (edge != null) edge.close();
   }
 }

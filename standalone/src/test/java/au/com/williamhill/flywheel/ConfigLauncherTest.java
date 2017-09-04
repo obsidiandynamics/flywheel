@@ -52,5 +52,7 @@ public final class ConfigLauncherTest {
   public void testDefaultConfig() throws Exception {
     final Profile profile = Profile.fromFile(new File("conf/default/profile.yaml"));
     assertEquals(1, profile.launchers.length);
+    assertEquals(ConfigLauncher.class, profile.launchers[0].getClass());
+    launcher = (ConfigLauncher) profile.launchers[0];
   }
 }
