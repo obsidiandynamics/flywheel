@@ -14,7 +14,6 @@ public final class Launchpad {
   
   static final class LaunchpadException extends Exception {
     private static final long serialVersionUID = 1L;
-    
     LaunchpadException(String m, Throwable cause) { super(m, cause); }
   }
   

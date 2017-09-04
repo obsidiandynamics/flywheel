@@ -1,5 +1,9 @@
 package au.com.williamhill.flywheel;
 
+import static org.junit.Assert.*;
+
+import java.io.*;
+
 import org.junit.*;
 import org.mockito.*;
 import org.slf4j.*;
@@ -23,7 +27,7 @@ public final class ConfigLauncherTest {
   }
 
   @Test
-  public void test() throws Exception {
+  public void testCustomConfig() throws Exception {
     final Logger logger = Mockito.mock(Logger.class);
     Mockito.when(logger.isDebugEnabled()).thenReturn(true);
     Mockito.when(logger.isInfoEnabled()).thenReturn(true);
@@ -42,5 +46,11 @@ public final class ConfigLauncherTest {
 
     launcher.close();
     launcher = null;
+  }
+  
+  @Test
+  public void testDefaultConfig() throws Exception {
+    final Profile profile = Profile.fromFile(new File("conf/default/profile.yaml"));
+    assertEquals(1, profile.launchers.length);
   }
 }

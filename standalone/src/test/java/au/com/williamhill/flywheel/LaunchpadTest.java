@@ -87,7 +87,7 @@ public final class LaunchpadTest {
   }
 
   @Test
-  public void testDefault() throws LaunchpadException {
+  public void testDirect() throws LaunchpadException {
     final Launchpad launchpad = new Launchpad(new File("conf/test-good"));
     launchpad.launch(new String[0]);
     assertNotNull(launchpad.getProfile().launchers);
