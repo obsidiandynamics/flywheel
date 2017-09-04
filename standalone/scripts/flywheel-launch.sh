@@ -19,10 +19,10 @@ if [ -e '../gradlew' ]; then
   cd -
 fi
 
-CYAN='\033[0;36m'
-NC='\033[0m'
+cyan='\033[0;36m'
+nc='\033[0m'
 
-# Determine the correct use of echo on this shell and platform (MacOS and Linux 'echo' differ when
+# Determine the correct use of echo on this shell and platform (macOS and Linux 'echo' differ when
 # using /bin/sh).
 echo_out=`echo -e`
 if [ "${echo_out}" = "" ]; then
@@ -32,9 +32,9 @@ else
 fi
 
 echo 
-$echo_cmd "${CYAN} ____  _    _     _       _     ____  ____  _   ${NC}"
-$echo_cmd "${CYAN}| |_  | |  \ \_/ \ \    /| |_| | |_  | |_  | |  ${NC}"
-$echo_cmd "${CYAN}|_|   |_|__ |_|   \_\/\/ |_| | |_|__ |_|__ |_|__${NC}"
+$echo_cmd "${cyan} ____  _    _     _       _     ____  ____  _   ${nc}"
+$echo_cmd "${cyan}| |_  | |  \ \_/ \ \    /| |_| | |_  | |_  | |  ${nc}"
+$echo_cmd "${cyan}|_|   |_|__ |_|   \_\/\/ |_| | |_|__ |_|__ |_|__${nc}"
 echo
 
 ulimit -Sa
@@ -52,16 +52,16 @@ else
       echo "> Usage --jvm-opts <jvm options>"
       exit 1
     fi
-    FLYWHEEL_JVM_OPTS=$2
-    echo "> JVM options: ${FLYWHEEL_JVM_OPTS}"
+    flywheel_jvm_opts=$2
+    echo "> JVM options: ${flywheel_jvm_opts}"
     shift
     shift
   fi
 
-  CMD="java $FLYWHEEL_JVM_OPTS \
+  cmd="java $flywheel_jvm_opts \
        -cp build/libs/flywheel-standalone-full-*jar \
        au.com.williamhill.flywheel.Launchpad \
        $@"
-  echo "> Starting $CMD"
-  $CMD
+  echo "> Starting $cmd"
+  $cmd
 fi
