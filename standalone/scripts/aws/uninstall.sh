@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/sh -x
 #
-# Uninstalls Flywheel from an AWS EC2 instance.
+# Uninstalls Flywheel.
 # Must run as root.
 #
 

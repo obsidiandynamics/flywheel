@@ -9,9 +9,23 @@
 # Description:       Lightweight WebSocket-based IoT message broker
 ### END INIT INFO
 
-dir="/home/ec2-user/opt/flywheel"
+if [ -e /etc/default/flywheel-env ]; then
+  . /etc/default/flywheel-env
+else
+  echo "Environment defaults not found. Ensure /etc/default/flywheel-env exists."
+  exit 1
+fi
+
+if [ ! -z $FLYWHEEL_USER ]; then
+  user=$FLYWHEEL_USER
+else
+  echo "Environment variable FLYWHEEL_USER is not set."
+  exit 1
+fi
+
+user_home=`eval echo "~$user"`
+dir="${user_home}/opt/flywheel"
 cmd="standalone/scripts/flywheel-launch.sh"
-user="ec2-user"
 
 name="flywheel"
 pid_file="/var/run/$name.pid"
