@@ -13,7 +13,7 @@ dir="/home/ec2-user/opt/flywheel"
 cmd="standalone/scripts/flywheel-launch.sh"
 user="ec2-user"
 
-name=`basename $0`
+name="flywheel"
 pid_file="/var/run/$name.pid"
 stdout_log="/var/log/$name.log"
 stderr_log="/var/log/$name.err"
