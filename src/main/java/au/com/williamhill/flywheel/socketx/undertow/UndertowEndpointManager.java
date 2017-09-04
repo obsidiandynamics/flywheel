@@ -31,9 +31,7 @@ final class UndertowEndpointManager implements WebSocketConnectionCallback, XEnd
   
   @Override
   public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
-    final UndertowEndpoint endpoint = createEndpoint(channel);
-    channel.getReceiveSetter().set(endpoint);
-    channel.resumeReceives();
+    createEndpoint(channel);
   }
   
   static final class OptionAssignmentException extends RuntimeException {
@@ -48,11 +46,13 @@ final class UndertowEndpointManager implements WebSocketConnectionCallback, XEnd
     } catch (IOException e) {
       throw new OptionAssignmentException("Error setting option", e);
     }
+    channel.getReceiveSetter().set(endpoint);
+    channel.resumeReceives();
+    scanner.addEndpoint(endpoint);
+    listener.onConnect(endpoint);
     if (idleTimeoutMillis != 0) {
       channel.setIdleTimeout(idleTimeoutMillis);
     }
-    scanner.addEndpoint(endpoint);
-    listener.onConnect(endpoint);
     return endpoint;
   }
   

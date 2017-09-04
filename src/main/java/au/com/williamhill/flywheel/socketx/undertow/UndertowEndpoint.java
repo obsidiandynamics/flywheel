@@ -29,8 +29,8 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
   }
   
   static UndertowEndpoint clientOf(XEndpointScanner<UndertowEndpoint> scanner, 
-                                   WebSocketChannel channel, XEndpointConfig<?> config, XEndpointListener<? super UndertowEndpoint> listener) {
-    return new UndertowEndpointManager(scanner, 0, config, listener).createEndpoint(channel);
+                                   WebSocketChannel channel, XClientConfig config, XEndpointListener<? super UndertowEndpoint> listener) {
+    return new UndertowEndpointManager(scanner, config.idleTimeoutMillis, config, listener).createEndpoint(channel);
   }
   
   @Override

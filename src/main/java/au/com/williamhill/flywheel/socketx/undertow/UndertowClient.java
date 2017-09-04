@@ -45,13 +45,7 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
     }
 
     final WebSocketChannel channel = builder.connect().get(); 
-    if (config.hasIdleTimeout()) {
-      channel.setIdleTimeout(config.idleTimeoutMillis);
-    }
-    final UndertowEndpoint endpoint = UndertowEndpoint.clientOf(scanner, channel, config, listener);
-    channel.getReceiveSetter().set(endpoint);
-    channel.resumeReceives();
-    return endpoint;
+    return UndertowEndpoint.clientOf(scanner, channel, config, listener);
   }
 
   @Override
