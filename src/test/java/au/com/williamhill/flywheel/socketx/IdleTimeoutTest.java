@@ -18,7 +18,7 @@ import au.com.williamhill.flywheel.socketx.undertow.*;
 
 @RunWith(Parameterized.class)
 public final class IdleTimeoutTest extends BaseClientServerTest {
-  private static final int REPEAT = 1;
+  private static final int REPEAT = 1000;
   
   @Parameterized.Parameters
   public static List<Object[]> data() {
@@ -51,7 +51,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   
   @Test
   public void testUtUtClientTimeout() throws Exception {
-    testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
+    testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 500);
   }
   
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
