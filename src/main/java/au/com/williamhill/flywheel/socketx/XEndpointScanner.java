@@ -29,8 +29,8 @@ public final class XEndpointScanner<E extends XEndpoint> extends Thread implemen
         final long now = System.currentTimeMillis();
         for (E endpoint : endpoints) {
           if (! endpoint.isOpen()) {
-            if (LOG.isDebugEnabled()) LOG.debug("Closing defunct endpoint {}", endpoint);
-            endpoint.close();
+            if (LOG.isDebugEnabled()) LOG.debug("Terminating defunct endpoint {}", endpoint);
+            endpoint.terminate();
           } else if (pingIntervalMillis != 0) {
             final long lastActivity = endpoint.getLastActivityTime();
             if (now - lastActivity > pingIntervalMillis) {

@@ -30,15 +30,15 @@ public final class XEndpointScannerTest {
   }
 
   @Test
-  public void testCloseDefunct() {
+  public void testTerminateDefunct() {
     scanner = new XEndpointScanner<XEndpoint>(1, 0);
     final XEndpoint endpoint = mock(XEndpoint.class);
-    when(endpoint.isOpen()).thenReturn(true);
+    doReturn(true).when(endpoint).isOpen();
     scanner.addEndpoint(endpoint);
     TestSupport.sleep(10);
-    when(endpoint.isOpen()).thenReturn(false);
+    doReturn(false).when(endpoint).isOpen();
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-      verify(endpoint, atLeastOnce()).close();
+      verify(endpoint, atLeastOnce()).terminate();
     });
   }
 
