@@ -15,7 +15,7 @@ fi
 
 if [ -e '../gradlew' ]; then
   cd ..
-  ./gradlew :flywheel-standalone:build -x test
+  ./gradlew flywheel-standalone:build -x test
   cd -
 fi
 
