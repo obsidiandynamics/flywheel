@@ -157,26 +157,33 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
     if (channel.isOpen() && ! channel.isCloseFrameSent()) {
       channel.sendClose();
     } else {
-      channel.getIoThread().execute(() -> {
-        try {
-          channel.close();
-        } catch (IOException e) {
-          final UndertowLogger log = UndertowLogger.ROOT_LOGGER;
-          log.ioException(e);
-        }
-        fireCloseEvent();
-      });
+      terminate();
+    }
+  }
+
+  @Override
+  public void terminate() throws IOException {
+    if (channel.isOpen()) {
+      closeChannelAndFireEvent();
+    } else {
+      fireCloseEvent();
     }
   }
   
-  private void fireCloseEvent() {
-    if (closeFired.compareAndSet(false, true)) {
+  private void closeChannelAndFireEvent() {
+    channel.getIoThread().execute(() -> {
       try {
         channel.close();
       } catch (IOException e) {
         final UndertowLogger log = UndertowLogger.ROOT_LOGGER;
         log.ioException(e);
       }
+      fireCloseEvent();
+    });
+  }
+  
+  private void fireCloseEvent() {
+    if (closeFired.compareAndSet(false, true)) {
       manager.remove(this);
       manager.getListener().onClose(this);
     }
@@ -190,14 +197,6 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
   @Override
   public long getBacklog() {
     return backlog.get();
-  }
-
-  @Override
-  public void terminate() throws IOException {
-    if (channel.isOpen()) {
-      channel.close();
-    }
-    fireCloseEvent();
   }
 
   @Override

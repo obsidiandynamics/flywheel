@@ -40,7 +40,7 @@ public final class XEndpointScanner<E extends XEndpoint> extends Thread implemen
           }
         }
       } catch (Exception e) {
-        LOG.warn("Unexpected error", e);
+        LOG.error("Unexpected error", e);
       }
       
       try {
