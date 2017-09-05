@@ -164,22 +164,21 @@ public final class UndertowEndpoint extends AbstractReceiveListener implements X
   @Override
   public void terminate() throws IOException {
     if (channel.isOpen()) {
-      closeChannelAndFireEvent();
-    } else {
-      fireCloseEvent();
+      channel.getIoThread().execute(this::closeChannel);
     }
+    fireCloseEvent();
   }
   
-  private void closeChannelAndFireEvent() {
-    channel.getIoThread().execute(() -> {
-      try {
-        channel.close();
-      } catch (IOException e) {
-        final UndertowLogger log = UndertowLogger.ROOT_LOGGER;
-        log.ioException(e);
-      }
-      fireCloseEvent();
-    });
+  /**
+   *  Closes the channel. Must be invoked from the IO thread.
+   */
+  private void closeChannel() {
+    try {
+      channel.close();
+    } catch (IOException e) {
+      final UndertowLogger log = UndertowLogger.ROOT_LOGGER;
+      log.ioException(e);
+    }
   }
   
   private void fireCloseEvent() {
