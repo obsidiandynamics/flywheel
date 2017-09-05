@@ -51,7 +51,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   
   @Test
   public void testUtUtClientTimeout() throws Exception {
-    testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 500);
+    testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
   }
   
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
