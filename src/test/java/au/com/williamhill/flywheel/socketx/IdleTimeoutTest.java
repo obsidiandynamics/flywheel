@@ -8,6 +8,7 @@ import java.util.*;
 import org.junit.*;
 import org.junit.runner.*;
 import org.junit.runners.*;
+import org.junit.runners.Parameterized.*;
 import org.mockito.*;
 import org.slf4j.*;
 
@@ -24,7 +25,9 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   
   @Parameterized.Parameters
   public static List<Object[]> data() {
-    return Arrays.asList(new Object[REPEAT][0]);
+    final Object[][] params = new Object[REPEAT][1];
+    for (int i = 0; i < REPEAT; i++) params[i][0] = i;
+    return Arrays.asList(params);
   }
   
 //  @Test
@@ -51,6 +54,9 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
 //    testClientTimeout(JettyServer.factory(), JettyClient.factory(), 500);
 //  }
   
+  @Parameter(0)
+  public int runNo;
+  
   @Test
   public void testUtUtClientTimeout() throws Exception {
     testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
@@ -59,7 +65,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
-    LOG.debug("Started client timeout test");
+    LOG.debug("Started client timeout test {}", runNo);
     final XServerConfig serverConfig = getDefaultServerConfig(false)
         .withScanInterval(1);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
@@ -79,12 +85,12 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
         Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
       });
       
-      await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+      await().dontCatchUncaughtExceptions().atMost(120, SECONDS).untilAsserted(() -> {
         Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
         Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
       });
     } finally {
-      LOG.debug("Ended client timeout test");
+      LOG.debug("Ended client timeout test {}", runNo);
     }
   }
 
