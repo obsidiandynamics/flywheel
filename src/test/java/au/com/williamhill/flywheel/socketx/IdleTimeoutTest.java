@@ -27,29 +27,29 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
     return Arrays.asList(new Object[REPEAT][0]);
   }
   
-  @Test
-  public void testJtJtServerTimeout() throws Exception {
-    // Note: Jetty requires more idle time allowance than others, otherwise the connection
-    // times out before it is upgraded to a WebSocket.
-    testServerTimeout(JettyServer.factory(), JettyClient.factory(), 500);
-  }
-  
-  @Test
-  public void testUtUtServerTimeout() throws Exception {
-    testServerTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
-  }
-  
-  @Test
-  public void testNtUtServerTimeout() throws Exception {
-    testServerTimeout(NettyServer.factory(), UndertowClient.factory(), 200);
-  }
-  
-  @Test
-  public void testJtJtClientTimeout() throws Exception {
-    // Note: Jetty requires more idle time allowance than others, otherwise the connection
-    // times out before it is upgraded to a WebSocket.
-    testClientTimeout(JettyServer.factory(), JettyClient.factory(), 500);
-  }
+//  @Test
+//  public void testJtJtServerTimeout() throws Exception {
+//    // Note: Jetty requires more idle time allowance than others, otherwise the connection
+//    // times out before it is upgraded to a WebSocket.
+//    testServerTimeout(JettyServer.factory(), JettyClient.factory(), 500);
+//  }
+//  
+//  @Test
+//  public void testUtUtServerTimeout() throws Exception {
+//    testServerTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
+//  }
+//  
+//  @Test
+//  public void testNtUtServerTimeout() throws Exception {
+//    testServerTimeout(NettyServer.factory(), UndertowClient.factory(), 200);
+//  }
+//  
+//  @Test
+//  public void testJtJtClientTimeout() throws Exception {
+//    // Note: Jetty requires more idle time allowance than others, otherwise the connection
+//    // times out before it is upgraded to a WebSocket.
+//    testClientTimeout(JettyServer.factory(), JettyClient.factory(), 500);
+//  }
   
   @Test
   public void testUtUtClientTimeout() throws Exception {
