@@ -28,8 +28,7 @@ import au.com.williamhill.flywheel.util.*;
  *  client responses.<p>
  *  
  *  Run with:
- *  -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking 
- *  -Xms1G -Xmx4G -Xss1M -XX:+UseParallelGC
+ *  -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking Xms1G -Xmx4G -Xss1M -XX:+UseParallelGC
  */
 public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static final int PREFERRED_PORT = 8080;
