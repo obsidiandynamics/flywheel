@@ -111,7 +111,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
         Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
       });
     } finally {
-      LOG.debug("Ended client timeout test");
+      LOG.debug("Ended server timeout test");
     }
   }
 }
