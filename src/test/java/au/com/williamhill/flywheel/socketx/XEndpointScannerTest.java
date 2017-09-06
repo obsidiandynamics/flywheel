@@ -3,14 +3,26 @@ package au.com.williamhill.flywheel.socketx;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import org.awaitility.*;
 import org.junit.*;
+import org.junit.runner.*;
+import org.junit.runners.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
+@RunWith(Parameterized.class)
 public final class XEndpointScannerTest {
+  private static final int REPEAT = 1;
+  
+  @Parameterized.Parameters
+  public static List<Object[]> data() {
+    return Arrays.asList(new Object[REPEAT][0]);
+  }
+  
   private XEndpointScanner<XEndpoint> scanner;
   
   @After
@@ -33,10 +45,11 @@ public final class XEndpointScannerTest {
   public void testTerminateDefunct() {
     scanner = new XEndpointScanner<XEndpoint>(1, 0);
     final XEndpoint endpoint = mock(XEndpoint.class);
-    doReturn(true).when(endpoint).isOpen();
+    final AtomicBoolean isOpen = new AtomicBoolean(true);
+    when(endpoint.isOpen()).thenAnswer(invocation -> isOpen.get());
     scanner.addEndpoint(endpoint);
     TestSupport.sleep(10);
-    doReturn(false).when(endpoint).isOpen();
+    isOpen.set(false);
     Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
       verify(endpoint, atLeastOnce()).terminate();
     });
