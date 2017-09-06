@@ -9,6 +9,7 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.junit.runners.*;
 import org.mockito.*;
+import org.slf4j.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
@@ -18,6 +19,7 @@ import au.com.williamhill.flywheel.socketx.undertow.*;
 
 @RunWith(Parameterized.class)
 public final class IdleTimeoutTest extends BaseClientServerTest {
+  private static final Logger LOG = LoggerFactory.getLogger(IdleTimeoutTest.class);
   private static final int REPEAT = 1000;
   
   @Parameterized.Parameters
@@ -57,6 +59,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
+    LOG.debug("Started client timeout test");
     final XServerConfig serverConfig = getDefaultServerConfig(false)
         .withScanInterval(1);
     final XEndpointListener<XEndpoint> serverListener = createMockListener();
@@ -69,20 +72,26 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(false, serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
-    });
-    
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
-    });
+    LOG.debug("Client timeout: Awaiting");
+    try {
+      await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+        Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
+        Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
+      });
+      
+      await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+        Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
+        Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
+      });
+    } finally {
+      LOG.debug("Ended client timeout test");
+    }
   }
 
   private void testServerTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
+    LOG.debug("Started server timeout test");
     final XServerConfig serverConfig = getDefaultServerConfig(false)
         .withScanInterval(1)
         .withIdleTimeout(idleTimeoutMillis);
@@ -95,9 +104,14 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(false, serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
-    });
+    LOG.debug("Server timeout: Awaiting");
+    try {
+      await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+        Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
+        Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
+      });
+    } finally {
+      LOG.debug("Ended client timeout test");
+    }
   }
 }
