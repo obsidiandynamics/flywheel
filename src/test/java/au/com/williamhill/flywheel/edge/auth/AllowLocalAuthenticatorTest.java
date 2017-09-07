@@ -16,6 +16,7 @@ public class AllowLocalAuthenticatorTest {
     auth.verify(new EdgeNexus(null, LocalPeer.instance()), "topic", outcome);
     verify(outcome).allow(eq(AuthenticationOutcome.INDEFINITE));
   }
+  
   @Test
   public void testDenyNonLocal() {
     final Authenticator auth = AllowLocalAuthenticator.instance();
