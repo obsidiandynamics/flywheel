@@ -30,8 +30,6 @@ public abstract class AbstractAuthTest {
   
   protected RemoteNode remote;
   
-  protected RemoteNexus remoteNexus;
-  
   protected volatile Errors errors;
   
   protected volatile TextFrame text;
@@ -41,7 +39,7 @@ public abstract class AbstractAuthTest {
   private int port;
   
   @Before
-  public void before() throws Exception {
+  public final void before() throws Exception {
     port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
     
     wire = new Wire(true, LocationHint.UNSPECIFIED);
@@ -69,9 +67,8 @@ public abstract class AbstractAuthTest {
   protected void setup() throws Exception {}
   
   @After
-  public void after() throws Exception {
+  public final void after() throws Exception {
     teardown();
-    if (remoteNexus != null) remoteNexus.close();
     if (edge != null) edge.close();
     if (remote != null) remote.close();
   }
