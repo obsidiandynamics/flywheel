@@ -1,10 +1,21 @@
 package au.com.williamhill.flywheel.edge.backplane;
 
-import org.junit.*;
+import java.util.*;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.junit.runners.*;
+
+@RunWith(Parameterized.class)
 public final class NoOpClusterTest extends ClusterTest {
   private static final int CYCLES = 2;
   private static final int SCALE = 1;
+  private static final int REPEAT = 1;
+  
+  @Parameterized.Parameters
+  public static List<Object[]> data() {
+    return Arrays.asList(new Object[REPEAT][0]);
+  }
   
   @Override
   protected Backplane getBackplane(String clusterId, String brokerId) throws Exception {
