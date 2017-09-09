@@ -17,10 +17,12 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class IdleTimeoutTest extends BaseClientServerTest {
   private static final Logger LOG = LoggerFactory.getLogger(IdleTimeoutTest.class);
+  private static final int MAX_PORT_USE_COUNT = 10_000;
   private static final int REPEAT = 1;
   
   @Parameterized.Parameters
@@ -119,5 +121,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
     } finally {
       LOG.debug("Ended server timeout test");
     }
+    
+    SocketTestSupport.drainPort(serverConfig.port, MAX_PORT_USE_COUNT);
   }
 }
