@@ -41,7 +41,8 @@ public interface SocketTestSupport {
   static int getAvailablePort(int preferredPort) {
     int port = preferredPort;
     while (port <= MAX_PORT) {
-      if (isLocalPortAvailable(port)) {
+      //if (isLocalPortAvailable(port)) { //TODO
+      if (isRemotePortAvailable("localhost", port)) {
         return port;
       } else {
         port++;
