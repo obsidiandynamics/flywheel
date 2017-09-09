@@ -4,6 +4,7 @@ import static java.util.concurrent.TimeUnit.*;
 import static org.awaitility.Awaitility.*;
 
 import java.util.*;
+import java.util.function.*;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -64,6 +65,17 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
     testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
   }
   
+  private static BooleanSupplier isAsserted(Runnable assertion) {
+    return () -> {
+      try {
+        assertion.run();
+        return true;
+      } catch (AssertionError e) {
+        return false;
+      }
+    };
+  }
+  
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
@@ -87,10 +99,17 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
         Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
       });
       
-      await().dontCatchUncaughtExceptions().atMost(120, SECONDS).untilAsserted(() -> {
+      final Runnable assertion = () -> {
         Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
         Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
-      });
+      };
+      
+      if (! Await.bounded(120_000, isAsserted(assertion))) assertion.run();
+      
+//      await().dontCatchUncaughtExceptions().atMost(120, SECONDS).untilAsserted(() -> {
+//        Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
+//        Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
+//      });
     } finally {
       LOG.debug("Ended client timeout test {}", runNo);
     }
