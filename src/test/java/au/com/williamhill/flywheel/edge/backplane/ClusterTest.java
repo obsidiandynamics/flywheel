@@ -177,7 +177,7 @@ public abstract class ClusterTest implements TestSupport {
     assertFalse(error.get());
 
     try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
+      Awaitility.await().dontCatchUncaughtExceptions().atMost(120, SECONDS)
       .until(() -> subscribers.stream().filter(s -> s.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (RetainingSubscriber sub : subscribers) {
