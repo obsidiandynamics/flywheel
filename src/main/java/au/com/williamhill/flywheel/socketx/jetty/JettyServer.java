@@ -74,6 +74,7 @@ public final class JettyServer implements XServer<JettyEndpoint> {
 
   @Override
   public void close() throws Exception {
+    manager.closeEndpoints(60_000);
     scanner.close();
     server.stop();
   }

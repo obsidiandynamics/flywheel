@@ -39,7 +39,7 @@ public final class Await {
       result = test.getAsBoolean();
       if (result) {
         return true;
-      } else {
+      } else if (intervalMillis != 0) {
         Thread.sleep(intervalMillis);
       }
     } while (System.nanoTime() < maxWait);

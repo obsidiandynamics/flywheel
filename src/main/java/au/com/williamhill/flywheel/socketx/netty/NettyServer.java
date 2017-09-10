@@ -56,6 +56,7 @@ public final class NettyServer implements XServer<NettyEndpoint> {
   
   @Override
   public void close() throws Exception {
+    manager.closeEndpoints(60_000);
     scanner.close();
     bossGroup.shutdownGracefully();
     workerGroup.shutdownGracefully();
