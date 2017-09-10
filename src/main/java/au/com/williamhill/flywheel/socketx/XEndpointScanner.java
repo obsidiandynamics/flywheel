@@ -70,4 +70,14 @@ public final class XEndpointScanner<E extends XEndpoint> extends Thread implemen
     interrupt();
     join();
   }
+  
+  public void closeEndpoints(int waitMillis) throws Exception {
+    final Collection<E> endpoints = new HashSet<>(this.endpoints);
+    for (E endpoint : endpoints) {
+      endpoint.close();
+    }
+    for (E endpoint : endpoints) {
+      endpoint.awaitClose(waitMillis);
+    }
+  }
 }

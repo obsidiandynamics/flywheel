@@ -66,7 +66,7 @@ public final class UndertowServer implements XServer<UndertowEndpoint> {
 
   @Override
   public void close() throws Exception {
-    manager.closeEndpoints(60_000);
+    scanner.closeEndpoints(60_000);
     scanner.close();
     server.stop();
     worker.shutdown();
