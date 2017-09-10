@@ -7,7 +7,7 @@ import org.slf4j.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
-public class UlimitTest {
+public final class UlimitTest {
   @Test
   public void test() {
     final int minLimit = 1024;
