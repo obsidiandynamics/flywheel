@@ -42,15 +42,15 @@ public abstract class ClusterTest implements TestSupport {
   }
   
   protected void cleanup() throws Exception {
-    for (EdgeNode edge : edges) {
-      edge.close();
-    }
-    edges.clear();
-    
     for (RemoteNode remote : remotes) {
       remote.close();
     }
     remotes.clear();
+    
+    for (EdgeNode edge : edges) {
+      edge.close();
+    }
+    edges.clear();
   }
   
   protected final EdgeNode createEdgeNode(int port, Backplane backplane) throws Exception {

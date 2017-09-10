@@ -58,8 +58,10 @@ public final class NodeRouterTest {
   
   @After
   public void teardown() throws Exception {
-    if (edge != null) edge.close();
     if (remote != null) remote.close();
+    if (edge != null) edge.close();
+    remote = null;
+    edge = null;
   }
 
   @Test

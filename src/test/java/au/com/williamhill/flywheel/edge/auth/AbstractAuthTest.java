@@ -69,8 +69,10 @@ public abstract class AbstractAuthTest {
   @After
   public final void after() throws Exception {
     teardown();
-    if (edge != null) edge.close();
     if (remote != null) remote.close();
+    if (edge != null) edge.close();
+    remote = null;
+    edge = null;
   }
   
   protected void teardown() throws Exception {}
