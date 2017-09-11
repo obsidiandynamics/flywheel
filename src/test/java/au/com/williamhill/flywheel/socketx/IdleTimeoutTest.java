@@ -1,10 +1,6 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
-
 import java.util.*;
-import java.util.function.*;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -18,7 +14,6 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
-import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
@@ -66,17 +61,6 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
     testClientTimeout(UndertowServer.factory(), UndertowClient.factory(), 200);
   }
   
-  private static BooleanSupplier isAsserted(Runnable assertion) {
-    return () -> {
-      try {
-        assertion.run();
-        return true;
-      } catch (AssertionError e) {
-        return false;
-      }
-    };
-  }
-  
   private void testClientTimeout(XServerFactory<? extends XEndpoint> serverFactory,
                                  XClientFactory<? extends XEndpoint> clientFactory,
                                  int idleTimeoutMillis) throws Exception {
@@ -95,22 +79,15 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
     openClientEndpoint(false, serverConfig.port, clientListener);
     LOG.debug("Client timeout: Awaiting");
     try {
-      await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+      SocketTestSupport.await().until(() -> {
         Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
         Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
       });
       
-      final Runnable assertion = () -> {
+      SocketTestSupport.await().until(() -> {
         Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
         Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
-      };
-      
-      if (! Await.bounded(120_000, isAsserted(assertion))) assertion.run();
-      
-//      await().dontCatchUncaughtExceptions().atMost(120, SECONDS).untilAsserted(() -> {
-//        Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
-//        Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
-//      });
+      });
     } finally {
       LOG.debug("Ended client timeout test {}", runNo);
     }
@@ -134,7 +111,7 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
     openClientEndpoint(false, serverConfig.port, clientListener);
     LOG.debug("Server timeout: Awaiting");
     try {
-      await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+      SocketTestSupport.await().until(() -> {
         Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
         Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
       });

@@ -1,8 +1,5 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
-
 import org.junit.*;
 import org.mockito.*;
 
@@ -11,6 +8,7 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.util.*;
 
 public final class AbruptCloseTest extends BaseClientServerTest {
   @Test
@@ -56,13 +54,13 @@ public final class AbruptCloseTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     final XEndpoint endpoint = openClientEndpoint(false, serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
       Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
     });
     
     endpoint.terminate();
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
       Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
     });
@@ -82,11 +80,11 @@ public final class AbruptCloseTest extends BaseClientServerTest {
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(false, serverConfig.port, clientListener);
     
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).until(this::hasServerEndpoint);
+    SocketTestSupport.await().untilTrue(this::hasServerEndpoint);
     
     final XEndpoint endpoint = getServerEndpoint();
     endpoint.terminate();
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
       Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
     });

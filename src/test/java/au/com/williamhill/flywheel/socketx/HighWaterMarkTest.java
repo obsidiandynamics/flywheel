@@ -1,12 +1,10 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -14,6 +12,7 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.util.*;
 
 public final class HighWaterMarkTest extends BaseClientServerTest {
   @Test
@@ -56,8 +55,7 @@ public final class HighWaterMarkTest extends BaseClientServerTest {
         });
     openClientEndpoint(false, serverConfig.port, clientListener);
     
-    Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
-    .until(() -> ! server.getEndpointManager().getEndpoints().isEmpty());
+    SocketTestSupport.await().untilTrue(() -> ! server.getEndpointManager().getEndpoints().isEmpty());
 
     final int messages = highWaterMark * 100;
     for (XEndpoint endpoint : server.getEndpointManager().getEndpoints()) {

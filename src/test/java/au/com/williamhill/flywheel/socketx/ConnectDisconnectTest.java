@@ -1,8 +1,6 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
-import static org.awaitility.Awaitility.*;
 
 import java.util.*;
 
@@ -96,7 +94,7 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     }
 
     // assert connections on server
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(clientListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
       Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
     });
@@ -116,13 +114,12 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     }
     
     // assert disconnections on server
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(clientListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
       Mockito.verify(serverListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
+      TestCase.assertEquals(0, client.getEndpoints().size());
+      TestCase.assertEquals(0, server.getEndpointManager().getEndpoints().size());
     });
-
-    TestCase.assertEquals(0, client.getEndpoints().size());
-    TestCase.assertEquals(0, server.getEndpointManager().getEndpoints().size());
     
     SocketTestSupport.drainPort(serverConfig.port, MAX_PORT_USE_COUNT);
   }

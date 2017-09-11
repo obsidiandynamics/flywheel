@@ -8,7 +8,7 @@ import java.util.function.*;
  *  is robust in the face of non-monotonically increasing clocks.
  */
 public final class Await {
-  public static final int DEF_INTERVAL = 10;
+  public static final int DEF_INTERVAL = 1;
   
   private Await() {}
   

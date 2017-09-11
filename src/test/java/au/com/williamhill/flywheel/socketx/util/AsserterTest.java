@@ -9,7 +9,12 @@ import junit.framework.*;
 public final class AsserterTest {
   @Test
   public void testPass() throws InterruptedException {
-    Asserter.wait(20).withIntervalMillis(1).until(() -> {});
+    Asserter.wait(10).withScale(2).withIntervalMillis(1).until(() -> {});
+  }
+  
+  @Test
+  public void testPassBoolean() throws InterruptedException {
+    Asserter.wait(10).withScale(2).withIntervalMillis(1).untilTrue(() -> true);
   }
   
   @Test
@@ -21,6 +26,14 @@ public final class AsserterTest {
     } catch (AssertionError e) {
       TestCase.assertEquals(message, e.getMessage());
     }
+  }
+  
+  @Test
+  public void testFailBoolean() throws InterruptedException {
+    try {
+      Asserter.wait(20).withIntervalMillis(1).untilTrue(() -> false);
+      TestCase.fail("AssertionError not thrown");
+    } catch (AssertionError e) {}
   }
   
   @Test

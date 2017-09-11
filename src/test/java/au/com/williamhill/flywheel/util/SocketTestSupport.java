@@ -18,6 +18,12 @@ public interface SocketTestSupport {
   static boolean LOG_PORT_SCAVENGE = true;
   static boolean LOG_PORT_DRAIN = true;
   
+  static int DEF_AWAIT_MILLIS = 120_000;
+  
+  static Asserter await() {
+    return Asserter.wait(DEF_AWAIT_MILLIS);
+  }
+  
   static byte[] randomBytes(int length) {
     final byte[] bytes = new byte[length];
     new Random().nextBytes(bytes);
