@@ -48,7 +48,9 @@ final class WebSocketServerInitializer extends ChannelInitializer<SocketChannel>
     pipeline.addLast(new WebSocketServerProtocolHandler(path, null, true) {
       @Override public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        manager.createEndpoint(ctx);
+        if (manager.get(ctx.channel()) == null) {
+          manager.createEndpoint(ctx);
+        }
       }
       
       @Override protected void decode(ChannelHandlerContext ctx, WebSocketFrame frame, List<Object> out) throws Exception {
