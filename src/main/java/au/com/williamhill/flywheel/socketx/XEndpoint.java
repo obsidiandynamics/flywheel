@@ -5,7 +5,7 @@ import java.net.*;
 import java.nio.*;
 import java.time.*;
 
-import au.com.williamhill.flywheel.util.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 
 /**
  *  The abstract definition of a WebSocket endpoint.

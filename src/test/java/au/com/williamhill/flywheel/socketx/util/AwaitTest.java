@@ -1,4 +1,4 @@
-package au.com.williamhill.flywheel.util;
+package au.com.williamhill.flywheel.socketx.util;
 
 import static com.obsidiandynamics.indigo.util.TestSupport.*;
 import static junit.framework.TestCase.*;
@@ -32,7 +32,7 @@ public final class AwaitTest {
   @Test
   public void testBoundedZeroMillisConditionTimedOut() throws InterruptedException {
     final long start = System.currentTimeMillis();
-    final boolean r = Await.bounded(0, 0, () -> false);
+    final boolean r = Await.bounded(20, 0, () -> false);
     assertFalse(r);
     final long elapsed = System.currentTimeMillis() - start;
     assertTrue("Elapsed " + elapsed, elapsed >= 0);
