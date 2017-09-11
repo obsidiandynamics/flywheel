@@ -77,4 +77,14 @@ public final class XEndpointScannerTest {
     scanner.removeEndpoint(endpoint);
     assertEquals(0, scanner.getEndpoints().size());
   }
+  
+  @Test
+  public void testCloseEndpoint() throws Exception {
+    scanner = new XEndpointScanner<XEndpoint>(1, 1);
+    final XEndpoint endpoint = mock(XEndpoint.class);
+    scanner.addEndpoint(endpoint);
+    scanner.closeEndpoints(0);
+    verify(endpoint).close();
+    verify(endpoint).awaitClose(eq(0));
+  }
 }
