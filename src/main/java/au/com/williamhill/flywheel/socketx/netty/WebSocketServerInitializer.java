@@ -46,10 +46,14 @@ final class WebSocketServerInitializer extends ChannelInitializer<SocketChannel>
     });
     pipeline.addLast(new WebSocketServerCompressionHandler());
     pipeline.addLast(new WebSocketServerProtocolHandler(path, null, true) {
+      private final Object connectionLock = new Object();
+      
       @Override public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        if (manager.get(ctx.channel()) == null) {
-          manager.createEndpoint(ctx);
+        synchronized (connectionLock) {
+          if (manager.get(ctx.channel()) == null) {
+            manager.createEndpoint(ctx);
+          }
         }
       }
       

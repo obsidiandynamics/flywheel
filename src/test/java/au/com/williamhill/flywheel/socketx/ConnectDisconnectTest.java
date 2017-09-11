@@ -7,8 +7,6 @@ import java.util.*;
 import org.junit.Test;
 import org.mockito.*;
 
-import com.obsidiandynamics.indigo.util.*;
-
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.ssl.*;
@@ -95,8 +93,8 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
 
     // assert connections on server
     SocketTestSupport.await().until(() -> {
-      Mockito.verify(clientListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
-      Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
+      Mockito.verify(clientListener, Mockito.times(connections)).onConnect(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mockito.notNull(XEndpoint.class));
     });
 
     // disconnect all endpoints and await closure
@@ -115,8 +113,8 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     
     // assert disconnections on server
     SocketTestSupport.await().until(() -> {
-      Mockito.verify(clientListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
-      Mockito.verify(serverListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
+      Mockito.verify(clientListener, Mockito.times(connections)).onClose(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(serverListener, Mockito.times(connections)).onClose(Mockito.notNull(XEndpoint.class));
       TestCase.assertEquals(0, client.getEndpoints().size());
       TestCase.assertEquals(0, server.getEndpointManager().getEndpoints().size());
     });
