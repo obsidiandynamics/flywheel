@@ -97,8 +97,8 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
 
     // assert connections on server
     await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
       Mockito.verify(clientListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
+      Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
     });
 
     // disconnect all endpoints and await closure
@@ -117,12 +117,12 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     
     // assert disconnections on server
     await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
       Mockito.verify(clientListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
+      Mockito.verify(serverListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
     });
-    
-    TestCase.assertEquals(0, server.getEndpointManager().getEndpoints().size());
+
     TestCase.assertEquals(0, client.getEndpoints().size());
+    TestCase.assertEquals(0, server.getEndpointManager().getEndpoints().size());
     
     SocketTestSupport.drainPort(serverConfig.port, MAX_PORT_USE_COUNT);
   }
