@@ -16,8 +16,19 @@ if [ $host_lines -eq 0 ]; then
   echo 127.0.0.1 $hostname >> /etc/hosts
 fi
 
+# Source env variables from defaults, if they exist
+if [ -f /etc/default/flywheel-env ]; then
+  . /etc/default/flywheel-env
+fi
+
+# Determine the user we should be installing for
+if [ -z ${FLYWHEEL_USER} ]; then
+  user=`echo $(logname)`
+else
+  user=$FLYWHEEL_USER
+fi
+
 # Install the init script and make it start by default
-user=`echo $(logname)`
 user_home=`eval echo "~$user"`
 ln -s ${user_home}/opt/flywheel/standalone/scripts/init.d/flywheel /etc/init.d
 chkconfig --add flywheel
