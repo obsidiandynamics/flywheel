@@ -120,7 +120,6 @@ docker run -p 8080:8080 -it whcom/flywheel
 
 The WebSocket broker will be available on `ws://localhost:8080/broker`. The image also publishes a health check endpoint on `http://localhost:8080/health` - useful for running behind a gateway or a load balancer.
 
-
 # Protocol
 The next logical step is to connect to our broker to publish messages and subscribe to message topics. This requires a basic understanding of the Flywheel wire protocol, which comes in two variants - text and binary. As we're just getting started, let's keep it simple and stick to text.
 
@@ -251,6 +250,39 @@ At the top level we have the special `$remote` topic container. This topic and a
 The most common use case for direct messaging is communicating errors back to the remote node based on an earlier publish that couldn't be processed. Because publishing is purely asynchronous, the publisher wouldn't ordinarily wait for a response; besides, it's very unlikely that a publish operation would fail. But the remote may have attempted to publish on a topic to which it has no access. In this case the edge node will send an array with a single `TopicAccess` error object back to the remote node, on the topic `$remote/{sessionId}|anon/rx/errors`.
 
 **Note:** The above describes the built-in scheme, which is minimalistic by design - initially to accommodate asynchronous error handling. The combination of a flexible topic hierarchy and pluggable auth modules allows you to create secure topics and bespoke routing behaviour, ranging from direct messaging, to P2P, private groups, and so on.
+
+## Client library
+Flywheel was designed to be 'client-less'; connecting on any platform supporting WebSockets and with a little bit of string concatenation and parsing based on the ultra-simple [protocol](#user-content-direct-messaging), you have a client at your disposal.
+
+Alternatively, you can use one of the existing client libraries. The following snippet shows how it's done in Java.
+```java
+RemoteNode remote = RemoteNode
+    .builder()
+    .withClientConfig(new XClientConfig().withIdleTimeout(300_000))
+    .build();
+
+RemoteNexus nexus = remote.open(new URI("ws://localhost:8080/broker"), new RemoteNexusHandlerBase() {
+  @Override public void onText(RemoteNexus nexus, String topic, String payload) {
+    System.out.println("Text message received: " + payload);
+  }
+});
+
+BindResponseFrame bindRes = nexus.bind(new BindFrame(null, null, null, new String[] { "quotes/#" }, null, null)).get();
+System.out.println("Bind response " + bindRes);
+    
+nexus.publish(new PublishTextFrame("quotes/AAPL", "160.82"));
+```
+
+This is a simple example that opens a single connection to `ws://localhost:8080/broker` and registers a text message handler. It then binds to all price quotes and prints the bind response. Then we publish a price and receive it back.
+
+By extending `RemoteNexusHandlerBase` you can subscribe to a range of events.
+```java
+void onOpen(RemoteNexus nexus);
+void onClose(RemoteNexus nexus);
+void onText(RemoteNexus nexus, String topic, String payload);
+void onBinary(RemoteNexus nexus, String topic, byte[] payload);
+```
+
 
 # Module Documentation
 * [Standalone](https://github.com/William-Hill-Community/flywheel/tree/master/standalone) - Building, configuring and running a Flywheel instance using [Docker](https://www.docker.com/) or directly from the command line.
