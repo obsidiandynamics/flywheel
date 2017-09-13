@@ -5,9 +5,7 @@ import static junit.framework.TestCase.*;
 
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.mockito.*;
 import org.slf4j.*;
@@ -54,16 +52,10 @@ public final class TopicLoggerTest {
     nexus.publish(new PublishBinaryFrame("test", "test".getBytes()));
     nexus.publish(new PublishTextFrame("test", "test"));
     
-    final Runnable assertion = () -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(handler).onText(anyNotNull(), anyNotNull(), anyNotNull());
       Mockito.verify(handler).onBinary(anyNotNull(), anyNotNull(), anyNotNull());
-    };
-    
-    try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> assertion.run());
-    } finally {
-      assertion.run();
-    }
+    });
   }
   
   @Test

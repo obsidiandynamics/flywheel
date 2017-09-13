@@ -1,8 +1,6 @@
 package au.com.williamhill.flywheel;
 
 import static com.obsidiandynamics.indigo.util.Mocks.*;
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -94,7 +92,7 @@ public final class NodeCommsTest {
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(interchange).onClose(anyNotNull());
       verify(handler).onClose(anyNotNull());
     });
@@ -146,7 +144,7 @@ public final class NodeCommsTest {
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(interchange).onClose(anyNotNull());
       verify(handler).onClose(anyNotNull());
     });

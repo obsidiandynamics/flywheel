@@ -5,9 +5,7 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.junit.runner.*;
 import org.junit.runners.*;
@@ -16,6 +14,7 @@ import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
+import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class CachedAuthBindTest extends AbstractAuthTest {
@@ -110,7 +109,7 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
     verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
     verify(spied, atLeast(1)).verify(notNull(EdgeNexus.class), eq("topic3/+"), notNull(AuthenticationOutcome.class));
     
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(spied, atLeast(10)).verify(notNull(EdgeNexus.class), eq("topic3/+"), notNull(AuthenticationOutcome.class));
     });
   }
@@ -182,7 +181,6 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
     
     spied.set(-1);
     
-    Awaitility.dontCatchUncaughtExceptions()
-    .await().atMost(10, TimeUnit.SECONDS).until(() -> ! remoteNexus.getEndpoint().isOpen());
+    SocketTestSupport.await().untilTrue(() -> ! remoteNexus.getEndpoint().isOpen());
   }
 }

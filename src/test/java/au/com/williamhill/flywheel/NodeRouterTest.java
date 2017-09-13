@@ -1,8 +1,6 @@
 package au.com.williamhill.flywheel;
 
 import static com.obsidiandynamics.indigo.util.Mocks.*;
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -91,13 +89,13 @@ public final class NodeRouterTest {
     
     edge.publish(topic, payload); // a single subscriber at this point
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(handler).onText(anyNotNull(), eq("a/b/c"), eq(payload));
     });
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(handler).onClose(anyNotNull());
     });
     
@@ -135,13 +133,13 @@ public final class NodeRouterTest {
     
     remoteNexus.publish(new PublishTextFrame(topic, payload)); // itself is a subscriber
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
     });
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(handler).onClose(anyNotNull());
     });
     

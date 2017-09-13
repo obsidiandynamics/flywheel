@@ -3,9 +3,7 @@ package au.com.williamhill.flywheel.edge.plugin.beacon;
 import static com.obsidiandynamics.indigo.util.Mocks.*;
 
 import java.net.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.junit.Test;
 import org.mockito.*;
@@ -59,14 +57,8 @@ public final class BeaconTest {
     final RemoteNexus nexus = remote.open(new URI("ws://localhost:" + edge.getServer().getConfig().port), handler);
     nexus.bind(new BindFrame().withSubscribe("time")).get();
     
-    final Runnable assertion = () -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(handler, Mockito.atLeastOnce()).onText(anyNotNull(), anyNotNull(), anyNotNull());
-    };
-    
-    try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> assertion.run());
-    } finally {
-      assertion.run();
-    }
+    });
   }
 }

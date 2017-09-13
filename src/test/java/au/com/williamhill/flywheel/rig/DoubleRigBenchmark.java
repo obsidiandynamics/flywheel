@@ -1,6 +1,5 @@
 package au.com.williamhill.flywheel.rig;
 
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.benchmark.*;
@@ -20,10 +19,6 @@ public final class DoubleRigBenchmark implements TestSupport {
   private static final String PATH = "/broker";
   
   abstract static class Config implements Spec {
-    static {
-      Awaitility.doNotCatchUncaughtExceptionsByDefault();
-    }
-    
     ThrowingFunction<Config, Summary> runner = DoubleRigBenchmark::test;
     String host;
     int port;

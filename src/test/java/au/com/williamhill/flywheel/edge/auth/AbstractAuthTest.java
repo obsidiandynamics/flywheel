@@ -3,9 +3,7 @@ package au.com.williamhill.flywheel.edge.auth;
 import static com.obsidiandynamics.indigo.util.Mocks.*;
 
 import java.net.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -84,8 +82,7 @@ public abstract class AbstractAuthTest {
   }
   
   protected void awaitReceived() {
-    Awaitility.await().dontCatchUncaughtExceptions()
-    .atMost(60, TimeUnit.SECONDS).until(() -> errors != null || text != null || binary != null);
+    SocketTestSupport.await().untilTrue(() -> errors != null || text != null || binary != null);
   }
   
   protected void setupEdgeNode(AuthChain<PubAuthChain> pubAuthChain, AuthChain<SubAuthChain> subAuthChain) throws Exception {

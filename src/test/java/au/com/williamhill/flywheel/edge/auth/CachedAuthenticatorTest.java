@@ -5,9 +5,7 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.junit.runner.*;
 import org.junit.runners.*;
@@ -18,6 +16,7 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class CachedAuthenticatorTest {
@@ -142,7 +141,7 @@ public final class CachedAuthenticatorTest {
     verify(spied, atLeast(1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
     verify(spied, atLeast(1)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
     
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
     });
@@ -180,7 +179,7 @@ public final class CachedAuthenticatorTest {
     verify(spied, times(1)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
     verify(outcome, times(0)).allow(eq(1000L));
 
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(outcome, times(2)).allow(eq(1000L));
     });
     
@@ -254,7 +253,7 @@ public final class CachedAuthenticatorTest {
     verify(outcome, times(1)).allow(eq(1000L));
     verify(spied, atLeast(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     });
     
@@ -285,7 +284,7 @@ public final class CachedAuthenticatorTest {
     verify(outcome, times(1)).allow(eq(1000L));
     verify(spied, atLeast(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     });
     

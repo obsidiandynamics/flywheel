@@ -1,6 +1,5 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
-import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
 
 import java.util.*;
@@ -10,7 +9,6 @@ import java.util.concurrent.atomic.*;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.*;
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -87,8 +85,7 @@ public final class MockKafkaTest {
     }
     
     try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, SECONDS)
-      .until(() -> consumers.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
+      SocketTestSupport.await().untilTrue(() -> consumers.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (TestConsumer<Integer, Integer> consumer : consumers) {
         assertEquals(expectedMessages, consumer.received.totalSize());

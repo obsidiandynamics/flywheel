@@ -1,12 +1,10 @@
 package au.com.williamhill.flywheel.edge.backplane;
 
-import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
 
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.mockito.*;
 
@@ -119,8 +117,7 @@ public abstract class BackplaneTest implements TestSupport {
     log("publishing complete\n");
 
     try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(120, SECONDS)
-      .until(() -> mockConnectors.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
+      SocketTestSupport.await().untilTrue(() -> mockConnectors.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (MockConnector conn : mockConnectors) {
         assertEquals(expectedPartitions, conn.received.asMap().size());

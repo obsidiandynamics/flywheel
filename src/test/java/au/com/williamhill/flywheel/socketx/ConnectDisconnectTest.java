@@ -5,15 +5,19 @@ import static junit.framework.TestCase.*;
 import java.util.*;
 
 import org.junit.Test;
+import org.junit.runner.*;
+import org.junit.runners.*;
 import org.mockito.*;
 
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
+@RunWith(Parameterized.class)
 public final class ConnectDisconnectTest extends BaseClientServerTest {
   private static final boolean HTTP = false;
   private static final boolean HTTPS = true;
@@ -22,7 +26,12 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
   private static final int CONNECTIONS = 5;
   private static final int PROGRESS_INTERVAL = 10;
   private static final int MAX_PORT_USE_COUNT = 10_000;
-
+  
+  @Parameterized.Parameters
+  public static List<Object[]> data() {
+    return TestCycle.once();
+  }
+  
   @Test
   public void testJtJt() throws Exception {
     test(true, CYCLES, CONNECTIONS, HTTP, JettyServer.factory(), JettyClient.factory());
