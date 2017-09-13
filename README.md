@@ -252,7 +252,7 @@ The most common use case for direct messaging is communicating errors back to th
 **Note:** The above describes the built-in scheme, which is minimalistic by design - initially to accommodate asynchronous error handling. The combination of a flexible topic hierarchy and pluggable auth modules allows you to create secure topics and bespoke routing behaviour, ranging from direct messaging, to P2P, private groups, and so on.
 
 ## Client library
-Flywheel was designed to be 'client-less'; connecting on any platform supporting WebSockets and with a little bit of string concatenation and parsing based on the ultra-simple [protocol](#user-content-direct-messaging), you have a client at your disposal.
+Flywheel was designed to be 'SDK-less'; connecting on any platform supporting WebSockets and with a little bit of string concatenation and parsing based on the ultra-simple [protocol](#user-content-direct-messaging), you have a client at your disposal.
 
 Alternatively, you can use one of the existing client libraries. The following snippet shows how it's done in Java.
 ```java
