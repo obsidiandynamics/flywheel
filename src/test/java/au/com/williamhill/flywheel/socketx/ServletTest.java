@@ -57,8 +57,11 @@ public final class ServletTest extends BaseClientServerTest {
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
     for (int cycle = 0; cycle < cycles; cycle++) {
       if (cycle != 0) init();
-      test(serverFactory, clientFactory);
-      dispose();
+      try {
+        test(serverFactory, clientFactory);
+      } finally {
+        dispose();
+      }
       if (PROGRESS_INTERVAL != 0 && cycle % PROGRESS_INTERVAL == PROGRESS_INTERVAL - 1) {
         LOG_STREAM.format("cycle %,d\n", cycle);
       }

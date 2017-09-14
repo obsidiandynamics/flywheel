@@ -1,17 +1,16 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.*;
 import org.apache.kafka.common.errors.*;
-import org.awaitility.*;
 import org.junit.*;
 import org.mockito.*;
 import org.slf4j.*;
 
 import au.com.williamhill.flywheel.edge.backplane.kafka.KafkaReceiver.*;
+import au.com.williamhill.flywheel.util.*;
 
 
 public final class KafkaReceiverTest {
@@ -40,7 +39,7 @@ public final class KafkaReceiverTest {
     final ConsumerRecords<String, String> records = new ConsumerRecords<>(recordsMap);
     Mockito.when(consumer.poll(Mockito.anyLong())).thenReturn(records);
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(recordHandler, Mockito.atLeastOnce()).onReceive(Mockito.eq(records));
       Mockito.verify(errorHandler, Mockito.never()).onError(Mockito.any());
     });
@@ -59,7 +58,7 @@ public final class KafkaReceiverTest {
   public void testError() throws InterruptedException {
     Mockito.when(consumer.poll(Mockito.anyLong())).thenThrow(new RuntimeException("boom"));
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(recordHandler, Mockito.never()).onReceive(Mockito.any());
       Mockito.verify(errorHandler, Mockito.atLeastOnce()).onError(Mockito.any(RuntimeException.class));
     });
@@ -73,7 +72,7 @@ public final class KafkaReceiverTest {
     Mockito.when(consumer.poll(Mockito.anyLong())).thenThrow(new RuntimeException("boom"));
     final Logger logger = Mockito.mock(Logger.class);
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, KafkaReceiver.genericErrorLogger(logger));
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(recordHandler, Mockito.never()).onReceive(Mockito.any());
       Mockito.verify(logger, Mockito.atLeastOnce()).warn(Mockito.anyString(), Mockito.any(RuntimeException.class));
     });

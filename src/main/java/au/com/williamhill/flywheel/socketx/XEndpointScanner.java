@@ -40,7 +40,7 @@ public final class XEndpointScanner<E extends XEndpoint> extends Thread implemen
           }
         }
       } catch (Exception e) {
-        LOG.warn("Unexpected error", e);
+        LOG.error("Unexpected error", e);
       }
       
       try {
@@ -69,5 +69,15 @@ public final class XEndpointScanner<E extends XEndpoint> extends Thread implemen
     running = false;
     interrupt();
     join();
+  }
+  
+  public void closeEndpoints(int waitMillis) throws Exception {
+    final Collection<E> endpoints = new HashSet<>(this.endpoints);
+    for (E endpoint : endpoints) {
+      endpoint.close();
+    }
+    for (E endpoint : endpoints) {
+      endpoint.awaitClose(waitMillis);
+    }
   }
 }

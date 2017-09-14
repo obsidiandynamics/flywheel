@@ -1,16 +1,16 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
+
+import java.nio.*;
 
 import org.junit.*;
-import org.mockito.*;
-
-import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.util.*;
 
 public final class KeepAliveTest extends BaseClientServerTest {
   private static final int CYCLES = 2;
@@ -55,14 +55,14 @@ public final class KeepAliveTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(false, serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      verify(serverListener).onConnect(notNull(XEndpoint.class));
+      verify(clientListener).onConnect(notNull(XEndpoint.class));
     });
     
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(clientListener, Mockito.atLeastOnce()).onPing(Mocks.anyNotNull(), Mocks.anyNotNull());
-      Mockito.verify(serverListener, Mockito.atLeastOnce()).onPong(Mocks.anyNotNull(), Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      verify(clientListener, atLeastOnce()).onPing(notNull(XEndpoint.class), notNull(ByteBuffer.class));
+      verify(serverListener, atLeastOnce()).onPong(notNull(XEndpoint.class), notNull(ByteBuffer.class));
     });
   }
 }

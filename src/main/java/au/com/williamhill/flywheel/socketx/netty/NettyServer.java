@@ -48,6 +48,7 @@ public final class NettyServer implements XServer<NettyEndpoint> {
     .group(bossGroup, workerGroup)
     .channel(NioServerSocketChannel.class)
     .handler(new LoggingHandler(LogLevel.INFO))
+    .childOption(ChannelOption.SO_REUSEADDR, true)
     .childHandler(new WebSocketServerInitializer(manager, path, sslContext, idleTimeoutMillis))
     .bind(port)
     .sync()
@@ -56,6 +57,7 @@ public final class NettyServer implements XServer<NettyEndpoint> {
   
   @Override
   public void close() throws Exception {
+    scanner.closeEndpoints(60_000);
     scanner.close();
     bossGroup.shutdownGracefully();
     workerGroup.shutdownGracefully();

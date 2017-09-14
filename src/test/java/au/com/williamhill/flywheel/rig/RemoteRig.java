@@ -14,9 +14,9 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.Announce.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.topic.TopicSpec.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class RemoteRig implements TestSupport, AutoCloseable, ThrowingRunnable, RemoteNexusHandler {
   private static final String CONTROL_TOPIC = "control";

@@ -1,18 +1,25 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
+import java.util.*;
 
 import org.junit.*;
+import org.junit.runner.*;
+import org.junit.runners.*;
 import org.mockito.*;
-
-import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.socketx.util.*;
+import au.com.williamhill.flywheel.util.*;
 
+@RunWith(Parameterized.class)
 public final class AbruptCloseTest extends BaseClientServerTest {
+  @Parameterized.Parameters
+  public static List<Object[]> data() {
+    return TestCycle.once();
+  }
+  
   @Test
   public void testJtJtClientClose() throws Exception {
     testClientClose(JettyServer.factory(), JettyClient.factory());
@@ -56,15 +63,15 @@ public final class AbruptCloseTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     final XEndpoint endpoint = openClientEndpoint(false, serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(serverListener).onConnect(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(clientListener).onConnect(Mockito.notNull(XEndpoint.class));
     });
     
     endpoint.terminate();
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(serverListener).onClose(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(clientListener).onClose(Mockito.notNull(XEndpoint.class));
     });
   }
 
@@ -82,13 +89,13 @@ public final class AbruptCloseTest extends BaseClientServerTest {
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(false, serverConfig.port, clientListener);
     
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).until(this::hasServerEndpoint);
+    SocketTestSupport.await().untilTrue(this::hasServerEndpoint);
     
     final XEndpoint endpoint = getServerEndpoint();
     endpoint.terminate();
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(serverListener).onClose(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(clientListener).onClose(Mockito.notNull(XEndpoint.class));
     });
   }
 }

@@ -1,8 +1,6 @@
 package au.com.williamhill.flywheel;
 
 import static com.obsidiandynamics.indigo.util.Mocks.*;
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -58,8 +56,10 @@ public final class NodeRouterTest {
   
   @After
   public void teardown() throws Exception {
-    if (edge != null) edge.close();
     if (remote != null) remote.close();
+    if (edge != null) edge.close();
+    remote = null;
+    edge = null;
   }
 
   @Test
@@ -84,25 +84,25 @@ public final class NodeRouterTest {
     assertArrayEquals(new Error[0], bindRes.getErrors());
 
     ordered(handler, inOrder -> { // shouldn't have received any data yet
-      inOrder.verify(handler).onOpen(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
     });
     
     edge.publish(topic, payload); // a single subscriber at this point
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
-      verify(handler).onText(anyNotNull(), eq("a/b/c"), eq(payload));
+    SocketTestSupport.await().until(() -> {
+      verify(handler).onText(notNull(RemoteNexus.class), eq("a/b/c"), eq(payload));
     });
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
-      verify(handler).onClose(anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      verify(handler).onClose(notNull(RemoteNexus.class));
     });
     
     ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(anyNotNull());
-      inOrder.verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
-      inOrder.verify(handler).onClose(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
+      inOrder.verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
+      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
     });
   }
 
@@ -128,25 +128,25 @@ public final class NodeRouterTest {
     assertArrayEquals(new Error[0], bindRes.getErrors());
 
     ordered(handler, inOrder -> { // shouldn't have received any data yet
-      inOrder.verify(handler).onOpen(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
     });
     
     remoteNexus.publish(new PublishTextFrame(topic, payload)); // itself is a subscriber
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
-      verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
+    SocketTestSupport.await().until(() -> {
+      verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
     });
     
     remoteNexus.close();
     
-    given().ignoreException(AssertionError.class).await().atMost(60, SECONDS).untilAsserted(() -> {
-      verify(handler).onClose(anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      verify(handler).onClose(notNull(RemoteNexus.class));
     });
     
     ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(anyNotNull());
-      inOrder.verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
-      inOrder.verify(handler).onClose(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
+      inOrder.verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
+      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
     });
   }
 }

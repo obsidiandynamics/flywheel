@@ -1,8 +1,5 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
-
 import java.util.*;
 
 import org.junit.*;
@@ -10,19 +7,19 @@ import org.junit.runner.*;
 import org.junit.runners.*;
 import org.mockito.*;
 
-import com.obsidiandynamics.indigo.util.*;
-
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.socketx.util.*;
+import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class IdleTimeoutTest extends BaseClientServerTest {
-  private static final int REPEAT = 1;
+  private static final int MAX_PORT_USE_COUNT = 10_000;
   
   @Parameterized.Parameters
   public static List<Object[]> data() {
-    return Arrays.asList(new Object[REPEAT][0]);
+    return TestCycle.once();
   }
   
   @Test
@@ -69,14 +66,14 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(false, serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onConnect(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onConnect(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(serverListener).onConnect(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(clientListener).onConnect(Mockito.notNull(XEndpoint.class));
     });
     
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(serverListener).onClose(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(clientListener).onClose(Mockito.notNull(XEndpoint.class));
     });
   }
 
@@ -95,9 +92,11 @@ public final class IdleTimeoutTest extends BaseClientServerTest {
 
     final XEndpointListener<XEndpoint> clientListener = createMockListener();
     openClientEndpoint(false, serverConfig.port, clientListener);
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener).onClose(Mocks.anyNotNull());
-      Mockito.verify(clientListener).onClose(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(serverListener).onClose(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(clientListener).onClose(Mockito.notNull(XEndpoint.class));
     });
+    
+    SocketTestSupport.drainPort(serverConfig.port, MAX_PORT_USE_COUNT);
   }
 }

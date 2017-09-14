@@ -51,7 +51,7 @@ public final class HttpStubAuthUncachedPubTest extends AbstractAuthTest {
   private void setupAuthChains() throws URISyntaxException, Exception {
     setupEdgeNode(new PubAuthChain().set(TOPIC, 
                                          new AuthenticatorWrapper(new HttpStubAuthenticator(new HttpStubAuthenticatorConfig()
-                                                                                    .withURI(getURI(USE_HTTPS))))),
+                                                                                            .withURI(getURI(USE_HTTPS))))),
                   new SubAuthChain());
   }
 

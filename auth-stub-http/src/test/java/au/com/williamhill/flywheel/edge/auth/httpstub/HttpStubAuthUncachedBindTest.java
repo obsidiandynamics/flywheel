@@ -49,7 +49,7 @@ public final class HttpStubAuthUncachedBindTest extends AbstractAuthTest {
     setupEdgeNode(new PubAuthChain(), 
                   new SubAuthChain().set(TOPIC, 
                                          new AuthenticatorWrapper(new HttpStubAuthenticator(new HttpStubAuthenticatorConfig()
-                                                                                    .withURI(getURI(USE_HTTPS))))));
+                                                                                            .withURI(getURI(USE_HTTPS))))));
   }
 
   @Test

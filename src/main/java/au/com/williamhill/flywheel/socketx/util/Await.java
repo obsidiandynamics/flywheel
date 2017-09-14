@@ -1,10 +1,14 @@
-package au.com.williamhill.flywheel.util;
+package au.com.williamhill.flywheel.socketx.util;
 
 import java.util.concurrent.*;
 import java.util.function.*;
 
+/**
+ *  Utility for awaiting a specific condition. Unlike Awaitility, this implementation
+ *  is robust in the face of non-monotonically increasing clocks.
+ */
 public final class Await {
-  private static final int DEF_INTERVAL = 10;
+  public static final int DEF_INTERVAL = 1;
   
   private Await() {}
   
@@ -35,14 +39,22 @@ public final class Await {
   public static boolean bounded(int waitMillis, int intervalMillis, BooleanSupplier test) throws InterruptedException {
     final long maxWait = System.nanoTime() + waitMillis * 1_000_000l;
     boolean result;
-    do {
+    for (;;) {
       result = test.getAsBoolean();
       if (result) {
         return true;
       } else {
-        Thread.sleep(intervalMillis);
+        final long now = System.nanoTime();
+        final long remainingNanos = maxWait - now;
+        if (remainingNanos < 0) {
+          return false;
+        } else {
+          final long sleepMillis = Math.max(0, Math.min(remainingNanos / 1_000_000l, intervalMillis));
+          if (sleepMillis != 0) {
+            Thread.sleep(sleepMillis);
+          }
+        }
       }
-    } while (System.nanoTime() < maxWait);
-    return false;
+    }
   }
 }

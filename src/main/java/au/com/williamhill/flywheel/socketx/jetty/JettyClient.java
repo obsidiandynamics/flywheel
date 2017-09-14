@@ -37,6 +37,7 @@ public final class JettyClient implements XClient<JettyEndpoint> {
 
   @Override
   public void close() throws Exception {
+    scanner.closeEndpoints(60_000);
     scanner.close();
     httpClient.stop();
     client.stop();

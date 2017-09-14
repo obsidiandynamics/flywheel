@@ -1,11 +1,10 @@
 package au.com.williamhill.flywheel.edge.plugin.beacon;
 
-import static com.obsidiandynamics.indigo.util.Mocks.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.net.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.junit.Test;
 import org.mockito.*;
@@ -45,8 +44,8 @@ public final class BeaconTest {
     .withFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     TestCase.assertNotNull(beacon.toString());
     
-    Mockito.when(logger.isInfoEnabled()).thenReturn(true);
-    Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+    when(logger.isInfoEnabled()).thenReturn(true);
+    when(logger.isDebugEnabled()).thenReturn(true);
     
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig().withPort(SocketTestSupport.getAvailablePort(PORT)))
@@ -55,18 +54,12 @@ public final class BeaconTest {
     
     remote = RemoteNode.builder().build();
     
-    final RemoteNexusHandler handler = Mockito.mock(RemoteNexusHandler.class);
+    final RemoteNexusHandler handler = mock(RemoteNexusHandler.class);
     final RemoteNexus nexus = remote.open(new URI("ws://localhost:" + edge.getServer().getConfig().port), handler);
     nexus.bind(new BindFrame().withSubscribe("time")).get();
     
-    final Runnable assertion = () -> {
-      Mockito.verify(handler, Mockito.atLeastOnce()).onText(anyNotNull(), anyNotNull(), anyNotNull());
-    };
-    
-    try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> assertion.run());
-    } finally {
-      assertion.run();
-    }
+    SocketTestSupport.await().until(() -> {
+      verify(handler, atLeastOnce()).onText(notNull(RemoteNexus.class), notNull(String.class), notNull(String.class));
+    });
   }
 }

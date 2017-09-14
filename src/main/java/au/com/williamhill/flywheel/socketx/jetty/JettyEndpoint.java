@@ -145,7 +145,7 @@ public final class JettyEndpoint extends WebSocketAdapter implements XEndpoint, 
   public void close() throws IOException {
     final Session session = getSession();
     if (session != null && session.isOpen()) {
-      getSession().close();
+      session.close();
     } else {
       fireCloseEvent();
     }

@@ -1,15 +1,12 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.awaitility.Awaitility.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.nio.*;
 import java.util.*;
 
 import org.junit.*;
-import org.mockito.*;
-
-import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
@@ -82,11 +79,9 @@ public final class EchoTest extends BaseClientServerTest {
     
     // assert receival of echo on clients
     final int expected = connections * messages;
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(clientListener, Mockito.times(expected)).onText(Mocks.anyNotNull(), 
-                                                                     Mockito.eq("test"));
-      Mockito.verify(clientListener, Mockito.times(expected)).onBinary(Mocks.anyNotNull(), 
-                                                                       Mockito.eq(toBuffer("test")));
+    SocketTestSupport.await().until(() -> {
+      verify(clientListener, times(expected)).onText(notNull(XEndpoint.class), eq("test"));
+      verify(clientListener, times(expected)).onBinary(notNull(XEndpoint.class), eq(toBuffer("test")));
     });
 
     SocketTestSupport.drainPort(serverConfig.port, MAX_PORT_USE_COUNT);

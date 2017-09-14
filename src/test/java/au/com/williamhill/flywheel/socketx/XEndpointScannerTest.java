@@ -1,18 +1,22 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static org.junit.Assert.*;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.junit.runner.*;
 import org.junit.runners.*;
 
 import com.obsidiandynamics.indigo.util.*;
+
+import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class XEndpointScannerTest {
@@ -36,7 +40,7 @@ public final class XEndpointScannerTest {
     final XEndpoint endpoint = mock(XEndpoint.class);
     when(endpoint.isOpen()).thenThrow(new RuntimeException("boom"));
     scanner.addEndpoint(endpoint);
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(endpoint, atLeastOnce()).isOpen();
     });
   }
@@ -50,8 +54,12 @@ public final class XEndpointScannerTest {
     scanner.addEndpoint(endpoint);
     TestSupport.sleep(10);
     isOpen.set(false);
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-      verify(endpoint, atLeastOnce()).terminate();
+    SocketTestSupport.await().until(() -> {
+      try {
+        verify(endpoint, atLeastOnce()).terminate();
+      } catch (IOException e) {
+        fail(e.getMessage());
+      }
     });
   }
 
@@ -62,7 +70,7 @@ public final class XEndpointScannerTest {
     when(endpoint.isOpen()).thenReturn(true);
     when(endpoint.getLastActivityTime()).thenReturn(System.currentTimeMillis());
     scanner.addEndpoint(endpoint);
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       verify(endpoint, atLeastOnce()).sendPing();
     });
   }
@@ -76,5 +84,15 @@ public final class XEndpointScannerTest {
     assertTrue(scanner.getEndpoints().contains(endpoint));
     scanner.removeEndpoint(endpoint);
     assertEquals(0, scanner.getEndpoints().size());
+  }
+  
+  @Test
+  public void testCloseEndpoint() throws Exception {
+    scanner = new XEndpointScanner<XEndpoint>(1, 1);
+    final XEndpoint endpoint = mock(XEndpoint.class);
+    scanner.addEndpoint(endpoint);
+    scanner.closeEndpoints(0);
+    verify(endpoint).close();
+    verify(endpoint).awaitClose(eq(0));
   }
 }

@@ -1,23 +1,23 @@
 package au.com.williamhill.flywheel.socketx;
 
-import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
-import static org.awaitility.Awaitility.*;
 
 import java.util.*;
 
 import org.junit.Test;
+import org.junit.runner.*;
+import org.junit.runners.*;
 import org.mockito.*;
-
-import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.ssl.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
+@RunWith(Parameterized.class)
 public final class ConnectDisconnectTest extends BaseClientServerTest {
   private static final boolean HTTP = false;
   private static final boolean HTTPS = true;
@@ -26,7 +26,12 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
   private static final int CONNECTIONS = 5;
   private static final int PROGRESS_INTERVAL = 10;
   private static final int MAX_PORT_USE_COUNT = 10_000;
-
+  
+  @Parameterized.Parameters
+  public static List<Object[]> data() {
+    return TestCycle.once();
+  }
+  
   @Test
   public void testJtJt() throws Exception {
     test(true, CYCLES, CONNECTIONS, HTTP, JettyServer.factory(), JettyClient.factory());
@@ -96,9 +101,9 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     }
 
     // assert connections on server
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
-      Mockito.verify(clientListener, Mockito.times(connections)).onConnect(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(clientListener, Mockito.times(connections)).onConnect(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(serverListener, Mockito.times(connections)).onConnect(Mockito.notNull(XEndpoint.class));
     });
 
     // disconnect all endpoints and await closure
@@ -116,13 +121,12 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
     }
     
     // assert disconnections on server
-    await().dontCatchUncaughtExceptions().atMost(60, SECONDS).untilAsserted(() -> {
-      Mockito.verify(serverListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
-      Mockito.verify(clientListener, Mockito.times(connections)).onClose(Mocks.anyNotNull());
+    SocketTestSupport.await().until(() -> {
+      Mockito.verify(clientListener, Mockito.times(connections)).onClose(Mockito.notNull(XEndpoint.class));
+      Mockito.verify(serverListener, Mockito.times(connections)).onClose(Mockito.notNull(XEndpoint.class));
+      TestCase.assertEquals(0, client.getEndpoints().size());
+      TestCase.assertEquals(0, server.getEndpointManager().getEndpoints().size());
     });
-    
-    TestCase.assertEquals(0, server.getEndpointManager().getEndpoints().size());
-    TestCase.assertEquals(0, client.getEndpoints().size());
     
     SocketTestSupport.drainPort(serverConfig.port, MAX_PORT_USE_COUNT);
   }

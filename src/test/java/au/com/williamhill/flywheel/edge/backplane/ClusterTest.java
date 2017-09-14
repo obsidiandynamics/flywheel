@@ -1,6 +1,5 @@
 package au.com.williamhill.flywheel.edge.backplane;
 
-import static java.util.concurrent.TimeUnit.*;
 import static junit.framework.TestCase.*;
 
 import java.net.*;
@@ -8,7 +7,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -42,15 +40,15 @@ public abstract class ClusterTest implements TestSupport {
   }
   
   protected void cleanup() throws Exception {
-    for (EdgeNode edge : edges) {
-      edge.close();
-    }
-    edges.clear();
-    
     for (RemoteNode remote : remotes) {
       remote.close();
     }
     remotes.clear();
+    
+    for (EdgeNode edge : edges) {
+      edge.close();
+    }
+    edges.clear();
   }
   
   protected final EdgeNode createEdgeNode(int port, Backplane backplane) throws Exception {
@@ -177,8 +175,7 @@ public abstract class ClusterTest implements TestSupport {
     assertFalse(error.get());
 
     try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(60, SECONDS)
-      .until(() -> subscribers.stream().filter(s -> s.received.totalSize() < expectedMessages).count() == 0);
+      SocketTestSupport.await().untilTrue(() -> subscribers.stream().filter(s -> s.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (RetainingSubscriber sub : subscribers) {
         assertEquals(expectedPartitions, sub.received.asMap().size());

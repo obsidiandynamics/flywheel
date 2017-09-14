@@ -5,11 +5,9 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.*;
 
-import org.awaitility.*;
 import org.junit.*;
 import org.junit.Test;
 import org.mockito.*;
@@ -27,6 +25,7 @@ import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
 public final class HttpStubAuthenticatorBenchmark implements TestSupport {
@@ -186,7 +185,7 @@ public final class HttpStubAuthenticatorBenchmark implements TestSupport {
       }
       if (c.log.progress && i % progressInterval == 0) c.log.printProgressBlock();
     }
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(60, TimeUnit.SECONDS).until(() -> counter.hasReceived(runs));
+    SocketTestSupport.await().untilTrue(() -> counter.hasReceived(runs));
   }
   
   @Test

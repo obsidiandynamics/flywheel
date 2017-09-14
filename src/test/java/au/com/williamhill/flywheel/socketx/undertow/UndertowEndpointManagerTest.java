@@ -14,7 +14,7 @@ import io.undertow.websockets.core.*;
 
 public final class UndertowEndpointManagerTest {
   @Test(expected=OptionAssignmentException.class)
-  public void testCreateCreateEndpointWithError() throws IOException {
+  public void testCreateEndpointWithError() throws IOException {
     @SuppressWarnings("unchecked")
     final XEndpointListener<UndertowEndpoint> listener = mock(XEndpointListener.class);
     final UndertowEndpointManager mgr = new UndertowEndpointManager(null, 0, new DerivedEndpointConfig(), listener);

@@ -3,9 +3,7 @@ package au.com.williamhill.flywheel.edge.auth;
 import static com.obsidiandynamics.indigo.util.Mocks.*;
 
 import java.net.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -30,8 +28,6 @@ public abstract class AbstractAuthTest {
   
   protected RemoteNode remote;
   
-  protected RemoteNexus remoteNexus;
-  
   protected volatile Errors errors;
   
   protected volatile TextFrame text;
@@ -41,7 +37,7 @@ public abstract class AbstractAuthTest {
   private int port;
   
   @Before
-  public void before() throws Exception {
+  public final void before() throws Exception {
     port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
     
     wire = new Wire(true, LocationHint.UNSPECIFIED);
@@ -69,11 +65,12 @@ public abstract class AbstractAuthTest {
   protected void setup() throws Exception {}
   
   @After
-  public void after() throws Exception {
+  public final void after() throws Exception {
     teardown();
-    if (remoteNexus != null) remoteNexus.close();
-    if (edge != null) edge.close();
     if (remote != null) remote.close();
+    if (edge != null) edge.close();
+    remote = null;
+    edge = null;
   }
   
   protected void teardown() throws Exception {}
@@ -85,8 +82,7 @@ public abstract class AbstractAuthTest {
   }
   
   protected void awaitReceived() {
-    Awaitility.await().dontCatchUncaughtExceptions()
-    .atMost(60, TimeUnit.SECONDS).until(() -> errors != null || text != null || binary != null);
+    SocketTestSupport.await().untilTrue(() -> errors != null || text != null || binary != null);
   }
   
   protected void setupEdgeNode(AuthChain<PubAuthChain> pubAuthChain, AuthChain<SubAuthChain> subAuthChain) throws Exception {

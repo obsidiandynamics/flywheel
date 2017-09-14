@@ -11,7 +11,7 @@ final class NettyEndpointManager implements XEndpointManager<NettyEndpoint> {
   
   private final XEndpointListener<? super NettyEndpoint> listener;
   
-  private final Map<Channel, NettyEndpoint> endpoints = new ConcurrentHashMap<>();
+  private final Map<ChannelId, NettyEndpoint> endpoints = new ConcurrentHashMap<>();
   
   private final XEndpointScanner<NettyEndpoint> scanner;
   
@@ -24,18 +24,18 @@ final class NettyEndpointManager implements XEndpointManager<NettyEndpoint> {
 
   NettyEndpoint createEndpoint(ChannelHandlerContext context) {
     final NettyEndpoint endpoint = new NettyEndpoint(this, context);
-    endpoints.put(context.channel(), endpoint);
+    endpoints.put(context.channel().id(), endpoint);
     scanner.addEndpoint(endpoint);
     listener.onConnect(endpoint);
     return endpoint;
   }
   
-  NettyEndpoint get(Channel channel) {
-    return endpoints.get(channel);
+  NettyEndpoint get(ChannelId channelId) {
+    return endpoints.get(channelId);
   }
   
-  NettyEndpoint remove(Channel channel) {
-    final NettyEndpoint endpoint = endpoints.remove(channel);
+  NettyEndpoint remove(ChannelId channelId) {
+    final NettyEndpoint endpoint = endpoints.remove(channelId);
     scanner.removeEndpoint(endpoint);
     return endpoint;
   }

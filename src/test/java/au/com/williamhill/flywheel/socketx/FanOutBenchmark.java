@@ -5,10 +5,8 @@ import static junit.framework.TestCase.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.benchmark.*;
@@ -38,10 +36,6 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
   private static final int IDLE_TIMEOUT = 0;
   
   abstract static class Config implements Spec {
-    static {
-      Awaitility.doNotCatchUncaughtExceptionsByDefault();
-    }
-    
     ServerHarnessFactory serverHarnessFactory;
     ClientHarnessFactory clientHarnessFactory;
     int port;
@@ -357,9 +351,8 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     }
 
     if (c.log.stages) c.log.out.format("s: awaiting server.connected\n");
-    Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.connected.get() == c.m);
-
-    assertEquals(c.m, server.connected.get());
+    SocketTestSupport.await().withScale(waitScale).until(() -> assertEquals(c.m, server.connected.get()));
+    
     assertEquals(c.m, totalConnected(clients));
 
     final byte[] binPayload = c.text ? null : randomBytes(c.bytes);
@@ -425,8 +418,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     checkpoint = System.currentTimeMillis();
     if (c.log.stages) c.log.out.format("s: awaiting server.sent\n");
     final long expectedReceive = (long) c.m * c.n;
-    Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.sent.get() >= expectedReceive);
-    assertEquals(expectedReceive, server.sent.get());
+    SocketTestSupport.await().withScale(waitScale).until(() -> assertEquals(expectedReceive, server.sent.get()));
     if (c.log.stages) c.log.out.format("s: took %,d ms\n", System.currentTimeMillis() - checkpoint);
 
     checkpoint = System.currentTimeMillis();
@@ -451,8 +443,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     if (c.echo) {
       checkpoint = System.currentTimeMillis();
       if (c.log.stages) c.log.out.format("s: awaiting client.sent (echo mode was enabled)\n");
-      Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> totalSent(clients) >= expectedReceive);
-      assertEquals(expectedReceive, totalSent(clients));
+      SocketTestSupport.await().withScale(waitScale).until(() -> assertEquals(expectedReceive, totalSent(clients)));
       if (c.log.stages) c.log.out.format("s: took %,d ms\n", System.currentTimeMillis() - checkpoint);
     } else {
       assertEquals(0, totalSent(clients));
@@ -461,8 +452,7 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     if (c.echo) {
       checkpoint = System.currentTimeMillis();
       if (c.log.stages) c.log.out.format("s: awaiting server.received (echo mode was enabled)\n");
-      Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.received.get() == expectedReceive);
-      assertEquals(expectedReceive, server.received.get());
+      SocketTestSupport.await().withScale(waitScale).until(() -> assertEquals(expectedReceive, server.received.get()));
       if (c.log.stages) c.log.out.format("s: took %,d ms\n", System.currentTimeMillis() - checkpoint);
     } else {
       assertEquals(0, server.received.get());
@@ -483,12 +473,10 @@ public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
     }
 
     if (c.log.stages) c.log.out.format("s: awaiting server.closed\n");
-    Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> server.closed.get() == c.m);
-    assertEquals(c.m, server.closed.get());
+    SocketTestSupport.await().withScale(waitScale).until(() -> assertEquals(c.m, server.closed.get()));
 
     if (c.log.stages) c.log.out.format("s: awaiting client.closed\n");
-    Awaitility.await().atMost(60 * waitScale, TimeUnit.SECONDS).until(() -> totalClosed(clients) == c.m);
-    assertEquals(c.m, totalClosed(clients));
+    SocketTestSupport.await().withScale(waitScale).until(() -> assertEquals(c.m, totalClosed(clients)));
 
     server.close();
     return summary;

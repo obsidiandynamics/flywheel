@@ -50,6 +50,7 @@ public final class UndertowClient implements XClient<UndertowEndpoint> {
 
   @Override
   public void close() throws Exception {
+    scanner.closeEndpoints(60_000);
     scanner.close();
     worker.shutdown();
     worker.awaitTermination();

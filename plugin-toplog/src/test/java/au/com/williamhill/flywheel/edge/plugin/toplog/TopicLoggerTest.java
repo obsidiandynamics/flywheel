@@ -1,18 +1,14 @@
 package au.com.williamhill.flywheel.edge.plugin.toplog;
 
-import static com.obsidiandynamics.indigo.util.Mocks.*;
 import static junit.framework.TestCase.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.*;
 
-import org.awaitility.*;
 import org.junit.*;
-import org.mockito.*;
 import org.slf4j.*;
-
-import com.obsidiandynamics.indigo.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
@@ -48,27 +44,21 @@ public final class TopicLoggerTest {
     
     remote = RemoteNode.builder().build();
     
-    final RemoteNexusHandler handler = Mockito.mock(RemoteNexusHandler.class);
+    final RemoteNexusHandler handler = mock(RemoteNexusHandler.class);
     final RemoteNexus nexus = remote.open(new URI("ws://localhost:" + edge.getServer().getConfig().port), handler);
     nexus.bind(new BindFrame().withSubscribe("test")).get();
     nexus.publish(new PublishBinaryFrame("test", "test".getBytes()));
     nexus.publish(new PublishTextFrame("test", "test"));
     
-    final Runnable assertion = () -> {
-      Mockito.verify(handler).onText(anyNotNull(), anyNotNull(), anyNotNull());
-      Mockito.verify(handler).onBinary(anyNotNull(), anyNotNull(), anyNotNull());
-    };
-    
-    try {
-      Awaitility.await().dontCatchUncaughtExceptions().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> assertion.run());
-    } finally {
-      assertion.run();
-    }
+    SocketTestSupport.await().until(() -> {
+      verify(handler).onText(notNull(RemoteNexus.class), notNull(String.class), notNull(String.class));
+      verify(handler).onBinary(notNull(RemoteNexus.class), notNull(String.class), notNull(byte[].class));
+    });
   }
   
   @Test
   public void testLog() {
-    final Logger logger = Mockito.mock(Logger.class);
+    final Logger logger = mock(Logger.class);
     
     final EdgeNexus nexus = new EdgeNexus(null, LocalPeer.instance());
     final TopicLogger toplog = new TopicLogger();
@@ -76,49 +66,49 @@ public final class TopicLoggerTest {
     assertNotNull(toplog.toString());
 
     toplog.onOpen(nexus);
-    Mockito.when(logger.isInfoEnabled()).thenReturn(true);
+    when(logger.isInfoEnabled()).thenReturn(true);
     toplog.onOpen(nexus);
-    Mockito.verify(logger).info(Mockito.anyString(), Mockito.eq(nexus));
-    Mockito.reset(logger);
+    verify(logger).info(anyString(), eq(nexus));
+    reset(logger);
 
     toplog.onBind(nexus, new BindFrame(), new BindResponseFrame(new UUID(0, 0)));
-    Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+    when(logger.isDebugEnabled()).thenReturn(true);
     toplog.onBind(nexus, new BindFrame(), new BindResponseFrame(new UUID(0, 0)));
-    Mockito.verify(logger).debug(Mockito.anyString(), Mockito.eq(nexus), Mocks.anyNotNull(), Mocks.anyNotNull());
-    Mockito.reset(logger);
+    verify(logger).debug(anyString(), eq(nexus), notNull(Object.class), notNull(Object.class));
+    reset(logger);
     
     toplog.onPublish(nexus, new PublishBinaryFrame("topic", "test".getBytes()));
-    Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+    when(logger.isDebugEnabled()).thenReturn(true);
     toplog.onPublish(nexus, new PublishBinaryFrame("topic", "test".getBytes()));
-    Mockito.verify(logger).debug(Mockito.anyString(), Mockito.eq(nexus), Mockito.isA(PublishBinaryFrame.class));
-    Mockito.reset(logger);
+    verify(logger).debug(anyString(), eq(nexus), isA(PublishBinaryFrame.class));
+    reset(logger);
     
     toplog.onPublish(nexus, new PublishTextFrame("topic", "test"));
-    Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+    when(logger.isDebugEnabled()).thenReturn(true);
     toplog.onPublish(nexus, new PublishTextFrame("topic", "test"));
-    Mockito.verify(logger).debug(Mockito.anyString(), Mockito.eq(nexus), Mockito.isA(PublishTextFrame.class));
-    Mockito.reset(logger);
+    verify(logger).debug(anyString(), eq(nexus), isA(PublishTextFrame.class));
+    reset(logger);
     
     toplog.withExcludeTopics(Topic.of("topic"));
     assertNotNull(toplog.toString());
     
-    Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+    when(logger.isDebugEnabled()).thenReturn(true);
     toplog.onPublish(nexus, new PublishTextFrame("topic", "test"));
-    Mockito.verify(logger).isDebugEnabled();
-    Mockito.verifyNoMoreInteractions(logger);
-    Mockito.reset(logger);
+    verify(logger).isDebugEnabled();
+    verifyNoMoreInteractions(logger);
+    reset(logger);
 
-    Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+    when(logger.isDebugEnabled()).thenReturn(true);
     toplog.onPublish(nexus, new PublishTextFrame("other", "test"));
-    Mockito.verify(logger).isDebugEnabled();
-    Mockito.verify(logger).debug(Mockito.anyString(), Mockito.eq(nexus), Mockito.isA(PublishTextFrame.class));
-    Mockito.reset(logger);
+    verify(logger).isDebugEnabled();
+    verify(logger).debug(anyString(), eq(nexus), isA(PublishTextFrame.class));
+    reset(logger);
 
     toplog.onClose(nexus);
-    Mockito.when(logger.isInfoEnabled()).thenReturn(true);
+    when(logger.isInfoEnabled()).thenReturn(true);
     toplog.onClose(nexus);
-    Mockito.verify(logger).info(Mockito.anyString(), Mockito.eq(nexus));
-    Mockito.reset(logger);
+    verify(logger).info(anyString(), eq(nexus));
+    reset(logger);
     
     toplog.close();
   }

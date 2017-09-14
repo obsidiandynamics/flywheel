@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.*;
 import java.util.function.*;
 import java.util.stream.*;
 
-import org.awaitility.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.*;
@@ -22,10 +21,6 @@ import au.com.williamhill.flywheel.topic.TopicSpec.*;
 
 public final class TopicRouterBenchmark implements TestSupport {
   abstract static class Config implements Spec {
-    static {
-      Awaitility.doNotCatchUncaughtExceptionsByDefault();
-    }
-    
     ExecutorChoice executorChoice = null;
     long n;
     int threads;

@@ -3,12 +3,10 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 import static org.junit.Assert.*;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.*;
-import org.awaitility.*;
 import org.junit.*;
 import org.mockito.*;
 import org.slf4j.*;
@@ -16,6 +14,7 @@ import org.slf4j.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.util.*;
 
 public final class KafkaBackplaneTest {
   private MockKafka<String, KafkaData> kafka;
@@ -104,7 +103,7 @@ public final class KafkaBackplaneTest {
     final KafkaData d = new KafkaData("id", "source", "topic", null, "hello", 
                                       System.currentTimeMillis(), System.currentTimeMillis() + 10_000);
     getProducer().send(new ProducerRecord<>(config.topic, d));
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(connector).publish(Mockito.eq("topic"), Mockito.eq("hello"));
     });
   }
@@ -116,7 +115,7 @@ public final class KafkaBackplaneTest {
     final KafkaData d = new KafkaData("id", "source", "topic", bytes, null, 
                                       System.currentTimeMillis(), System.currentTimeMillis() + 10_000);
     getProducer().send(new ProducerRecord<>(config.topic, d));
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(connector).publish(Mockito.eq("topic"), Mockito.eq(bytes));
     });
   }
@@ -126,7 +125,7 @@ public final class KafkaBackplaneTest {
     final BackplaneConnector connector = attach();
     final KafkaData d = new KafkaData(new RuntimeException("boom"));
     getProducer().send(new ProducerRecord<>(config.topic, d));
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(connector, Mockito.never()).publish(Mockito.anyString(), Mockito.anyString());
       Mockito.verify(connector, Mockito.never()).publish(Mockito.anyString(), Mockito.any(byte[].class));
       Mockito.verify(logger, Mockito.atLeastOnce()).warn(Mockito.any(), Mockito.any(RuntimeException.class));

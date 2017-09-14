@@ -6,10 +6,8 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import java.io.*;
 import java.net.*;
 import java.security.*;
-import java.util.concurrent.*;
 
 import org.apache.http.nio.reactor.*;
-import org.awaitility.*;
 import org.junit.*;
 import org.mockito.*;
 
@@ -21,6 +19,7 @@ import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.util.*;
 
 public final class HttpStubAuthenticatorTest {
   private static final String MOCK_PATH = "/auth";
@@ -73,7 +72,7 @@ public final class HttpStubAuthenticatorTest {
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(outcome).allow(Mockito.eq(1000L));
     });
 
@@ -97,7 +96,7 @@ public final class HttpStubAuthenticatorTest {
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(outcome).allow(1000L);
     });
 
@@ -120,7 +119,7 @@ public final class HttpStubAuthenticatorTest {
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });
 
@@ -140,7 +139,7 @@ public final class HttpStubAuthenticatorTest {
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });
 
@@ -162,7 +161,7 @@ public final class HttpStubAuthenticatorTest {
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });
 
@@ -186,7 +185,7 @@ public final class HttpStubAuthenticatorTest {
     final AuthenticationOutcome outcome = Mockito.mock(AuthenticationOutcome.class);
     auth.verify(nexus, TOPIC, outcome);
 
-    Awaitility.dontCatchUncaughtExceptions().await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+    SocketTestSupport.await().until(() -> {
       Mockito.verify(outcome).forbidden(Mockito.eq(TOPIC));
     });
   }

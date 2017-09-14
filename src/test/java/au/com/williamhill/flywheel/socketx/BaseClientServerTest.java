@@ -27,11 +27,11 @@ public abstract class BaseClientServerTest implements TestSupport {
   protected void init() throws Exception {}
   
   protected void dispose() throws Exception {
-    if (server != null) server.close();
     if (client != null) client.close();
-    
-    server = null;
+    if (server != null) server.close();
+
     client = null;
+    server = null;
   }
 
   protected static XServerConfig getDefaultServerConfig(boolean enableHttps) {
