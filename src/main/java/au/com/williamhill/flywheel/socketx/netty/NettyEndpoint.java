@@ -119,7 +119,7 @@ public final class NettyEndpoint implements XEndpoint {
   
   private void fireCloseEvent() {
     if (closeFired.compareAndSet(false, true)) {
-      manager.remove(handlerContext.channel());
+      manager.remove(handlerContext.channel().id());
       manager.getListener().onClose(this);
     }
   }
