@@ -1,6 +1,10 @@
 package au.com.williamhill.flywheel.socketx;
 
+import java.util.*;
+
 import org.junit.*;
+import org.junit.runner.*;
+import org.junit.runners.*;
 import org.mockito.*;
 
 import com.obsidiandynamics.indigo.util.*;
@@ -8,9 +12,16 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.socketx.jetty.*;
 import au.com.williamhill.flywheel.socketx.netty.*;
 import au.com.williamhill.flywheel.socketx.undertow.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.util.*;
 
+@RunWith(Parameterized.class)
 public final class AbruptCloseTest extends BaseClientServerTest {
+  @Parameterized.Parameters
+  public static List<Object[]> data() {
+    return TestCycle.once();
+  }
+  
   @Test
   public void testJtJtClientClose() throws Exception {
     testClientClose(JettyServer.factory(), JettyClient.factory());

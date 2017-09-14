@@ -10,7 +10,11 @@ public final class TestCycle {
   private TestCycle() {}
   
   public static List<Object[]> once() {
-    return Arrays.asList(new Object[0][0]);
+    return timesQuietly(1);
+  }
+
+  public static List<Object[]> timesQuietly(int times) {
+    return Arrays.asList(new Object[times][0]);
   }
   
   /**
