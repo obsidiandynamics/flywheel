@@ -84,25 +84,25 @@ public final class NodeRouterTest {
     assertArrayEquals(new Error[0], bindRes.getErrors());
 
     ordered(handler, inOrder -> { // shouldn't have received any data yet
-      inOrder.verify(handler).onOpen(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
     });
     
     edge.publish(topic, payload); // a single subscriber at this point
     
     SocketTestSupport.await().until(() -> {
-      verify(handler).onText(anyNotNull(), eq("a/b/c"), eq(payload));
+      verify(handler).onText(notNull(RemoteNexus.class), eq("a/b/c"), eq(payload));
     });
     
     remoteNexus.close();
     
     SocketTestSupport.await().until(() -> {
-      verify(handler).onClose(anyNotNull());
+      verify(handler).onClose(notNull(RemoteNexus.class));
     });
     
     ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(anyNotNull());
-      inOrder.verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
-      inOrder.verify(handler).onClose(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
+      inOrder.verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
+      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
     });
   }
 
@@ -128,25 +128,25 @@ public final class NodeRouterTest {
     assertArrayEquals(new Error[0], bindRes.getErrors());
 
     ordered(handler, inOrder -> { // shouldn't have received any data yet
-      inOrder.verify(handler).onOpen(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
     });
     
     remoteNexus.publish(new PublishTextFrame(topic, payload)); // itself is a subscriber
     
     SocketTestSupport.await().until(() -> {
-      verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
+      verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
     });
     
     remoteNexus.close();
     
     SocketTestSupport.await().until(() -> {
-      verify(handler).onClose(anyNotNull());
+      verify(handler).onClose(notNull(RemoteNexus.class));
     });
     
     ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(anyNotNull());
-      inOrder.verify(handler).onText(anyNotNull(), eq(topic), eq(payload));
-      inOrder.verify(handler).onClose(anyNotNull());
+      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
+      inOrder.verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
+      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
     });
   }
 }
