@@ -9,8 +9,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.stream.*;
 
-import org.eclipse.jetty.util.*;
-
 import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
@@ -55,9 +53,9 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   
   private final Gson subframeGson = new Gson();
   
-  private final Set<String> controlSessions = new ConcurrentHashSet<>();
+  private final Set<String> controlSessions = ConcurrentHashMap.newKeySet();
   
-  private final Set<String> confirmedWaits = new ConcurrentHashSet<>();
+  private final Set<String> confirmedWaits = ConcurrentHashMap.newKeySet();
   
   private final Map<String, AtomicInteger> subscriptionsByNode = new ConcurrentHashMap<>();
   
