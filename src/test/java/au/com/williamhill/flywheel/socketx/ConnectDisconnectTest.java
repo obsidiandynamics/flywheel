@@ -7,7 +7,6 @@ import java.util.*;
 import org.junit.Test;
 import org.junit.runner.*;
 import org.junit.runners.*;
-import org.junit.runners.Parameterized.*;
 import org.mockito.*;
 import org.slf4j.*;
 
@@ -21,42 +20,39 @@ import junit.framework.*;
 
 @RunWith(Parameterized.class)
 public final class ConnectDisconnectTest extends BaseClientServerTest {
-  private static final Logger LOG = LoggerFactory.getLogger(ConnectDisconnectTest.class);
+  private static final Logger LOG = Mockito.mock(Logger.class);
   
   private static final boolean HTTP = false;
   private static final boolean HTTPS = true;
   
-  private static final int CYCLES = 1; //TODO
+  private static final int CYCLES = 2;
   private static final int CONNECTIONS = 5;
   private static final int PROGRESS_INTERVAL = 10;
   private static final int MAX_PORT_USE_COUNT = 10_000;
   
   @Parameterized.Parameters
   public static List<Object[]> data() {
-    return TestCycle.times(100);
+    return TestCycle.once();
   }
   
-  @Parameter
-  public int runNo;
-  
-  //@Test
+  @Test
   public void testJtJt() throws Exception {
     test(true, CYCLES, CONNECTIONS, HTTP, JettyServer.factory(), JettyClient.factory());
     test(false, CYCLES, CONNECTIONS, HTTP, JettyServer.factory(), JettyClient.factory());
   }
 
-  //@Test
+  @Test
   public void testJtJtHttps() throws Exception {
     test(true, CYCLES, CONNECTIONS, HTTPS, JettyServer.factory(), JettyClient.factory());
   }
 
-  //@Test
+  @Test
   public void testUtUt() throws Exception {
     test(true, CYCLES, CONNECTIONS, HTTP, UndertowServer.factory(), UndertowClient.factory());
     test(false, CYCLES, CONNECTIONS, HTTP, UndertowServer.factory(), UndertowClient.factory());
   }
 
-  //@Test
+  @Test
   public void testUtUtHttps() throws Exception {
     test(true, CYCLES, CONNECTIONS, HTTPS, UndertowServer.factory(), UndertowClient.factory());
   }
@@ -88,10 +84,9 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
   private void test(boolean clean, int connections, boolean https,
                     XServerFactory<? extends XEndpoint> serverFactory,
                     XClientFactory<? extends XEndpoint> clientFactory) throws Exception {
-    LOG.debug("Starting run {}", runNo);
     final XServerConfig serverConfig = getDefaultServerConfig(https)
         .withScanInterval(1);
-    final LoggingMockListener serverListener = createLoggingMockListener(LOG, "s: ");
+    final Slf4jMockListener serverListener = createSlf4jMockListener(LOG, "s: ");
     createServer(serverFactory, serverConfig, serverListener.loggingListener);
 
     final XClientConfig clientConfig = getDefaultClientConfig()
@@ -99,7 +94,7 @@ public final class ConnectDisconnectTest extends BaseClientServerTest {
         .withSSLContextProvider(CompositeSSLContextProvider.getDevClientDefault());
     createClient(clientFactory, clientConfig);
     assertNotNull(client.getConfig());
-    final LoggingMockListener clientListener = createLoggingMockListener(LOG, "c: ");
+    final Slf4jMockListener clientListener = createSlf4jMockListener(LOG, "c: ");
     final List<XEndpoint> endpoints = new ArrayList<>(connections);
     
     // connect all endpoints

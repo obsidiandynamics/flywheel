@@ -80,21 +80,21 @@ public abstract class BaseClientServerTest implements TestSupport {
     return Mockito.mock(XEndpointListener.class);
   }
   
-  static final class LoggingMockListener {
+  static final class Slf4jMockListener {
     final XEndpointListener<XEndpoint> mock;
     final XEndpointListener<XEndpoint> loggingListener;
    
-    private LoggingMockListener(XEndpointListener<XEndpoint> mock, XEndpointListener<XEndpoint> loggingListener) {
+    private Slf4jMockListener(XEndpointListener<XEndpoint> mock, XEndpointListener<XEndpoint> loggingListener) {
       this.mock = mock;
       this.loggingListener = loggingListener;
     }
   }
   
   @SuppressWarnings({ "unchecked" })
-  protected static LoggingMockListener createLoggingMockListener(Logger logger, String prefix) {
+  protected static Slf4jMockListener createSlf4jMockListener(Logger logger, String prefix) {
     final XEndpointListener<XEndpoint> mock = Mockito.mock(XEndpointListener.class);
     final XEndpointListener<XEndpoint> loggingListener = 
         InterceptingProxy.of(XEndpointListener.class, mock, new Slf4jLoggingInterceptor<>(logger, prefix));
-    return new LoggingMockListener(mock, loggingListener);
+    return new Slf4jMockListener(mock, loggingListener);
   }
 }
