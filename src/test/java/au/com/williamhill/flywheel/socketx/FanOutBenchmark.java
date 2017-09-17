@@ -29,8 +29,8 @@ import au.com.williamhill.flywheel.util.*;
  *  -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking Xms1G -Xmx4G -Xss1M -XX:+UseParallelGC
  */
 public final class FanOutBenchmark implements TestSupport, SocketTestSupport {
-  private static final int PREFERRED_PORT = 8080;
-  private static final int PREFERRED_HTTPS_PORT = 8443;
+  private static final int PREFERRED_PORT = 8090;
+  private static final int PREFERRED_HTTPS_PORT = 8543;
   private static final int BACKLOG_HWM = 100_000;
   private static final int BYTES = 16;
   private static final int IDLE_TIMEOUT = 0;

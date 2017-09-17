@@ -36,7 +36,7 @@ final class UndertowMockServer {
         .loadKeyStore(ResourceLocator.asStream(new URI("cp://eystore.jks")), "storepass");
     final SSLContext sslContext = JKS.createSSLContext(keyStore, "keypass", keyStore);
     httpPort = SocketTestSupport.getAvailablePort(8090);
-    httpsPort = SocketTestSupport.getAvailablePort(8443);
+    httpsPort = SocketTestSupport.getAvailablePort(8543);
     this.responseJson = responseJson;
     server = Undertow.builder()
         .addHttpListener(httpPort, "0.0.0.0")

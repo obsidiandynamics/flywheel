@@ -12,7 +12,7 @@ public class XServerConfig extends XEndpointConfig<XServerConfig> {
   public int port = 8080;
   
   @YInject
-  public int httpsPort = 8443;
+  public int httpsPort = 0;
   
   @YInject
   public String path = "/";
