@@ -20,7 +20,7 @@ public final class MockKafkaTest {
   
   @Test
   public void test() throws InterruptedException {
-    test(100, 3, 1, 5);
+    test(10, 3, 0, 5);
   }
   
   private static final class TestConsumer<K, V> extends Thread {
@@ -72,7 +72,7 @@ public final class MockKafkaTest {
         consumers.add(new TestConsumer<>(kafka, consumers.size()));
       }
       
-      if (m != messages - 1) {
+      if (m != messages - 1 && sendIntervalMillis != 0) {
         TestSupport.sleep(sendIntervalMillis);
       }
     }
