@@ -16,15 +16,14 @@ import com.obsidiandynamics.indigo.util.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.frame.*;
+import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class CachedAuthenticatorTest {
-  private static final int REPEAT = 1;
-  
   @Parameterized.Parameters
   public static List<Object[]> data() {
-    return Arrays.asList(new Object[REPEAT][0]);
+    return TestCycle.once();
   }
   
   private CachedAuthenticator c;
@@ -153,6 +152,7 @@ public final class CachedAuthenticatorTest {
     TestSupport.sleep(100);
     final int countTopic1 = spied.invocations().get(nexus).get("topic1").get();
     final int countTopic2 = spied.invocations().get(nexus).get("topic2").get();
+    TestSupport.sleep(100);
     verify(spied, times(countTopic1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
     verify(spied, times(countTopic2)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
   }
@@ -261,7 +261,7 @@ public final class CachedAuthenticatorTest {
     mock.set(AuthenticationOutcome.INDEFINITE);
     TestSupport.sleep(100);
     final int count = spied.invocations().get(nexus).get("topic").get();
-    
+    TestSupport.sleep(100);
     verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
   }
   
@@ -293,6 +293,7 @@ public final class CachedAuthenticatorTest {
     TestSupport.sleep(100);
     verify(connector).expireTopic(eq(nexus), eq("topic"));
     final int count = spied.invocations().get(nexus).get("topic").get();
+    TestSupport.sleep(100);
     verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
   }
 

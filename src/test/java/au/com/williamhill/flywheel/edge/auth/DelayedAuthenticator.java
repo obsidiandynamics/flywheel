@@ -32,9 +32,11 @@ public class DelayedAuthenticator implements Authenticator {
 
   @Override
   public void verify(EdgeNexus nexus, String topic, AuthenticationOutcome outcome) {
-    executor.execute(() -> {
-      TestSupport.sleep(delayMillis);
-      delegate.verify(nexus, topic, outcome);
-    });
+    try {
+      executor.execute(() -> {
+        TestSupport.sleep(delayMillis);
+        delegate.verify(nexus, topic, outcome);
+      });
+    } catch (RejectedExecutionException rxe) {}
   }
 }
