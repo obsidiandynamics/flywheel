@@ -147,14 +147,16 @@ public final class CachedAuthenticatorTest {
 
     // remove all topics from the active set
     when(connector.getActiveTopics(eq(nexus))).thenReturn(Collections.emptySet());
-    
-    // give the watchdog a chance to run; afterwards there should be no more queries to the delegate
-    TestSupport.sleep(100);
-    final int countTopic1 = spied.invocations().get(nexus).get("topic1").get();
-    final int countTopic2 = spied.invocations().get(nexus).get("topic2").get();
-    TestSupport.sleep(100);
-    verify(spied, times(countTopic1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(countTopic2)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+
+    SocketTestSupport.await().until(() -> {
+      // give the watchdog a chance to run; afterwards there should be no more queries to the delegate
+      TestSupport.sleep(5);
+      final int countTopic1 = spied.invocations().get(nexus).get("topic1").get();
+      final int countTopic2 = spied.invocations().get(nexus).get("topic2").get();
+      TestSupport.sleep(10);
+      verify(spied, times(countTopic1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
+      verify(spied, times(countTopic2)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    });
   }
   
   @Test
@@ -259,10 +261,13 @@ public final class CachedAuthenticatorTest {
     
     // set the mock response to indefinite, which should stop further cache refreshes
     mock.set(AuthenticationOutcome.INDEFINITE);
-    TestSupport.sleep(100);
-    final int count = spied.invocations().get(nexus).get("topic").get();
-    TestSupport.sleep(100);
-    verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    
+    SocketTestSupport.await().until(() -> {
+      TestSupport.sleep(5);
+      final int count = spied.invocations().get(nexus).get("topic").get();
+      TestSupport.sleep(10);
+      verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    });
   }
   
   @Test
@@ -290,11 +295,14 @@ public final class CachedAuthenticatorTest {
     
     // set the mock response to deny, which should cause an expiry at the connector
     mock.set(-1);
-    TestSupport.sleep(100);
-    verify(connector).expireTopic(eq(nexus), eq("topic"));
-    final int count = spied.invocations().get(nexus).get("topic").get();
-    TestSupport.sleep(100);
-    verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+
+    SocketTestSupport.await().until(() -> {
+      TestSupport.sleep(5);
+      verify(connector).expireTopic(eq(nexus), eq("topic"));
+      final int count = spied.invocations().get(nexus).get("topic").get();
+      TestSupport.sleep(10);
+      verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    });
   }
 
   private static EdgeNexus createNexus() {
