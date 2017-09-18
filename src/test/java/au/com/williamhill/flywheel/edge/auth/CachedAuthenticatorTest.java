@@ -62,18 +62,20 @@ public final class CachedAuthenticatorTest {
     verify(outcome, times(1)).allow(eq(30000L));
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
-    TestSupport.sleep(1);
+    TestSupport.sleep(5);
     c.verify(nexus, "topic", outcome);
-    verify(outcome, times(2)).allow(AdditionalMatchers.leq(30000L));
+    verify(outcome, times(1)).allow(AdditionalMatchers.lt(30000L));
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
 
     // should purge from the cache
     when(connector.getActiveTopics(eq(nexus))).thenReturn(Collections.emptySet());
 
-    TestSupport.sleep(100);
-    c.verify(nexus, "topic", outcome);
-    verify(outcome, times(2)).allow(eq(30000L));
-    verify(spied, times(2)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    SocketTestSupport.await().until(() -> {
+      TestSupport.sleep(5);
+      c.verify(nexus, "topic", outcome);
+      verify(outcome, times(2)).allow(eq(30000L));
+      verify(spied, times(2)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    });
   }
 
   @Test
@@ -91,8 +93,8 @@ public final class CachedAuthenticatorTest {
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(AuthenticationOutcome.INDEFINITE));
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
-    
-    TestSupport.sleep(1);
+
+    TestSupport.sleep(5);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(2)).allow(eq(AuthenticationOutcome.INDEFINITE));
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
@@ -185,7 +187,7 @@ public final class CachedAuthenticatorTest {
       verify(outcome, times(2)).allow(eq(1000L));
     });
     
-    TestSupport.sleep(100);
+    TestSupport.sleep(10);
     
     verify(spied, atMost(4)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
     verify(spied, atMost(4)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
@@ -209,7 +211,7 @@ public final class CachedAuthenticatorTest {
     verify(outcome, times(1)).allow(eq(30_000L));
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
-    TestSupport.sleep(100);
+    TestSupport.sleep(10);
     
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
   }
@@ -231,7 +233,7 @@ public final class CachedAuthenticatorTest {
     verify(outcome, times(1)).allow(eq(1000L));
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
     
-    TestSupport.sleep(100);
+    TestSupport.sleep(10);
     
     verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
   }
