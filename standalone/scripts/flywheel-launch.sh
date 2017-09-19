@@ -59,7 +59,7 @@ else
   fi
 
   cmd="java $flywheel_jvm_opts \
-       -cp build/libs/flywheel-standalone-full-*jar \
+       -cp build/libs/flywheel-*-full-*jar \
        au.com.williamhill.flywheel.Launchpad \
        $@"
   echo "> Starting $cmd"
