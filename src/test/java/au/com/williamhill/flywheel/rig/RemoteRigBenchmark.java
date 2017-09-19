@@ -3,6 +3,7 @@ package au.com.williamhill.flywheel.rig;
 import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
 
 import java.net.*;
+import java.util.*;
 
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
@@ -13,15 +14,16 @@ import au.com.williamhill.flywheel.rig.TripleRigBenchmark.*;
 import au.com.williamhill.flywheel.topic.*;
 
 public final class RemoteRigBenchmark implements TestSupport {
-  private static final String URL = get("flywheel.rig.url", String::valueOf, "ws://localhost:8080/broker");
-  private static final int SYNC_FRAMES = get("flywheel.rig.syncFrames", Integer::valueOf, 1000);
-  private static final String SPEC = get("flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
-  private static final boolean INITIATE = get("flywheel.rig.initiate", Boolean::valueOf, true);
-  private static final double NORMAL_MIN = get("flywheel.rig.normalMin", RemoteRigBenchmark::doubleOrNaN, Double.NaN);
-  private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
-  private static final int CYCLE_WAIT = get("flywheel.rig.cycleWait", Integer::valueOf, 0);
-  private static final int STATS_PERIOD = get("flywheel.rig.statsPeriod", Integer::valueOf, 100);
-  private static final long PRINT_OUTLIERS_OVER = get("flywheel.rig.printOutliersOver", Long::parseLong, 1000L);
+  private static final Properties PROPS = new Properties(System.getProperties());
+  private static final String URL = getOrSet(PROPS, "flywheel.rig.url", String::valueOf, "ws://localhost:8080/broker");
+  private static final int SYNC_FRAMES = getOrSet(PROPS, "flywheel.rig.syncFrames", Integer::valueOf, 1000);
+  private static final String SPEC = getOrSet(PROPS, "flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
+  private static final boolean INITIATE = getOrSet(PROPS, "flywheel.rig.initiate", Boolean::valueOf, true);
+  private static final double NORMAL_MIN = getOrSet(PROPS, "flywheel.rig.normalMin", RemoteRigBenchmark::doubleOrNaN, Double.NaN);
+  private static final boolean CYCLE = getOrSet(PROPS, "flywheel.rig.cycle", Boolean::valueOf, false);
+  private static final int CYCLE_WAIT = getOrSet(PROPS, "flywheel.rig.cycleWait", Integer::valueOf, 0);
+  private static final int STATS_PERIOD = getOrSet(PROPS, "flywheel.rig.statsPeriod", Integer::valueOf, 100);
+  private static final long PRINT_OUTLIERS_OVER = getOrSet(PROPS, "flywheel.rig.printOutliersOver", Long::parseLong, 1000L);
   
   private static double doubleOrNaN(String value) {
     return value.equals("NaN") ? Double.NaN : Double.parseDouble(value);
@@ -50,7 +52,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
     LOG_STREAM.println();
-    filter("flywheel.rig", System.getProperties()).entrySet().stream()
+    filter("flywheel.rig", PROPS).entrySet().stream()
     .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG_STREAM::println);
     
     final URI uri = new URI(URL);

@@ -2,6 +2,8 @@ package au.com.williamhill.flywheel.rig;
 
 import static com.obsidiandynamics.indigo.util.PropertyUtils.*;
 
+import java.util.*;
+
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 
@@ -12,15 +14,16 @@ import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
 
 public final class EdgeRigBenchmark implements TestSupport {
-  private static final int PORT = get("flywheel.rig.port", Integer::valueOf, 8080);
-  private static final String PATH = get("flywheel.rig.path", String::valueOf, "/broker");
-  private static final int PULSES = get("flywheel.rig.pulses", Integer::valueOf, 30);
-  private static final int PULSE_DURATION = get("flywheel.rig.pulseDuration", Integer::valueOf, 1000);
-  private static final String SPEC = get("flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
-  private static final float WARMUP_FRAC = get("flywheel.rig.warmupFrac", Float::valueOf, 0.10f);
-  private static final boolean TEXT = get("flywheel.rig.text", Boolean::valueOf, true);
-  private static final int BYTES = get("flywheel.rig.bytes", Integer::valueOf, 128);
-  private static final boolean CYCLE = get("flywheel.rig.cycle", Boolean::valueOf, false);
+  private static final Properties PROPS = new Properties(System.getProperties());
+  private static final int PORT = getOrSet(PROPS, "flywheel.rig.port", Integer::valueOf, 8080);
+  private static final String PATH = getOrSet(PROPS, "flywheel.rig.path", String::valueOf, "/broker");
+  private static final int PULSES = getOrSet(PROPS, "flywheel.rig.pulses", Integer::valueOf, 30);
+  private static final int PULSE_DURATION = getOrSet(PROPS, "flywheel.rig.pulseDuration", Integer::valueOf, 1000);
+  private static final String SPEC = getOrSet(PROPS, "flywheel.rig.spec", String::valueOf, "cp://specs/jumbo-leaves.yaml");
+  private static final float WARMUP_FRAC = getOrSet(PROPS, "flywheel.rig.warmupFrac", Float::valueOf, 0.10f);
+  private static final boolean TEXT = getOrSet(PROPS, "flywheel.rig.text", Boolean::valueOf, true);
+  private static final int BYTES = getOrSet(PROPS, "flywheel.rig.bytes", Integer::valueOf, 128);
+  private static final boolean CYCLE = getOrSet(PROPS, "flywheel.rig.cycle", Boolean::valueOf, false);
   
   private static Summary run(Config c) throws Exception {
     final EdgeNode edge = EdgeNode.builder()
@@ -56,7 +59,7 @@ public final class EdgeRigBenchmark implements TestSupport {
   public static void main(String[] args) throws Exception {
     BashInteractor.Ulimit.main(null);
     LOG_STREAM.println();
-    filter("flywheel.rig", System.getProperties()).entrySet().stream()
+    filter("flywheel.rig", PROPS).entrySet().stream()
     .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG_STREAM::println);
     
     do {
