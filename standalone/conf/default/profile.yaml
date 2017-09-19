@@ -1,5 +1,5 @@
 properties:
-  log4j.configuration: file:conf/default/log4j-default.properties
+  log4j.configuration: file:${profile.dir}/log4j-default.properties
 
 launchers: 
 - type: au.com.williamhill.flywheel.ConfigLauncher

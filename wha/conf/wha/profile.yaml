@@ -1,5 +1,5 @@
 properties:
-  log4j.configuration: file:../wha/conf/wha/log4j-wha.properties
+  log4j.configuration: file:${profile.dir}/log4j-wha.properties
   flywheel.logging.splunk.url: ${mandatory(env.FLYWHEEL_SPLUNK_URL, "Splunk URL cannot be null")}
   flywheel.logging.splunk.token: ${secret(mandatory(env.FLYWHEEL_SPLUNK_TOKEN, "Splunk token cannot be null"))}
   flywheel.logging.splunk.index: ${mandatory(env.FLYWHEEL_SPLUNK_INDEX, "Splunk index cannot be null")}

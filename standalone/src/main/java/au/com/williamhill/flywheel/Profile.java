@@ -33,6 +33,7 @@ public final class Profile {
     return new MappingContext()
         .withDomTransform(new JuelTransform()
                           .withFunction("randomUUID", UUID.class.getMethod("randomUUID"))
+                          .withVariable("profile", Collections.singletonMap("dir", file.getParentFile().getAbsolutePath()))
                           .withVariable("maxInt", Integer.MAX_VALUE)
                           .withVariable("maxLong", Long.MAX_VALUE))
         .withParser(new SnakeyamlParser())
