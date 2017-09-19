@@ -23,7 +23,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   private static final boolean CYCLE = getOrSet(PROPS, "flywheel.rig.cycle", Boolean::valueOf, false);
   private static final int CYCLE_WAIT = getOrSet(PROPS, "flywheel.rig.cycleWait", Integer::valueOf, 0);
   private static final int STATS_PERIOD = getOrSet(PROPS, "flywheel.rig.statsPeriod", Integer::valueOf, 100);
-  private static final long PRINT_OUTLIERS_OVER = getOrSet(PROPS, "flywheel.rig.printOutliersOver", Long::parseLong, 1000L);
+  private static final long PRINT_OUTLIERS_OVER = getOrSet(PROPS, "flywheel.rig.printOutliersOver", Long::parseLong, 10_000L);
   
   private static double doubleOrNaN(String value) {
     return value.equals("NaN") ? Double.NaN : Double.parseDouble(value);

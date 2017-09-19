@@ -25,7 +25,7 @@ public final class InjectorRigBenchmark implements TestSupport {
   private static final int BYTES = getOrSet(PROPS, "flywheel.rig.bytes", Integer::valueOf, 128);
   private static final boolean CYCLE = getOrSet(PROPS, "flywheel.rig.cycle", Boolean::valueOf, false);
   private static final int CYCLE_WAIT = getOrSet(PROPS, "flywheel.rig.cycleWait", Integer::valueOf, 0);
-  private static final long PRINT_OUTLIERS_OVER = getOrSet(PROPS, "flywheel.rig.printOutliersOver", Long::parseLong, 1000L);
+  private static final long PRINT_OUTLIERS_OVER = getOrSet(PROPS, "flywheel.rig.printOutliersOver", Long::parseLong, 10_000L);
   
   private static Summary run(Config c) throws Exception {
     final RemoteNode remote = RemoteNode.builder()
