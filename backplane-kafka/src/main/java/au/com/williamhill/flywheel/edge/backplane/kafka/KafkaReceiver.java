@@ -3,7 +3,7 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 import org.apache.kafka.clients.consumer.*;
 import org.slf4j.*;
 
-public class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
+public final class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
   @FunctionalInterface
   public interface RecordHandler<K, V> {
     void onReceive(ConsumerRecords<K, V> records);
