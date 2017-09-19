@@ -1,6 +1,7 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.*;
@@ -37,10 +38,20 @@ public final class KafkaReceiverTest {
     final Map<TopicPartition, List<ConsumerRecord<String, String>>> recordsMap = 
         Collections.singletonMap(new TopicPartition("test", 0), Arrays.asList(new ConsumerRecord<>("test", 0, 0, "key", "value")));
     final ConsumerRecords<String, String> records = new ConsumerRecords<>(recordsMap);
-    Mockito.when(consumer.poll(Mockito.anyLong())).thenReturn(records);
+    
+    final AtomicBoolean firstCall = new AtomicBoolean();
+    Mockito.when(consumer.poll(Mockito.anyLong())).then(invocation -> {
+      if (firstCall.compareAndSet(false, true)) {
+        return records;
+      } else {
+        final long timeout = (Long) invocation.getArguments()[0];
+        Thread.sleep(timeout);
+        return new ConsumerRecords<>(Collections.emptyMap());
+      }
+    });
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
     SocketTestSupport.await().until(() -> {
-      Mockito.verify(recordHandler, Mockito.atLeastOnce()).onReceive(Mockito.eq(records));
+      Mockito.verify(recordHandler, Mockito.times(1)).onReceive(Mockito.eq(records));
       Mockito.verify(errorHandler, Mockito.never()).onError(Mockito.any());
     });
   }
