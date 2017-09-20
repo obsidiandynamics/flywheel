@@ -150,6 +150,29 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
           return newInfos;
         }
       }
+      
+      @Override
+      public ConsumerRecords<K, V> poll(long timeout) {
+        final long endTime = System.currentTimeMillis() + timeout;
+        for (;;) {
+          final ConsumerRecords<K, V> recs = super.poll(timeout);
+          if (! recs.isEmpty()) {
+            return recs;
+          } else {
+            final long remainingMillis = endTime - System.currentTimeMillis();
+            if (remainingMillis <= 0) {
+              return recs;
+            } else {
+              try {
+                Thread.sleep(Math.min(10, remainingMillis));
+              } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return recs;
+              }
+            }
+          }
+        }
+      }
     };
     synchronized (lock) {
       consumers.add(consumer);
