@@ -2,6 +2,7 @@ package au.com.williamhill.flywheel.util;
 
 import java.nio.*;
 
+//TODO replace with socketx
 public final class BinaryUtils {
   private BinaryUtils() {}
   
