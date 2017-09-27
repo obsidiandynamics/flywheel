@@ -7,6 +7,10 @@ segment: internal
 ports:
   - 8080
   - 9090:9090
+ulimits:
+  nofile:
+    soft: 500000
+    hard: 500000
 environment:
 healthCheck:
   endpoint: /health
