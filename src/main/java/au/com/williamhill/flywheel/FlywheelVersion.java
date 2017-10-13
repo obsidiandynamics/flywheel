@@ -5,6 +5,7 @@ import java.net.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
+//TODO use fulcrum
 public final class FlywheelVersion {
   interface DefaultValueSupplier {
     String get() throws IOException;

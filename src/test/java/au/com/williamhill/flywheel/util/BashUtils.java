@@ -9,6 +9,7 @@ import au.com.williamhill.flywheel.util.DockerCompose.*;
 /**
  *  Utilities supporting Bash command execution; an extension of Indigo's {@link BashInteractor}.
  */
+//TODO remove
 public final class BashUtils {
   private static final String PATH = PropertyUtils.get("flywheel.bash.path", String::valueOf, null);
   
