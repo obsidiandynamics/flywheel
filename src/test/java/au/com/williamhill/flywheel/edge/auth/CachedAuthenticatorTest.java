@@ -165,7 +165,7 @@ public final class CachedAuthenticatorTest {
   public void testCacheRefreshShortMinIntervalCappedPending() throws Exception {
     final NestedAuthenticator delegate = new MockAuthenticator(1000L);
     final DelayedAuthenticator delayed = new DelayedAuthenticator(delegate, 100);
-    final NestedAuthenticator spied = spy(new CountingAuthenticator(delayed));
+    final CountingAuthenticator spied = spy(new CountingAuthenticator(delayed));
     c = new CachedAuthenticator(new CachedAuthenticatorConfig()
                                 .withRunIntervalMillis(1)
                                 .withResidenceTimeMillis(0)
@@ -187,10 +187,13 @@ public final class CachedAuthenticatorTest {
       verify(outcome, times(2)).allow(eq(1000L));
     });
     
-    TestSupport.sleep(10);
-    
-    verify(spied, atMost(4)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, atMost(4)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    SocketTestSupport.await().until(() -> {
+      final int countTopic1 = spied.invocations().get(nexus).get("topic1").get();
+      final int countTopic2 = spied.invocations().get(nexus).get("topic2").get();
+      TestSupport.sleep(10);
+      verify(spied, atMost(countTopic1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
+      verify(spied, atMost(countTopic2)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    });
   }
   
   @Test
