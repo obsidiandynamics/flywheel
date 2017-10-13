@@ -10,6 +10,7 @@ package au.com.williamhill.flywheel.util;
  *  Produces "foo" if <code>someCondition</code> is false and "foo bar" if <code>someCondition</code>
  *  is true.
  */
+//TODO remove
 public final class StringChainer implements CharSequence {
   private final StringBuilder sb;
   

@@ -6,6 +6,7 @@ import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
+//TODO remove
 public final class BashUtilsTest {
   @Test
   public void testConformance() throws Exception {

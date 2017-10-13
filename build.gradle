@@ -122,19 +122,15 @@ repositories {
 
 dependencies {
   compile 'org.slf4j:slf4j-api:1.7.25'
-  compile 'com.obsidiandynamics.indigo:indigo-core:0.9.4'
+  compile 'com.obsidiandynamics.indigo:indigo-core:0.9.5'
   compile 'com.obsidiandynamics.yconf:yconf-core:0.2.1'
   compile 'com.obsidiandynamics.yconf:yconf-juel:0.2.1'
   compile 'com.obsidiandynamics.yconf:yconf-snakeyaml:0.2.1'
+  compile 'com.obsidiandynamics.socketx:socketx:0.1.0'
   compile 'com.google.code.gson:gson:2.8.1'
   compile 'org.danilopianini:gson-extras:0.2.1'
-  compile 'org.eclipse.jetty.websocket:websocket-server:9.4.6.v20170531'
-  compile 'org.eclipse.jetty.websocket:websocket-client:9.4.6.v20170531'
-  compile 'io.undertow:undertow-core:1.4.20.Final'
-  compile 'io.undertow:undertow-websockets-jsr:1.4.20.Final'
-  compile 'io.netty:netty-all:4.1.15.Final'
   
-  testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
+  testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.5'
   testCompile 'org.apache.httpcomponents:httpclient:4.5.3'
   testRuntime 'org.slf4j:slf4j-log4j12:1.7.25'
   testRuntime 'log4j:log4j:1.2.17'
@@ -236,12 +232,6 @@ task testJar(type: Jar) {
 }
 
 def perfJvmArgs = '-server -XX:-MaxFDLimit -XX:+TieredCompilation -XX:+UseNUMA -XX:+UseCondCardMark -XX:-UseBiasedLocking -Xms1G -Xmx2G -Xss1M -XX:+UseParallelGC'
-
-task fanOutBench(type: JavaExec) {
-  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
-  jvmArgs = Arrays.asList perfJvmArgs.split(' ')
-  main = 'au.com.williamhill.flywheel.socketx.FanOutBenchmark'
-}
 
 task doubleRigBench(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
