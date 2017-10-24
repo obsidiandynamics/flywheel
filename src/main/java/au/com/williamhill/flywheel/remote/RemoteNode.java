@@ -6,8 +6,9 @@ import java.util.concurrent.*;
 
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.*;
+
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.socketx.*;
 
 public final class RemoteNode implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(RemoteNode.class);

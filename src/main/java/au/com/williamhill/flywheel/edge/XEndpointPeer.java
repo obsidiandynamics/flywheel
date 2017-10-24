@@ -2,7 +2,7 @@ package au.com.williamhill.flywheel.edge;
 
 import java.net.*;
 
-import au.com.williamhill.flywheel.socketx.*;
+import com.obsidiandynamics.socketx.*;
 
 public final class XEndpointPeer implements Peer {
   private final XEndpoint endpoint;

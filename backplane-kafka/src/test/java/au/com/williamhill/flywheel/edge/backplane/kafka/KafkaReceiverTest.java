@@ -65,7 +65,7 @@ public final class KafkaReceiverTest {
     when(consumer.poll(anyLong())).then(split(() -> records, 
                                               () -> new ConsumerRecords<>(Collections.emptyMap())));
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       verify(recordHandler, times(1)).onReceive(eq(records));
       verify(errorHandler, never()).onError(any());
     });
@@ -84,7 +84,7 @@ public final class KafkaReceiverTest {
   public void testError() throws InterruptedException {
     when(consumer.poll(anyLong())).then(split(() -> { throw new RuntimeException("boom"); }));
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       verify(recordHandler, never()).onReceive(any());
       verify(errorHandler, atLeastOnce()).onError(any(RuntimeException.class));
     });
@@ -98,7 +98,7 @@ public final class KafkaReceiverTest {
     when(consumer.poll(anyLong())).then(split(() -> { throw new RuntimeException("boom"); }));
     final Logger logger = mock(Logger.class);
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, KafkaReceiver.genericErrorLogger(logger));
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       verify(recordHandler, never()).onReceive(any());
       verify(logger, atLeastOnce()).warn(anyString(), any(RuntimeException.class));
     });

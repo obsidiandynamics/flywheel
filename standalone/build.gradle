@@ -4,16 +4,10 @@ version = project(':').version
 def packageName = 'flywheel-standalone'
 
 dependencies {
-  compile project(':')
-  
   runtime project(':flywheel-auth-stub-http')
   runtime project(':flywheel-backplane-kafka')
-  runtime project(':flywheel-logging-splunk')
-  runtime project(':flywheel-plugin-beacon')
-  runtime project(':flywheel-plugin-toplog')
-  
-  testCompile project(':').sourceSets.test.output
-  testCompile 'com.obsidiandynamics.indigo:indigo-assurance:0.9.4'
+  runtime 'com.obsidiandynamics.log4jextras:log4j-extras-json:0.1.0'
+  runtime 'com.obsidiandynamics.log4jextras:log4j-extras-splunk:0.1.0'
 }
 
 jar {

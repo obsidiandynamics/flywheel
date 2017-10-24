@@ -12,7 +12,7 @@ import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.health.*;
-import au.com.williamhill.flywheel.socketx.*;
+import com.obsidiandynamics.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class ConfigLauncherTest {
@@ -35,7 +35,7 @@ public final class ConfigLauncherTest {
     launcher
     .withBackplane(new NoOpBackplane())
     .withServerConfig(new XServerConfig()
-                      .withPort(SocketTestSupport.getAvailablePort(PORT))
+                      .withPort(SocketUtils.getAvailablePort(PORT))
                       .withServlets(new XMappedServlet("/health", HealthServlet.class)))
     .withPubAuthChain(new PubAuthChain())
     .withSubAuthChain(new SubAuthChain())

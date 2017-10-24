@@ -6,12 +6,12 @@ import java.util.*;
 
 import org.junit.*;
 
-import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.assertion.*;
 
 public final class MapsTest {
   @Test
   public void testConformance() throws Exception {
-    TestSupport.assertUtilityClassWellDefined(Maps.class);
+    Assertions.assertUtilityClassWellDefined(Maps.class);
   }
 
   @Test

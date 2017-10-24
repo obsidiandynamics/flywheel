@@ -13,7 +13,7 @@ import org.slf4j.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.socketx.*;
+import com.obsidiandynamics.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.util.*;
 
@@ -38,7 +38,7 @@ public final class TopicLoggerTest {
     @SuppressWarnings("resource")
     final TopicLogger logger = new TopicLogger().withExcludeTopics(Topic.of("t"));
     edge = EdgeNode.builder()
-        .withServerConfig(new XServerConfig().withPort(SocketTestSupport.getAvailablePort(PORT)))
+        .withServerConfig(new XServerConfig().withPort(SocketUtils.getAvailablePort(PORT)))
         .withPlugins(logger)
         .build();
     
@@ -50,7 +50,7 @@ public final class TopicLoggerTest {
     nexus.publish(new PublishBinaryFrame("test", "test".getBytes()));
     nexus.publish(new PublishTextFrame("test", "test"));
     
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       verify(handler).onText(notNull(RemoteNexus.class), notNull(String.class), notNull(String.class));
       verify(handler).onBinary(notNull(RemoteNexus.class), notNull(String.class), notNull(byte[].class));
     });

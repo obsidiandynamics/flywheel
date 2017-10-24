@@ -5,7 +5,7 @@ import static junit.framework.TestCase.*;
 import org.junit.*;
 import org.slf4j.*;
 
-import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.assertion.*;
 
 public final class ConditionalMDCTest {
   @Before
@@ -20,7 +20,7 @@ public final class ConditionalMDCTest {
   
   @Test
   public void testToString() {
-    TestSupport.assertToString(ConditionalMDC.on(() -> true));
+    Assertions.assertToStringOverride(ConditionalMDC.on(() -> true));
   }
   
   @Test

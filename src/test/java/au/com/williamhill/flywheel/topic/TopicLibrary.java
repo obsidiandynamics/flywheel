@@ -3,9 +3,8 @@ package au.com.williamhill.flywheel.topic;
 import java.io.*;
 import java.net.*;
 
+import com.obsidiandynamics.socketx.util.*;
 import com.obsidiandynamics.yconf.*;
-
-import au.com.williamhill.flywheel.socketx.util.*;
 
 public final class TopicLibrary {
   private TopicLibrary() {}

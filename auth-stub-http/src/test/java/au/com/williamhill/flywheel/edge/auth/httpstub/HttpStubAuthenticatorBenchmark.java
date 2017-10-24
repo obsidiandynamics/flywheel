@@ -19,13 +19,13 @@ import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.benchmark.Summary.*;
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 import au.com.williamhill.flywheel.edge.auth.httpstub.util.*;
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
 public final class HttpStubAuthenticatorBenchmark implements TestSupport {
@@ -185,7 +185,7 @@ public final class HttpStubAuthenticatorBenchmark implements TestSupport {
       }
       if (c.log.progress && i % progressInterval == 0) c.log.printProgressBlock();
     }
-    SocketTestSupport.await().untilTrue(() -> counter.hasReceived(runs));
+    SocketUtils.await().untilTrue(() -> counter.hasReceived(runs));
   }
   
   @Test

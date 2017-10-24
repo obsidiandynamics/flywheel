@@ -1,8 +1,9 @@
 package au.com.williamhill.flywheel.remote;
 
+import com.obsidiandynamics.socketx.*;
+
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Wire.*;
-import au.com.williamhill.flywheel.socketx.*;
 
 public final class RemoteNodeBuilder {
   private XClientFactory<?> clientFactory;
@@ -26,7 +27,7 @@ public final class RemoteNodeBuilder {
   
   private void init() throws Exception {
     if (clientFactory == null) {
-      clientFactory = (XClientFactory<?>) Class.forName("au.com.williamhill.flywheel.socketx.undertow.UndertowClient$Factory").newInstance();
+      clientFactory = (XClientFactory<?>) Class.forName("com.obsidiandynamics.socketx.undertow.UndertowClient$Factory").newInstance();
     }
   }
   

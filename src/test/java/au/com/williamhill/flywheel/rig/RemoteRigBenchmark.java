@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.shell.*;
 
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
@@ -50,7 +51,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   }
   
   public static void main(String[] args) throws Exception {
-    BashInteractor.Ulimit.main(null);
+    BourneUtils.run("ulimit -Sa", null, true, System.out::println);
     LOG_STREAM.println();
     filter("flywheel.rig", PROPS).entrySet().stream()
     .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG_STREAM::println);

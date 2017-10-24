@@ -6,14 +6,15 @@ import org.junit.*;
 
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.shell.*;
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.InjectorRig.*;
 import au.com.williamhill.flywheel.rig.RemoteRig.*;
-import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class TripleRigBenchmark implements TestSupport {
   private static final String HOST = "localhost";
@@ -65,7 +66,7 @@ public final class TripleRigBenchmark implements TestSupport {
     
     SpecMultiplier applyDefaults() {
       host = HOST;
-      port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+      port = SocketUtils.getAvailablePort(PREFERRED_PORT);
       path = PATH;
       warmupFrac = 0.05f;
       initiate = true;
@@ -201,10 +202,10 @@ public final class TripleRigBenchmark implements TestSupport {
    *  @throws Exception 
    */
   public static void main(String[] args) throws Exception {
-    BashInteractor.Ulimit.main(null);
+    BourneUtils.run("ulimit -Sa", null, true, System.out::println);
     new Config() {{
       host = HOST;
-      port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+      port = SocketUtils.getAvailablePort(PREFERRED_PORT);
       path = PATH;
       pulses = 300;
       pulseDurationMillis = 100;

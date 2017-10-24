@@ -3,8 +3,9 @@ package au.com.williamhill.flywheel;
 import java.nio.*;
 import java.util.concurrent.*;
 
+import com.obsidiandynamics.socketx.*;
+
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.socketx.*;
 
 public final class SendHelper {
   private SendHelper() {}

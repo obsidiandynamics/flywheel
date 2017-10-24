@@ -1,7 +1,7 @@
 package au.com.williamhill.flywheel.edge.auth;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -10,19 +10,17 @@ import org.junit.*;
 import org.junit.runner.*;
 import org.junit.runners.*;
 
-import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
+import com.obsidiandynamics.junit.*;
+import com.obsidiandynamics.socketx.util.*;
+
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class CachedAuthBindTest extends AbstractAuthTest {
-  private static final int REPEAT = 1;
-  
   @Parameterized.Parameters
   public static List<Object[]> data() {
-    return Arrays.asList(new Object[REPEAT][0]);
+    return TestCycle.once();
   }
   
   private CachedAuthenticator c;
@@ -56,8 +54,8 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                           null);
     final BindResponseFrame bind1Res = remoteNexus.bind(bind1).get();
     assertTrue(bind1Res.isSuccess());
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(), eq("topic1"), notNull());
+    verify(spied, times(1)).verify(notNull(), eq("topic2"), notNull());
 
     final BindFrame unbind1 = new BindFrame(UUID.randomUUID(), 
                                             sessionId,
@@ -67,8 +65,8 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                             null);
     final BindResponseFrame unbind1Res = remoteNexus.bind(unbind1).get();
     assertTrue(unbind1Res.isSuccess());
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(), eq("topic1"), notNull());
+    verify(spied, times(1)).verify(notNull(), eq("topic2"), notNull());
     
     // binding again immediately after an unbind shouldn't result in a query, as the entry is still cached
     final BindFrame bind2 = new BindFrame(UUID.randomUUID(), 
@@ -79,8 +77,8 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                           null);
     final BindResponseFrame bind2Res = remoteNexus.bind(bind2).get();
     assertTrue(bind2Res.isSuccess());
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(), eq("topic1"), notNull());
+    verify(spied, times(1)).verify(notNull(), eq("topic2"), notNull());
 
     final BindFrame unbind2 = new BindFrame(UUID.randomUUID(), 
                                             sessionId,
@@ -90,8 +88,8 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                             null);
     final BindResponseFrame unbind2Res = remoteNexus.bind(unbind2).get();
     assertTrue(unbind2Res.isSuccess());
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(), eq("topic1"), notNull());
+    verify(spied, times(1)).verify(notNull(), eq("topic2"), notNull());
     
     // settings this has no effect on topic1 and topic2, as the entry is cached for a long time;
     // however, topic3 should be queried aggressively
@@ -105,12 +103,12 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
     final BindResponseFrame bind3Res = remoteNexus.bind(bind3).get();
     assertTrue(bind3Res.isSuccess());
     
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
-    verify(spied, atLeast(1)).verify(notNull(EdgeNexus.class), eq("topic3/+"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(), eq("topic1"), notNull());
+    verify(spied, times(1)).verify(notNull(), eq("topic2"), notNull());
+    verify(spied, atLeast(1)).verify(notNull(), eq("topic3/+"), notNull());
     
-    SocketTestSupport.await().until(() -> {
-      verify(spied, atLeast(10)).verify(notNull(EdgeNexus.class), eq("topic3/+"), notNull(AuthenticationOutcome.class));
+    SocketUtils.await().until(() -> {
+      verify(spied, atLeast(10)).verify(notNull(), eq("topic3/+"), notNull());
     });
   }
 
@@ -139,8 +137,8 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                           null);
     final BindResponseFrame bind1Res = remoteNexus.bind(bind1).get();
     assertFalse(bind1Res.isSuccess());
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(notNull(EdgeNexus.class), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(notNull(), eq("topic1"), notNull());
+    verify(spied, times(1)).verify(notNull(), eq("topic2"), notNull());
 
     final BindFrame bind2 = new BindFrame(UUID.randomUUID(), 
                                           sessionId,
@@ -150,7 +148,7 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                           null);
     final BindResponseFrame bind2Res = remoteNexus.bind(bind2).get();
     assertFalse(bind2Res.isSuccess());
-    verify(spied, times(2)).verify(notNull(EdgeNexus.class), eq("topic1"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(2)).verify(notNull(), eq("topic1"), notNull());
   }
   
   @SuppressWarnings("resource")
@@ -177,10 +175,10 @@ public final class CachedAuthBindTest extends AbstractAuthTest {
                                           null);
     final BindResponseFrame bind1Res = remoteNexus.bind(bind1).get();
     assertTrue(bind1Res.isSuccess());
-    verify(spied, atLeast(1)).verify(notNull(EdgeNexus.class), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, atLeast(1)).verify(notNull(), eq("topic"), notNull());
     
     spied.set(-1);
     
-    SocketTestSupport.await().untilTrue(() -> ! remoteNexus.getEndpoint().isOpen());
+    SocketUtils.await().untilTrue(() -> ! remoteNexus.getEndpoint().isOpen());
   }
 }

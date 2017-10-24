@@ -85,7 +85,7 @@ public final class MockKafkaTest {
     }
     
     try {
-      SocketTestSupport.await().untilTrue(() -> consumers.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
+      SocketUtils.await().untilTrue(() -> consumers.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (TestConsumer<Integer, Integer> consumer : consumers) {
         assertEquals(expectedMessages, consumer.received.totalSize());

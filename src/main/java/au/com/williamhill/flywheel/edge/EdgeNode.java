@@ -6,6 +6,8 @@ import java.util.concurrent.*;
 
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.*;
+
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.auth.AuthChain.*;
@@ -14,7 +16,6 @@ import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Error;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class EdgeNode implements AutoCloseable, BackplaneConnector {
