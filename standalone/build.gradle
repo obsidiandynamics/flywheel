@@ -6,8 +6,8 @@ def packageName = 'flywheel-standalone'
 dependencies {
   runtime project(':flywheel-auth-stub-http')
   runtime project(':flywheel-backplane-kafka')
-  runtime 'com.obsidiandynamics.log4jextras:log4j-extras-json:0.1.1'
-  runtime 'com.obsidiandynamics.log4jextras:log4j-extras-splunk:0.1.1'
+  runtime 'com.obsidiandynamics.log4jextras:log4jextras-json:0.2.0'
+  runtime 'com.obsidiandynamics.log4jextras:log4jextras-splunk:0.2.0'
 }
 
 jar {
