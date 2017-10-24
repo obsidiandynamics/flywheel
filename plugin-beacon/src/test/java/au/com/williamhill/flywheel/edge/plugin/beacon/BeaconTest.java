@@ -13,7 +13,7 @@ import org.slf4j.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.socketx.*;
+import com.obsidiandynamics.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
@@ -48,7 +48,7 @@ public final class BeaconTest {
     when(logger.isDebugEnabled()).thenReturn(true);
     
     edge = EdgeNode.builder()
-        .withServerConfig(new XServerConfig().withPort(SocketTestSupport.getAvailablePort(PORT)))
+        .withServerConfig(new XServerConfig().withPort(SocketUtils.getAvailablePort(PORT)))
         .withPlugins(beacon)
         .build();
     
@@ -58,7 +58,7 @@ public final class BeaconTest {
     final RemoteNexus nexus = remote.open(new URI("ws://localhost:" + edge.getServer().getConfig().port), handler);
     nexus.bind(new BindFrame().withSubscribe("time")).get();
     
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       verify(handler, atLeastOnce()).onText(notNull(RemoteNexus.class), notNull(String.class), notNull(String.class));
     });
   }

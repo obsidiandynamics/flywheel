@@ -71,8 +71,8 @@ public final class BindAuthTest extends AbstractAuthTest {
   public void testCustomSubChain() throws Exception {
     setupEdgeNode(new PubAuthChain(),
                   new SubAuthChain()
-                  .set("custom/basic", Mocks.logger(createBasicAuth("user", "pass")))
-                  .set("custom/bearer", Mocks.logger(createBearerAuth("token"))));
+                  .set("custom/basic", InterceptingProxy.of(createBasicAuth("user", "pass"), new LoggingInterceptor<>()))
+                  .set("custom/bearer", InterceptingProxy.of(createBearerAuth("token"), new LoggingInterceptor<>())));
     
     final RemoteNexus remoteNexus = openNexus();
     final String sessionId = generateSessionId();

@@ -10,11 +10,11 @@ import java.util.stream.*;
 import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
 import au.com.williamhill.flywheel.rig.Announce.*;
-import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.topic.*;
 import au.com.williamhill.flywheel.topic.TopicSpec.*;
 

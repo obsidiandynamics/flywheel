@@ -1,8 +1,7 @@
 package au.com.williamhill.flywheel;
 
-import static com.obsidiandynamics.indigo.util.Mocks.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.net.*;
@@ -11,13 +10,14 @@ import java.util.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Error;
 import au.com.williamhill.flywheel.frame.Wire.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class NodeRouterTest {
@@ -37,7 +37,7 @@ public final class NodeRouterTest {
   
   @Before
   public void setup() throws Exception {
-    port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+    port = SocketUtils.getAvailablePort(PREFERRED_PORT);
     
     wire = new Wire(true, LocationHint.UNSPECIFIED);
     interchange = new RoutingInterchange();
@@ -46,7 +46,7 @@ public final class NodeRouterTest {
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig() {{ port = NodeRouterTest.this.port; }})
         .withWire(wire)
-        .withInterchange(logger(interchange))
+        .withInterchange(InterceptingProxy.of(interchange, new LoggingInterceptor<>()))
         .build();
     
     remote = RemoteNode.builder()
@@ -65,7 +65,8 @@ public final class NodeRouterTest {
   @Test
   public void testInternalPubSub() throws Exception {
     final UUID messageId = UUID.randomUUID();
-    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), logger(handler));
+    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), 
+                                                InterceptingProxy.of(handler, new LoggingInterceptor<>()));
 
     final String topic = "a/b/c";
     final String payload = "hello internal";
@@ -83,33 +84,34 @@ public final class NodeRouterTest {
     assertEquals(FrameType.BIND, bindRes.getType());
     assertArrayEquals(new Error[0], bindRes.getErrors());
 
-    ordered(handler, inOrder -> { // shouldn't have received any data yet
-      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
+    Ordered.of(handler, inOrder -> { // shouldn't have received any data yet
+      inOrder.verify(handler).onOpen(notNull());
     });
     
     edge.publish(topic, payload); // a single subscriber at this point
     
-    SocketTestSupport.await().until(() -> {
-      verify(handler).onText(notNull(RemoteNexus.class), eq("a/b/c"), eq(payload));
+    SocketUtils.await().until(() -> {
+      verify(handler).onText(notNull(), eq("a/b/c"), eq(payload));
     });
     
     remoteNexus.close();
     
-    SocketTestSupport.await().until(() -> {
-      verify(handler).onClose(notNull(RemoteNexus.class));
+    SocketUtils.await().until(() -> {
+      verify(handler).onClose(notNull());
     });
     
-    ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
-      inOrder.verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
-      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
+    Ordered.of(handler, inOrder -> {
+      inOrder.verify(handler).onOpen(notNull());
+      inOrder.verify(handler).onText(notNull(), eq(topic), eq(payload));
+      inOrder.verify(handler).onClose(notNull());
     });
   }
 
   @Test
   public void testExternalPubSub() throws Exception {
     final UUID messageId = UUID.randomUUID();
-    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), logger(handler));
+    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), 
+                                                InterceptingProxy.of(handler, new LoggingInterceptor<>()));
 
     final String topic = "a/b/c";
     final String payload = "hello external";
@@ -127,26 +129,26 @@ public final class NodeRouterTest {
     assertEquals(FrameType.BIND, bindRes.getType());
     assertArrayEquals(new Error[0], bindRes.getErrors());
 
-    ordered(handler, inOrder -> { // shouldn't have received any data yet
-      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
+    Ordered.of(handler, inOrder -> { // shouldn't have received any data yet
+      inOrder.verify(handler).onOpen(notNull());
     });
     
     remoteNexus.publish(new PublishTextFrame(topic, payload)); // itself is a subscriber
     
-    SocketTestSupport.await().until(() -> {
-      verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
+    SocketUtils.await().until(() -> {
+      verify(handler).onText(notNull(), eq(topic), eq(payload));
     });
     
     remoteNexus.close();
     
-    SocketTestSupport.await().until(() -> {
-      verify(handler).onClose(notNull(RemoteNexus.class));
+    SocketUtils.await().until(() -> {
+      verify(handler).onClose(notNull());
     });
     
-    ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
-      inOrder.verify(handler).onText(notNull(RemoteNexus.class), eq(topic), eq(payload));
-      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
+    Ordered.of(handler, inOrder -> {
+      inOrder.verify(handler).onOpen(notNull());
+      inOrder.verify(handler).onText(notNull(), eq(topic), eq(payload));
+      inOrder.verify(handler).onClose(notNull());
     });
   }
 }

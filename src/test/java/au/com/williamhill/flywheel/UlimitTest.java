@@ -5,14 +5,14 @@ import static org.junit.Assert.*;
 import org.junit.*;
 import org.slf4j.*;
 
-import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.shell.*;
 
 public final class UlimitTest {
   @Test
   public void test() {
     final int minLimit = 1024;
     final StringBuilder sb = new StringBuilder();
-    BashInteractor.execute("ulimit -Sn", true, sb::append);
+    BourneUtils.run("ulimit -Sn", null, false, sb::append);
     final int limit = Integer.parseInt(sb.toString().trim());
     final Logger logger = LoggerFactory.getLogger(UlimitTest.class);
     logger.debug("File limit is {}", limit);

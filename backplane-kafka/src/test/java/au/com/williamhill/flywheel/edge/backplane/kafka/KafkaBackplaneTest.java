@@ -103,7 +103,7 @@ public final class KafkaBackplaneTest {
     final KafkaData d = new KafkaData("id", "source", "topic", null, "hello", 
                                       System.currentTimeMillis(), System.currentTimeMillis() + 10_000);
     getProducer().send(new ProducerRecord<>(config.topic, d));
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       Mockito.verify(connector).publish(Mockito.eq("topic"), Mockito.eq("hello"));
     });
   }
@@ -115,7 +115,7 @@ public final class KafkaBackplaneTest {
     final KafkaData d = new KafkaData("id", "source", "topic", bytes, null, 
                                       System.currentTimeMillis(), System.currentTimeMillis() + 10_000);
     getProducer().send(new ProducerRecord<>(config.topic, d));
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       Mockito.verify(connector).publish(Mockito.eq("topic"), Mockito.eq(bytes));
     });
   }
@@ -125,7 +125,7 @@ public final class KafkaBackplaneTest {
     final BackplaneConnector connector = attach();
     final KafkaData d = new KafkaData(new RuntimeException("boom"));
     getProducer().send(new ProducerRecord<>(config.topic, d));
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       Mockito.verify(connector, Mockito.never()).publish(Mockito.anyString(), Mockito.anyString());
       Mockito.verify(connector, Mockito.never()).publish(Mockito.anyString(), Mockito.any(byte[].class));
       Mockito.verify(logger, Mockito.atLeastOnce()).warn(Mockito.any(), Mockito.any(RuntimeException.class));

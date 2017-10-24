@@ -10,11 +10,12 @@ import java.util.concurrent.atomic.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public abstract class ClusterTest implements TestSupport {
@@ -54,7 +55,7 @@ public abstract class ClusterTest implements TestSupport {
   protected final EdgeNode createEdgeNode(int port, Backplane backplane) throws Exception {
     final EdgeNode edge = EdgeNode.builder()
     .withServerConfig(new XServerConfig()
-                      .withPort(SocketTestSupport.getAvailablePort(port))
+                      .withPort(SocketUtils.getAvailablePort(port))
                       .withHttpsPort(0))
     .withBackplane(backplane)
     .build();
@@ -175,7 +176,7 @@ public abstract class ClusterTest implements TestSupport {
     assertFalse(error.get());
 
     try {
-      SocketTestSupport.await().untilTrue(() -> subscribers.stream().filter(s -> s.received.totalSize() < expectedMessages).count() == 0);
+      SocketUtils.await().untilTrue(() -> subscribers.stream().filter(s -> s.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (RetainingSubscriber sub : subscribers) {
         assertEquals(expectedPartitions, sub.received.asMap().size());

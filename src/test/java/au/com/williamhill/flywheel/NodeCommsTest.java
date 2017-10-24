@@ -1,8 +1,7 @@
 package au.com.williamhill.flywheel;
 
-import static com.obsidiandynamics.indigo.util.Mocks.*;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.net.*;
@@ -12,13 +11,14 @@ import java.util.concurrent.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Error;
 import au.com.williamhill.flywheel.frame.Wire.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public final class NodeCommsTest {
@@ -38,7 +38,7 @@ public final class NodeCommsTest {
   
   @Before
   public void setup() throws Exception {
-    port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+    port = SocketUtils.getAvailablePort(PREFERRED_PORT);
     
     wire = new Wire(true, LocationHint.UNSPECIFIED);
     interchange = mock(Interchange.class);
@@ -47,7 +47,7 @@ public final class NodeCommsTest {
     edge = EdgeNode.builder()
         .withServerConfig(new XServerConfig() {{ port = NodeCommsTest.this.port; }})
         .withWire(wire)
-        .withInterchange(logger(interchange))
+        .withInterchange(InterceptingProxy.of(interchange, new LoggingInterceptor<>()))
         .build();
     
     remote = RemoteNode.builder()
@@ -63,13 +63,13 @@ public final class NodeCommsTest {
     edge = null;
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testText() throws Exception {
     final UUID messageId = UUID.randomUUID();
     when(interchange.onBind(any(), any(), any())).thenReturn(CompletableFuture.completedFuture(null));
     
-    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), logger(handler));
+    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), 
+                                                InterceptingProxy.of(handler, new LoggingInterceptor<>()));
     final String sessionId = Long.toHexString(Crypto.machineRandom());
     final String[] subscribe = new String[]{"a/b/c"};
     final BindFrame bind = new BindFrame(messageId, 
@@ -93,36 +93,36 @@ public final class NodeCommsTest {
     
     remoteNexus.close();
     
-    SocketTestSupport.await().until(() -> {
-      verify(interchange).onClose(notNull(EdgeNexus.class));
-      verify(handler).onClose(notNull(RemoteNexus.class));
+    SocketUtils.await().until(() -> {
+      verify(interchange).onClose(notNull());
+      verify(handler).onClose(notNull());
     });
     
     final Set<String> expectedTopics = new HashSet<>();
     expectedTopics.addAll(Arrays.asList(subscribe));
     expectedTopics.add(Flywheel.getRxTopicPrefix(sessionId));
     expectedTopics.add(Flywheel.getRxTopicPrefix(sessionId) + "/#");
-    ordered(interchange, inOrder -> {
-      inOrder.verify(interchange).onOpen(notNull(EdgeNexus.class));
-      inOrder.verify(interchange).onBind(notNull(EdgeNexus.class), eq(expectedTopics), notNull(Set.class));
-      inOrder.verify(interchange).onPublish(notNull(EdgeNexus.class), eq(pubRemote));
-      inOrder.verify(interchange).onClose(notNull(EdgeNexus.class));
+    Ordered.of(interchange, inOrder -> {
+      inOrder.verify(interchange).onOpen(notNull());
+      inOrder.verify(interchange).onBind(notNull(), eq(expectedTopics), notNull());
+      inOrder.verify(interchange).onPublish(notNull(), eq(pubRemote));
+      inOrder.verify(interchange).onClose(notNull());
     });
     
-    ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
-      inOrder.verify(handler).onText(notNull(RemoteNexus.class), eq(textEdge.getTopic()), eq(textEdge.getPayload()));
-      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
+    Ordered.of(handler, inOrder -> {
+      inOrder.verify(handler).onOpen(notNull());
+      inOrder.verify(handler).onText(notNull(), eq(textEdge.getTopic()), eq(textEdge.getPayload()));
+      inOrder.verify(handler).onClose(notNull());
     });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testBinary() throws Exception {
     final UUID messageId = UUID.randomUUID();
-    when(interchange.onBind(any(), any(), notNull(Set.class))).thenReturn(CompletableFuture.completedFuture(null));
+    when(interchange.onBind(any(), any(), notNull())).thenReturn(CompletableFuture.completedFuture(null));
     
-    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), logger(handler));
+    final RemoteNexus remoteNexus = remote.open(new URI("ws://localhost:" + port + "/"), 
+                                                InterceptingProxy.of(handler, new LoggingInterceptor<>()));
     final String sessionId = Long.toHexString(Crypto.machineRandom());
     final String[] subscribe = new String[]{"a/b/c"};
     final BindFrame bind = new BindFrame(messageId, 
@@ -146,26 +146,26 @@ public final class NodeCommsTest {
     
     remoteNexus.close();
     
-    SocketTestSupport.await().until(() -> {
-      verify(interchange).onClose(notNull(EdgeNexus.class));
-      verify(handler).onClose(notNull(RemoteNexus.class));
+    SocketUtils.await().until(() -> {
+      verify(interchange).onClose(notNull());
+      verify(handler).onClose(notNull());
     });
 
     final Set<String> expectedTopics = new HashSet<>();
     expectedTopics.addAll(Arrays.asList(subscribe));
     expectedTopics.add(Flywheel.getRxTopicPrefix(sessionId));
     expectedTopics.add(Flywheel.getRxTopicPrefix(sessionId) + "/#");
-    ordered(interchange, inOrder -> {
-      inOrder.verify(interchange).onOpen(notNull(EdgeNexus.class));
-      inOrder.verify(interchange).onBind(notNull(EdgeNexus.class), eq(expectedTopics), notNull(Set.class));
-      inOrder.verify(interchange).onPublish(notNull(EdgeNexus.class), eq(pubRemote));
-      inOrder.verify(interchange).onClose(notNull(EdgeNexus.class));
+    Ordered.of(interchange, inOrder -> {
+      inOrder.verify(interchange).onOpen(notNull());
+      inOrder.verify(interchange).onBind(notNull(), eq(expectedTopics), notNull());
+      inOrder.verify(interchange).onPublish(notNull(), eq(pubRemote));
+      inOrder.verify(interchange).onClose(notNull());
     });
     
-    ordered(handler, inOrder -> {
-      inOrder.verify(handler).onOpen(notNull(RemoteNexus.class));
-      inOrder.verify(handler).onBinary(notNull(RemoteNexus.class), eq(binaryEdge.getTopic()), eq(binaryEdge.getPayload()));
-      inOrder.verify(handler).onClose(notNull(RemoteNexus.class));
+    Ordered.of(handler, inOrder -> {
+      inOrder.verify(handler).onOpen(notNull());
+      inOrder.verify(handler).onBinary(notNull(), eq(binaryEdge.getTopic()), eq(binaryEdge.getPayload()));
+      inOrder.verify(handler).onClose(notNull());
     });
   }
 }

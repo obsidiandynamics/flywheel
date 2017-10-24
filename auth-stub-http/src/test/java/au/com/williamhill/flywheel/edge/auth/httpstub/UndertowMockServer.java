@@ -6,9 +6,9 @@ import java.util.concurrent.atomic.*;
 
 import javax.net.ssl.*;
 
-import au.com.williamhill.flywheel.socketx.ssl.*;
-import au.com.williamhill.flywheel.socketx.util.*;
-import au.com.williamhill.flywheel.util.*;
+import com.obsidiandynamics.socketx.ssl.*;
+import com.obsidiandynamics.socketx.util.*;
+
 import io.undertow.*;
 import io.undertow.server.*;
 import io.undertow.util.*;
@@ -35,8 +35,8 @@ final class UndertowMockServer {
     final KeyStore keyStore = JKS
         .loadKeyStore(ResourceLocator.asStream(new URI("cp://eystore.jks")), "storepass");
     final SSLContext sslContext = JKS.createSSLContext(keyStore, "keypass", keyStore);
-    httpPort = SocketTestSupport.getAvailablePort(8090);
-    httpsPort = SocketTestSupport.getAvailablePort(8543);
+    httpPort = SocketUtils.getAvailablePort(8090);
+    httpsPort = SocketUtils.getAvailablePort(8543);
     this.responseJson = responseJson;
     server = Undertow.builder()
         .addHttpListener(httpPort, "0.0.0.0")

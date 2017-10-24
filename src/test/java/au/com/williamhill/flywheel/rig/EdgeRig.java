@@ -1,7 +1,5 @@
 package au.com.williamhill.flywheel.rig;
 
-import static au.com.williamhill.flywheel.util.SocketTestSupport.*;
-
 import java.nio.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -11,13 +9,12 @@ import java.util.stream.*;
 import com.google.gson.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.rig.Announce.*;
-import au.com.williamhill.flywheel.socketx.util.*;
 import au.com.williamhill.flywheel.topic.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class EdgeRig extends Thread implements TestSupport, AutoCloseable, TopicListener {
   private static final String CONTROL_TOPIC = "control";
@@ -87,8 +84,8 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
     int pulse = 0;
     if (config.log.stages) config.log.out.format("e: warming up (%,d pulses)...\n", config.warmupPulses);
     boolean warmup = true;
-    final byte[] binPayload = config.text ? null : randomBytes(config.bytes);
-    final String textPayload = config.text ? randomString(config.bytes) : null;
+    final byte[] binPayload = config.text ? null : BinaryUtils.randomBytes(config.bytes);
+    final String textPayload = config.text ? BinaryUtils.randomHexString(config.bytes) : null;
     final int progressInterval = Math.max(1, config.pulses / 25);
     final long start = System.currentTimeMillis();
     

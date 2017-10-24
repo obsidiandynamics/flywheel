@@ -2,8 +2,9 @@ package au.com.williamhill.flywheel.remote;
 
 import java.net.*;
 
+import com.obsidiandynamics.socketx.*;
+
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.socketx.*;
 
 public final class RemoteNodeSample {
   public static void main(String[] args) throws Exception {

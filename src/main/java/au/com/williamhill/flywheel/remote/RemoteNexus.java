@@ -4,9 +4,10 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.obsidiandynamics.socketx.*;
+
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.socketx.*;
 
 public final class RemoteNexus implements AutoCloseable {
   private final RemoteNode node;

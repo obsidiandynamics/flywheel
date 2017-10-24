@@ -1,8 +1,7 @@
 package au.com.williamhill.flywheel.topic;
 
-import static com.obsidiandynamics.indigo.util.Mocks.*;
 import static junit.framework.TestCase.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -12,6 +11,8 @@ import org.junit.*;
 
 import com.obsidiandynamics.indigo.*;
 import com.obsidiandynamics.indigo.util.*;
+
+import au.com.williamhill.flywheel.util.*;
 
 public final class TopicRouterTest implements TestSupport {
   private ActorSystem system;
@@ -23,7 +24,7 @@ public final class TopicRouterTest implements TestSupport {
     topicWatcher = mock(TopicWatcher.class);
     system = ActorSystem.create()
     .on(TopicRouter.ROLE).cue(() -> new TopicRouter(new TopicConfig() {{
-      topicWatcher = logger(TopicRouterTest.this.topicWatcher);
+      topicWatcher = InterceptingProxy.of(TopicRouterTest.this.topicWatcher, new LoggingInterceptor<>());
     }}));
   }
   
@@ -38,11 +39,11 @@ public final class TopicRouterTest implements TestSupport {
     final List<Delivery> bList = new ArrayList<>();
     subscribe("a", aList::add);
     subscribe("b", bList::add);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("b")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("b")), notNull(Subscriber.class));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("b")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("b")), notNull());
     });
     publish("a", "hello").get();
     publish("b", "barev").get();
@@ -58,9 +59,9 @@ public final class TopicRouterTest implements TestSupport {
     final List<Delivery> a2List = new ArrayList<>();
     subscribe("a", a1List::add);
     subscribe("a", a2List::add);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher, times(2)).subscribed(notNull(Activation.class), eq(Topic.of("a")), notNull(Subscriber.class));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher, times(2)).subscribed(notNull(), eq(Topic.of("a")), notNull());
     });
     publish("a", "hello").get();
     assertEquals(1, a1List.size());
@@ -75,9 +76,9 @@ public final class TopicRouterTest implements TestSupport {
     final Subscriber sub = aList::add;
     subscribe("a", sub);
     subscribe("a", sub);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a")), notNull(Subscriber.class));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a")), notNull());
     });
     publish("a", "hello").get();
     assertEquals(1, aList.size());
@@ -97,13 +98,13 @@ public final class TopicRouterTest implements TestSupport {
     subscribe("a", aList::add);
     subscribe("a/b", abList::add);
     subscribe("a/b/c", abcList::add);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a/b")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a/b/c")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/b/c")), notNull(Subscriber.class));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a/b")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/b")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a/b/c")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/b/c")), notNull());
     });
     publish("a", "hello").get();
     publish("a/b", "barev").get();
@@ -128,14 +129,14 @@ public final class TopicRouterTest implements TestSupport {
     subscribe("a/#", axList::add);
     subscribe("c", cList::add);
     subscribe("c/#", cxList::add);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a/b")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("c")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("c")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("c/#")), notNull(Subscriber.class));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("#")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a/b")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/b")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/#")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("c")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("c")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("c/#")), notNull());
     });
     publish("a", "hello").get();
     publish("a/b", "barev").get();
@@ -174,14 +175,14 @@ public final class TopicRouterTest implements TestSupport {
     subscribe("+/c", xcList::add);
     subscribe("a/+", axList::add);
     subscribe("+/+", xxList::add);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a/b")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+/c")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/+")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+/+")), notNull(Subscriber.class));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a/b")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/b")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+/b")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+/c")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/+")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+/+")), notNull());
     });
     publish("a", "hello").get();
     publish("a/b", "barev").get();
@@ -225,27 +226,27 @@ public final class TopicRouterTest implements TestSupport {
     unsubscribe("a0/b0", sub);
     unsubscribe("a1", sub);
     unsubscribe("a0", sub);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a1")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0/b0")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0/b0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0/b1")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0/b1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0/b0/c0")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0/b0/c0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0/b0/c0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0/b0/c0")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0/b1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0/b1")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0/b0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0/b0")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a1")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0")));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a1")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a1")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0/b0")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0/b0")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0/b1")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0/b1")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0/b0/c0")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0/b0/c0")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0/b0/c0")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0/b0/c0")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0/b1")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0/b1")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0/b0")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0/b0")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a1")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a1")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0")));
     });
     
     list.clear();
@@ -280,27 +281,27 @@ public final class TopicRouterTest implements TestSupport {
     unsubscribe("a0/b0", sub);
     unsubscribe("a0/b1", sub);
     unsubscribe("a0/b0/c0", sub);
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a1")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0/b0")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0/b0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0/b1")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0/b1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a0/b0/c0")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a0/b0/c0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a1")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0/b0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0/b1")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0/b1")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a0/b0/c0")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0/b0/c0")));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0/b0")));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a0")));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a1")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a1")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0/b0")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0/b0")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0/b1")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0/b1")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a0/b0/c0")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a0/b0/c0")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a1")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a1")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0/b0")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0/b1")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0/b1")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a0/b0/c0")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0/b0/c0")));
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0/b0")));
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a0")));
     });
     
     list.clear();
@@ -337,23 +338,23 @@ public final class TopicRouterTest implements TestSupport {
     unsubscribe("c", sub);
     unsubscribe("c/#", sub);
     
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a/b")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("c")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("c")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("c/#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a/b")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a/#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("c")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("c/#")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("c")));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("#")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a/b")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/b")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/#")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("c")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("c")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("c/#")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("#")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a/b")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a/b")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a/#")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("c")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("c/#")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("c")));
     });
     
     list.clear();
@@ -382,23 +383,23 @@ public final class TopicRouterTest implements TestSupport {
     unsubscribe("a/+", sub);
     unsubscribe("+/+", sub);
     
-    ordered(topicWatcher, inOrder -> {
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher).created(notNull(Activation.class), eq(Topic.of("a/b")));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+/c")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("a/+")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).subscribed(notNull(Activation.class), eq(Topic.of("+/+")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("+")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a/b")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("+/b")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("+/c")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("a/+")), notNull(Subscriber.class));
-      inOrder.verify(topicWatcher).deleted(notNull(Activation.class), eq(Topic.of("a")));
-      inOrder.verify(topicWatcher).unsubscribed(notNull(Activation.class), eq(Topic.of("+/+")), notNull(Subscriber.class));
+    Ordered.of(topicWatcher, inOrder -> {
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+")), notNull());
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher).created(notNull(), eq(Topic.of("a/b")));
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/b")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+/b")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+/c")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("a/+")), notNull());
+      inOrder.verify(topicWatcher).subscribed(notNull(), eq(Topic.of("+/+")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("+")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a/b")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a/b")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("+/b")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("+/c")), notNull());
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("a/+")), notNull());
+      inOrder.verify(topicWatcher).deleted(notNull(), eq(Topic.of("a")));
+      inOrder.verify(topicWatcher).unsubscribed(notNull(), eq(Topic.of("+/+")), notNull());
     });
     
     publishSelf("a").get();

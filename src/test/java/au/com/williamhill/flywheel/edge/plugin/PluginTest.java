@@ -3,9 +3,10 @@ package au.com.williamhill.flywheel.edge.plugin;
 import org.junit.*;
 import org.mockito.*;
 
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
+
 import au.com.williamhill.flywheel.edge.*;
-import au.com.williamhill.flywheel.socketx.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class PluginTest {
   private static final int PORT = 8090;
@@ -21,7 +22,7 @@ public final class PluginTest {
   public void testLifecycle() throws Exception {
     final Plugin mock = Mockito.mock(Plugin.class);
     final EdgeNodeBuilder builder = EdgeNode.builder()
-        .withServerConfig(new XServerConfig().withPort(SocketTestSupport.getAvailablePort(PORT)))
+        .withServerConfig(new XServerConfig().withPort(SocketUtils.getAvailablePort(PORT)))
         .withPlugins(mock);
     edge = builder.build();
     edge.close();

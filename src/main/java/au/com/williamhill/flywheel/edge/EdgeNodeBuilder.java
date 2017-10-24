@@ -1,11 +1,12 @@
 package au.com.williamhill.flywheel.edge;
 
+import com.obsidiandynamics.socketx.*;
+
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Wire.*;
-import au.com.williamhill.flywheel.socketx.*;
 
 public final class EdgeNodeBuilder {
   private XServerFactory<?> serverFactory;
@@ -19,7 +20,7 @@ public final class EdgeNodeBuilder {
   
   private void init() throws Exception {
     if (serverFactory == null) {
-      serverFactory = (XServerFactory<?>) Class.forName("au.com.williamhill.flywheel.socketx.undertow.UndertowServer$Factory").newInstance();
+      serverFactory = (XServerFactory<?>) Class.forName("com.obsidiandynamics.socketx.undertow.UndertowServer$Factory").newInstance();
     }
     
     if (interchange == null) {

@@ -7,12 +7,12 @@ import java.net.*;
 
 import org.junit.*;
 
-import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.assertion.*;
 
 public final class TopicLibraryTest {
   @Test
   public void testConformance() throws Exception {
-    TestSupport.assertUtilityClassWellDefined(TopicLibrary.class);
+    Assertions.assertUtilityClassWellDefined(TopicLibrary.class);
   }
   
   @Test

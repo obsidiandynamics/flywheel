@@ -7,7 +7,6 @@ import java.util.*;
 import org.junit.*;
 import org.mockito.*;
 
-import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
 
 public final class AuthenticatorTest {
@@ -22,8 +21,8 @@ public final class AuthenticatorTest {
     assertEquals(1, auths.size());
     assertEquals(auth, auths.get(0));
     auths.get(0).verify(null, "test", Mockito.mock(AuthenticationOutcome.class));
-    Mockito.verify(auth).verify(Mockito.isNull(EdgeNexus.class), Mockito.eq("test"), 
-                                Mockito.notNull(AuthenticationOutcome.class));
+    Mockito.verify(auth).verify(Mockito.isNull(), Mockito.eq("test"), 
+                                Mockito.notNull());
     chain.close();
     Mockito.verify(auth).close();
   }

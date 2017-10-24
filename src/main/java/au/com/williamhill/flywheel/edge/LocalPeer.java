@@ -2,7 +2,7 @@ package au.com.williamhill.flywheel.edge;
 
 import java.net.*;
 
-import au.com.williamhill.flywheel.socketx.*;
+import com.obsidiandynamics.socketx.*;
 
 public final class LocalPeer implements Peer {
   private static final LocalPeer INSTANCE = new LocalPeer();

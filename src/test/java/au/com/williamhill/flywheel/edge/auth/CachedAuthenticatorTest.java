@@ -1,7 +1,7 @@
 package au.com.williamhill.flywheel.edge.auth;
 
 import static junit.framework.TestCase.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -12,12 +12,11 @@ import org.junit.runners.*;
 import org.mockito.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.junit.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.NestedAuthenticator.*;
-import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.socketx.util.*;
-import au.com.williamhill.flywheel.util.*;
 
 @RunWith(Parameterized.class)
 public final class CachedAuthenticatorTest {
@@ -60,21 +59,21 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(30000L));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
     
     TestSupport.sleep(5);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(AdditionalMatchers.lt(30000L));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
 
     // should purge from the cache
     when(connector.getActiveTopics(eq(nexus))).thenReturn(Collections.emptySet());
 
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       TestSupport.sleep(5);
       c.verify(nexus, "topic", outcome);
       verify(outcome, times(2)).allow(eq(30000L));
-      verify(spied, times(2)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+      verify(spied, times(2)).verify(eq(nexus), eq("topic"), notNull());
     });
   }
 
@@ -92,12 +91,12 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(AuthenticationOutcome.INDEFINITE));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
 
     TestSupport.sleep(5);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(2)).allow(eq(AuthenticationOutcome.INDEFINITE));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
   }
 
   @Test
@@ -112,12 +111,12 @@ public final class CachedAuthenticatorTest {
     c.attach(mock(AuthConnector.class));
     
     c.verify(nexus, "topic", outcome);
-    verify(outcome, times(1)).deny(notNull(TopicAccessError.class));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(outcome, times(1)).deny(notNull());
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
     
     c.verify(nexus, "topic", outcome);
-    verify(outcome, times(2)).deny(notNull(TopicAccessError.class));
-    verify(spied, times(2)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(outcome, times(2)).deny(notNull());
+    verify(spied, times(2)).verify(eq(nexus), eq("topic"), notNull());
     
     assertNotNull(c.toString());
   }
@@ -139,25 +138,25 @@ public final class CachedAuthenticatorTest {
     c.verify(nexus, "topic1", outcome);
     c.verify(nexus, "topic2", outcome);
     verify(outcome, times(2)).allow(eq(1000L));
-    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic1"), notNull());
+    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic2"), notNull());
     
-    SocketTestSupport.await().until(() -> {
-      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    SocketUtils.await().until(() -> {
+      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic1"), notNull());
+      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic2"), notNull());
     });
 
     // remove all topics from the active set
     when(connector.getActiveTopics(eq(nexus))).thenReturn(Collections.emptySet());
 
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       // give the watchdog a chance to run; afterwards there should be no more queries to the delegate
       TestSupport.sleep(5);
       final int countTopic1 = spied.invocations().get(nexus).get("topic1").get();
       final int countTopic2 = spied.invocations().get(nexus).get("topic2").get();
       TestSupport.sleep(10);
-      verify(spied, times(countTopic1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-      verify(spied, times(countTopic2)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+      verify(spied, times(countTopic1)).verify(eq(nexus), eq("topic1"), notNull());
+      verify(spied, times(countTopic2)).verify(eq(nexus), eq("topic2"), notNull());
     });
   }
   
@@ -179,20 +178,20 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic1", outcome);
     c.verify(nexus, "topic2", outcome);
-    verify(spied, times(1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic1"), notNull());
+    verify(spied, times(1)).verify(eq(nexus), eq("topic2"), notNull());
     verify(outcome, times(0)).allow(eq(1000L));
 
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       verify(outcome, times(2)).allow(eq(1000L));
     });
     
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       final int countTopic1 = spied.invocations().get(nexus).get("topic1").get();
       final int countTopic2 = spied.invocations().get(nexus).get("topic2").get();
       TestSupport.sleep(10);
-      verify(spied, atMost(countTopic1)).verify(eq(nexus), eq("topic1"), notNull(AuthenticationOutcome.class));
-      verify(spied, atMost(countTopic2)).verify(eq(nexus), eq("topic2"), notNull(AuthenticationOutcome.class));
+      verify(spied, atMost(countTopic1)).verify(eq(nexus), eq("topic1"), notNull());
+      verify(spied, atMost(countTopic2)).verify(eq(nexus), eq("topic2"), notNull());
     });
   }
   
@@ -212,11 +211,11 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(30_000L));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
     
     TestSupport.sleep(10);
     
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
   }
   
   @Test
@@ -234,11 +233,11 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(1000L));
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
     
     TestSupport.sleep(10);
     
-    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, times(1)).verify(eq(nexus), eq("topic"), notNull());
   }
   
   @Test
@@ -258,20 +257,20 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(1000L));
-    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic"), notNull());
     
-    SocketTestSupport.await().until(() -> {
-      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    SocketUtils.await().until(() -> {
+      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull());
     });
     
     // set the mock response to indefinite, which should stop further cache refreshes
     mock.set(AuthenticationOutcome.INDEFINITE);
     
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       TestSupport.sleep(5);
       final int count = spied.invocations().get(nexus).get("topic").get();
       TestSupport.sleep(10);
-      verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+      verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull());
     });
   }
   
@@ -292,21 +291,21 @@ public final class CachedAuthenticatorTest {
     c.attach(connector);
     c.verify(nexus, "topic", outcome);
     verify(outcome, times(1)).allow(eq(1000L));
-    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    verify(spied, atLeast(1)).verify(eq(nexus), eq("topic"), notNull());
     
-    SocketTestSupport.await().until(() -> {
-      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+    SocketUtils.await().until(() -> {
+      verify(spied, atLeast(10)).verify(eq(nexus), eq("topic"), notNull());
     });
     
     // set the mock response to deny, which should cause an expiry at the connector
     mock.set(-1);
 
-    SocketTestSupport.await().until(() -> {
+    SocketUtils.await().until(() -> {
       TestSupport.sleep(5);
       verify(connector).expireTopic(eq(nexus), eq("topic"));
       final int count = spied.invocations().get(nexus).get("topic").get();
       TestSupport.sleep(10);
-      verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull(AuthenticationOutcome.class));
+      verify(spied, times(count)).verify(eq(nexus), eq("topic"), notNull());
     });
   }
 

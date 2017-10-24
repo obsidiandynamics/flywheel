@@ -9,10 +9,11 @@ import org.junit.*;
 import org.mockito.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.socketx.*;
 import au.com.williamhill.flywheel.util.*;
 
 public abstract class BackplaneTest implements TestSupport {
@@ -117,7 +118,7 @@ public abstract class BackplaneTest implements TestSupport {
     log("publishing complete\n");
 
     try {
-      SocketTestSupport.await().untilTrue(() -> mockConnectors.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
+      SocketUtils.await().untilTrue(() -> mockConnectors.stream().filter(c -> c.received.totalSize() < expectedMessages).count() == 0);
     } finally {
       for (MockConnector conn : mockConnectors) {
         assertEquals(expectedPartitions, conn.received.asMap().size());

@@ -99,8 +99,8 @@ public final class PubAuthTest extends AbstractAuthTest {
     final String customBearer = "custom/bearer";
     
     setupEdgeNode(new PubAuthChain()
-                  .set(customBasic, Mocks.logger(createBasicAuth("user", "pass")))
-                  .set(customBearer, Mocks.logger(createBearerAuth("token"))),
+                  .set(customBasic, InterceptingProxy.of(createBasicAuth("user", "pass"), new LoggingInterceptor<>()))
+                  .set(customBearer, InterceptingProxy.of(createBearerAuth("token"), new LoggingInterceptor<>())),
                   new SubAuthChain());
     
     final RemoteNexus remoteNexus = openNexus();

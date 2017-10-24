@@ -1,6 +1,6 @@
 package au.com.williamhill.flywheel.edge.auth;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.*;

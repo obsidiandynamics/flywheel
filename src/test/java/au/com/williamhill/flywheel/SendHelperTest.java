@@ -8,16 +8,16 @@ import java.util.concurrent.*;
 import org.junit.*;
 import org.mockito.*;
 
-import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.assertion.*;
+import com.obsidiandynamics.socketx.*;
 
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Wire.*;
-import au.com.williamhill.flywheel.socketx.*;
 
 public final class SendHelperTest {
   @Test
   public void testConformance() throws Exception {
-    TestSupport.assertUtilityClassWellDefined(SendHelper.class);
+    Assertions.assertUtilityClassWellDefined(SendHelper.class);
   }
   
   @Test
@@ -33,14 +33,14 @@ public final class SendHelperTest {
     assertNotNull(xSendCallback);
     
     xSendCallback.onComplete(endpoint);
-    Mockito.verify(sendCallback).onCallback(Mockito.eq(SendOutcome.SENT), Mockito.isNull(Throwable.class));
+    Mockito.verify(sendCallback).onCallback(Mockito.eq(SendOutcome.SENT), Mockito.isNull());
     
     final Throwable cause = new Throwable();
     xSendCallback.onError(endpoint, cause);
     Mockito.verify(sendCallback).onCallback(Mockito.eq(SendOutcome.ERROR), Mockito.eq(cause));
     
     xSendCallback.onSkip(endpoint);
-    Mockito.verify(sendCallback).onCallback(Mockito.eq(SendOutcome.SKIPPED), Mockito.isNull(Throwable.class));
+    Mockito.verify(sendCallback).onCallback(Mockito.eq(SendOutcome.SKIPPED), Mockito.isNull());
   }
   
   @Test
@@ -91,7 +91,7 @@ public final class SendHelperTest {
     final SendCallback sendCallback = Mockito.mock(SendCallback.class);
     final XEndpoint endpoint = Mockito.mock(XEndpoint.class);
     SendHelper.sendAuto(new TextFrame("topic", "message"), endpoint, getWire(), sendCallback);
-    Mockito.verify(endpoint).send(Mockito.anyString(), Mockito.isNotNull(XSendCallback.class));
+    Mockito.verify(endpoint).send(Mockito.anyString(), Mockito.isNotNull());
   }
   
   @Test
@@ -99,7 +99,7 @@ public final class SendHelperTest {
     final SendCallback sendCallback = Mockito.mock(SendCallback.class);
     final XEndpoint endpoint = Mockito.mock(XEndpoint.class);
     SendHelper.sendAuto(new BinaryFrame("topic", "message".getBytes()), endpoint, getWire(), sendCallback);
-    Mockito.verify(endpoint).send(Mockito.isNotNull(ByteBuffer.class), Mockito.isNotNull(XSendCallback.class));
+    Mockito.verify(endpoint).send(Mockito.isA(ByteBuffer.class), Mockito.isNotNull());
   }
   
   @Test
@@ -107,7 +107,7 @@ public final class SendHelperTest {
     final XEndpoint endpoint = Mockito.mock(XEndpoint.class);
     final CompletableFuture<SendOutcome> f = SendHelper.sendAuto(new TextFrame("topic", "message"), endpoint, getWire());
     assertNotNull(f);
-    Mockito.verify(endpoint).send(Mockito.anyString(), Mockito.isNotNull(XSendCallback.class));
+    Mockito.verify(endpoint).send(Mockito.anyString(), Mockito.isNotNull());
   }
   
   @Test
@@ -115,7 +115,7 @@ public final class SendHelperTest {
     final XEndpoint endpoint = Mockito.mock(XEndpoint.class);
     final CompletableFuture<SendOutcome> f = SendHelper.sendAuto(new BinaryFrame("topic", "message".getBytes()), endpoint, getWire());
     assertNotNull(f);
-    Mockito.verify(endpoint).send(Mockito.isNotNull(ByteBuffer.class), Mockito.isNotNull(XSendCallback.class));
+    Mockito.verify(endpoint).send(Mockito.isA(ByteBuffer.class), Mockito.isNotNull());
   }
   
   private static Wire getWire() {

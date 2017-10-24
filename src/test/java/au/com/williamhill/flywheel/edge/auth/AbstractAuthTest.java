@@ -1,20 +1,18 @@
 package au.com.williamhill.flywheel.edge.auth;
 
-import static com.obsidiandynamics.indigo.util.Mocks.*;
-
 import java.net.*;
 
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.*;
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.frame.Wire.*;
 import au.com.williamhill.flywheel.remote.*;
-import au.com.williamhill.flywheel.socketx.*;
-import au.com.williamhill.flywheel.util.*;
 
 public abstract class AbstractAuthTest {
   private static final int PREFERRED_PORT = 8080;
@@ -38,7 +36,7 @@ public abstract class AbstractAuthTest {
   
   @Before
   public final void before() throws Exception {
-    port = SocketTestSupport.getAvailablePort(PREFERRED_PORT);
+    port = SocketUtils.getAvailablePort(PREFERRED_PORT);
     
     wire = new Wire(true, LocationHint.UNSPECIFIED);
     handler = new RemoteNexusHandlerBase() {
@@ -82,7 +80,7 @@ public abstract class AbstractAuthTest {
   }
   
   protected void awaitReceived() {
-    SocketTestSupport.await().untilTrue(() -> errors != null || text != null || binary != null);
+    SocketUtils.await().untilTrue(() -> errors != null || text != null || binary != null);
   }
   
   protected void setupEdgeNode(AuthChain<PubAuthChain> pubAuthChain, AuthChain<SubAuthChain> subAuthChain) throws Exception {
@@ -108,7 +106,8 @@ public abstract class AbstractAuthTest {
   }
   
   protected RemoteNexus openNexus() throws URISyntaxException, Exception {
-    return remote.open(new URI("ws://localhost:" + port + "/"), logger(RemoteNexusHandler.class, handler));
+    return remote.open(new URI("ws://localhost:" + port + "/"), 
+                       InterceptingProxy.of(RemoteNexusHandler.class, handler, new LoggingInterceptor<>()));
   }
   
   protected String generateSessionId() {

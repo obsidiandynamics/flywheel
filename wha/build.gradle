@@ -5,9 +5,6 @@ def packageName = 'flywheel-wha'
 
 dependencies {
   compile project(':flywheel-standalone')
-  
-  runtime project(':flywheel-backplane-kafka')
-  runtime project(':flywheel-logging-splunk')
 }
 
 task copyStandaloneScripts(type: Copy) {
