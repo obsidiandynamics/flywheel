@@ -1,6 +1,6 @@
 package au.com.williamhill.flywheel.edge.plugin.beacon;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.net.*;
@@ -10,11 +10,12 @@ import org.junit.Test;
 import org.mockito.*;
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
+
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
-import com.obsidiandynamics.socketx.*;
-import au.com.williamhill.flywheel.util.*;
 import junit.framework.*;
 
 public final class BeaconTest {
@@ -59,7 +60,7 @@ public final class BeaconTest {
     nexus.bind(new BindFrame().withSubscribe("time")).get();
     
     SocketUtils.await().until(() -> {
-      verify(handler, atLeastOnce()).onText(notNull(RemoteNexus.class), notNull(String.class), notNull(String.class));
+      verify(handler, atLeastOnce()).onText(notNull(), notNull(), notNull());
     });
   }
 }

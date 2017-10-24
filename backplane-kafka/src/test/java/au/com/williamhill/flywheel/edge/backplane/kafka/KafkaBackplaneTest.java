@@ -11,10 +11,11 @@ import org.junit.*;
 import org.mockito.*;
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.util.*;
+
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class KafkaBackplaneTest {
   private MockKafka<String, KafkaData> kafka;

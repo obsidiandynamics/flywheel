@@ -4,13 +4,13 @@ import java.util.*;
 
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.*;
 import com.obsidiandynamics.yconf.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.edge.plugin.*;
-import com.obsidiandynamics.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
 
 @Y

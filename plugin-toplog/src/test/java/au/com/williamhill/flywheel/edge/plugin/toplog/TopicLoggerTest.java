@@ -1,7 +1,7 @@
 package au.com.williamhill.flywheel.edge.plugin.toplog;
 
 import static junit.framework.TestCase.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.net.*;
@@ -10,12 +10,13 @@ import java.util.*;
 import org.junit.*;
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
+
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
 import au.com.williamhill.flywheel.remote.*;
-import com.obsidiandynamics.socketx.*;
 import au.com.williamhill.flywheel.topic.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class TopicLoggerTest {
   private static final int PORT = 8090;
@@ -51,8 +52,8 @@ public final class TopicLoggerTest {
     nexus.publish(new PublishTextFrame("test", "test"));
     
     SocketUtils.await().until(() -> {
-      verify(handler).onText(notNull(RemoteNexus.class), notNull(String.class), notNull(String.class));
-      verify(handler).onBinary(notNull(RemoteNexus.class), notNull(String.class), notNull(byte[].class));
+      verify(handler).onText(notNull(), notNull(), notNull());
+      verify(handler).onBinary(notNull(), notNull(), notNull());
     });
   }
   
@@ -74,7 +75,7 @@ public final class TopicLoggerTest {
     toplog.onBind(nexus, new BindFrame(), new BindResponseFrame(new UUID(0, 0)));
     when(logger.isDebugEnabled()).thenReturn(true);
     toplog.onBind(nexus, new BindFrame(), new BindResponseFrame(new UUID(0, 0)));
-    verify(logger).debug(anyString(), eq(nexus), notNull(Object.class), notNull(Object.class));
+    verify(logger).debug(anyString(), eq(nexus), notNull(), notNull());
     reset(logger);
     
     toplog.onPublish(nexus, new PublishBinaryFrame("topic", "test".getBytes()));

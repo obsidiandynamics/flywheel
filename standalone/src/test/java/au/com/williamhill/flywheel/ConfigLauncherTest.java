@@ -8,12 +8,13 @@ import org.junit.*;
 import org.mockito.*;
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
+
 import au.com.williamhill.flywheel.edge.auth.*;
 import au.com.williamhill.flywheel.edge.backplane.*;
 import au.com.williamhill.flywheel.edge.plugin.*;
 import au.com.williamhill.flywheel.health.*;
-import com.obsidiandynamics.socketx.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class ConfigLauncherTest {
   private static final int PORT = 8090;

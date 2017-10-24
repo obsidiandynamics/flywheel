@@ -1,6 +1,6 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -15,8 +15,9 @@ import org.junit.*;
 import org.mockito.stubbing.*;
 import org.slf4j.*;
 
+import com.obsidiandynamics.socketx.util.*;
+
 import au.com.williamhill.flywheel.edge.backplane.kafka.KafkaReceiver.*;
-import au.com.williamhill.flywheel.util.*;
 
 
 public final class KafkaReceiverTest {

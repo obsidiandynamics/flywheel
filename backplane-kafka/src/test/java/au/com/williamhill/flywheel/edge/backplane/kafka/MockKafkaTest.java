@@ -12,6 +12,7 @@ import org.apache.kafka.common.serialization.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.util.*;
 

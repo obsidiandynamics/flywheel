@@ -1,7 +1,8 @@
 package au.com.williamhill.flywheel.edge.plugin.beacon;
 
-import au.com.williamhill.flywheel.edge.*;
 import com.obsidiandynamics.socketx.*;
+
+import au.com.williamhill.flywheel.edge.*;
 
 public final class RunBeaconEdge {
   public static void main(String[] args) throws Exception {
