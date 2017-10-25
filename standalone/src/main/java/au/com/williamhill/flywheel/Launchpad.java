@@ -37,7 +37,7 @@ public final class Launchpad {
     try {
       profile = Profile.fromFile(profileYaml);
     } catch (Exception e) {
-      throw new LaunchpadException("Error reading profile", getUltimateCause(e));
+      throw new LaunchpadException("Error reading profile", getRootCause(e));
     }
     
     final StringBuilder sb = new StringBuilder();
@@ -63,7 +63,7 @@ public final class Launchpad {
     log.info(sb.toString());
   }
   
-  private static Throwable getUltimateCause(Throwable throwable) {
+  private static Throwable getRootCause(Throwable throwable) {
     Throwable cause = throwable;
     while (cause.getCause() != null) {
       cause = cause.getCause();
@@ -76,7 +76,7 @@ public final class Launchpad {
       try {
         launcher.launch(args);
       } catch (Exception e) {
-        throw new LaunchpadException("Failed to launch " + launcher, getUltimateCause(e));
+        throw new LaunchpadException("Failed to launch " + launcher, getRootCause(e));
       }
     }
   }
