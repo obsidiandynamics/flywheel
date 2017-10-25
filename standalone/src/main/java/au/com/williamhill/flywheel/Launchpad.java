@@ -4,6 +4,7 @@ import static java.lang.System.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 
 import org.slf4j.*;
 
@@ -104,12 +105,16 @@ public final class Launchpad {
   }
   
   public static void main(String... args) {
+    bootstrap(args, System::exit);
+  }
+  
+  static void bootstrap(String[] args, IntConsumer exitHandler) {
     try {
       new Launchpad(getProfilePath(System.getenv())).launch(args);
     } catch (LaunchpadException e) {
       err.format("Error:\n");
       e.printStackTrace(err);
-      System.exit(1);
+      exitHandler.accept(1);
     }
   }
 }

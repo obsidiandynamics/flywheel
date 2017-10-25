@@ -1,9 +1,11 @@
 package au.com.williamhill.flywheel;
 
 import static junit.framework.TestCase.*;
+import static org.mockito.Mockito.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.*;
 
 import org.junit.*;
 import org.mockito.*;
@@ -84,6 +86,14 @@ public final class LaunchpadTest {
   public void testMain() {
     System.setProperty("flywheel.launchpad.profile", "conf/test-good");
     Launchpad.main();
+  }
+  
+  @Test
+  public void testBootstrap() {
+    final IntConsumer exitHandler = mock(IntConsumer.class);
+    System.setProperty("flywheel.launchpad.profile", "conf/test-bad");
+    Launchpad.bootstrap(new String[0], exitHandler);
+    verify(exitHandler).accept(eq(1));
   }
 
   @Test
