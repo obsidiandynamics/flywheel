@@ -6,9 +6,9 @@ import java.util.concurrent.*;
 import org.slf4j.*;
 
 import com.obsidiandynamics.socketx.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.frame.*;
-import au.com.williamhill.flywheel.util.*;
 
 final class EndpointAdapter<E extends XEndpoint> implements XEndpointListener<E> {
   private static final Logger LOG = LoggerFactory.getLogger(EndpointAdapter.class);

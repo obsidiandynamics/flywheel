@@ -51,7 +51,7 @@ public final class RemoteRigBenchmark implements TestSupport {
   }
   
   public static void main(String[] args) throws Exception {
-    BourneUtils.run("ulimit -Sa", null, true, System.out::println);
+    BourneUtils.run("ulimit -Sa", null, true, System.out::print);
     LOG_STREAM.println();
     filter("flywheel.rig", PROPS).entrySet().stream()
     .map(e -> String.format("%-30s: %s", e.getKey(), e.getValue())).forEach(LOG_STREAM::println);

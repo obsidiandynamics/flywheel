@@ -175,7 +175,7 @@ public final class DoubleRigBenchmark implements TestSupport {
    *  @throws Exception 
    */
   public static void main(String[] args) throws Exception {
-    BourneUtils.run("ulimit -Sa", null, true, System.out::println);
+    BourneUtils.run("ulimit -Sa", null, true, System.out::print);
     new Config() {{
       host = HOST;
       port = SocketUtils.getAvailablePort(PREFERRED_PORT);
