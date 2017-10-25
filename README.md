@@ -55,7 +55,7 @@ The first step is deciding on which of the two modes - embedded or standalone - 
 In this example we'll start an edge node on port `8080`, serving a WebSocket on path `/broker`.
 
 ### Get the binaries
-Builds are hosted on JCenter. Just add the following snippet to your build file (replacing the version number in the snippet with the version shown on the Download badge at the top of this README).
+Builds are hosted on JCenter. Just add the following snippet to your build file, replacing the version placeholder `x.y.z` with the version shown on the Download badge at the top of this README.
 
 For Maven:
 
@@ -63,7 +63,7 @@ For Maven:
 <dependency>
   <groupId>au.com.williamhill.flywheel</groupId>
   <artifactId>flywheel-core</artifactId>
-  <version>0.1.0</version>
+  <version>x.y.z</version>
   <type>pom</type>
 </dependency>
 ```
@@ -71,7 +71,7 @@ For Maven:
 For Gradle:
 
 ```groovy
-compile 'au.com.williamhill.flywheel:flywheel-core:0.1.0'
+compile 'au.com.williamhill.flywheel:flywheel-core:x.y.z'
 ```
 
 ### Configure and start the edge node
