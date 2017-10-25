@@ -10,6 +10,10 @@ import org.slf4j.*;
 
 import com.obsidiandynamics.indigo.util.*;
 
+import au.com.williamhill.flywheel.util.*;
+import au.com.williamhill.flywheel.util.Exceptions.ThrowingRunnable;
+import au.com.williamhill.flywheel.util.Exceptions.ThrowingSupplier;
+
 public final class Launchpad {
   private static final String DEF_PROFILE = "conf/default";
   
@@ -33,21 +37,17 @@ public final class Launchpad {
     if (! profileYaml.exists()) {
       throw new LaunchpadException("Profile configuration " + profileYaml + " is missing", null);
     }
-    
-    try {
-      profile = Profile.fromFile(profileYaml);
-    } catch (Exception e) {
-      throw new LaunchpadException("Error reading profile", getRootCause(e));
-    }
+
+    profile = rethrowLaunchpadException(() -> {
+      return Profile.fromFile(profileYaml);
+    }, "Error reading profile");
     
     final StringBuilder sb = new StringBuilder();
     
-    try {
+    rethrowLaunchpadException(() -> {
       sb.append("\n  Flywheel version: ").append(FlywheelVersion.get());
       sb.append("\n  Indigo version: ").append(IndigoVersion.get());
-    } catch (IOException e) {
-      throw new LaunchpadException("Error retrieving version", e);
-    }
+    }, "Error retrieving version"); 
     
     sb.append("\n  Properties:");
     for (Map.Entry<String, ?> entry : profile.properties.entrySet()) {
@@ -63,21 +63,17 @@ public final class Launchpad {
     log.info(sb.toString());
   }
   
-  private static Throwable getRootCause(Throwable throwable) {
-    Throwable cause = throwable;
-    while (cause.getCause() != null) {
-      cause = cause.getCause();
-    }
-    return cause;
+  private static void rethrowLaunchpadException(ThrowingRunnable lambda, String message) throws LaunchpadException {
+    rethrowLaunchpadException((ThrowingSupplier<Void>) lambda, message);
+  }
+  
+  private static <T> T rethrowLaunchpadException(ThrowingSupplier<T> lambda, String message) throws LaunchpadException {
+    return Exceptions.rethrow(lambda, e -> new LaunchpadException(message, Exceptions.getRootCause(e)));
   }
   
   public void launch(String[] args) throws LaunchpadException {
     for (Launcher launcher : profile.launchers) {
-      try {
-        launcher.launch(args);
-      } catch (Exception e) {
-        throw new LaunchpadException("Failed to launch " + launcher, getRootCause(e));
-      }
+      rethrowLaunchpadException(() -> launcher.launch(args), "Failed to launch " + launcher);
     }
   }
   
