@@ -1,6 +1,6 @@
 package au.com.williamhill.flywheel.frame;
 
-import static au.com.williamhill.flywheel.util.BinaryUtils.*;
+import static com.obsidiandynamics.socketx.util.BinaryUtils.*;
 import static org.junit.Assert.*;
 
 import java.nio.*;
@@ -9,9 +9,9 @@ import java.util.*;
 import org.junit.*;
 
 import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.socketx.util.*;
 
 import au.com.williamhill.flywheel.frame.Wire.*;
-import au.com.williamhill.flywheel.util.*;
 
 public final class WireTest implements TestSupport {
   private static String requote(String singleQuotedString) {

@@ -8,8 +8,7 @@ import org.junit.*;
 
 import com.google.gson.*;
 import com.obsidiandynamics.indigo.util.*;
-
-import au.com.williamhill.flywheel.util.*;
+import com.obsidiandynamics.socketx.util.*;
 
 public final class ScramjetMessageTest implements TestSupport {
   private Gson gson;

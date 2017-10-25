@@ -73,3 +73,9 @@ bintray {
     }
   }
 }
+
+task beaconEdge(type: JavaExec) {
+  systemProperties = System.properties
+  classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+  main = 'au.com.williamhill.flywheel.edge.plugin.beacon.RunBeaconEdge'
+}

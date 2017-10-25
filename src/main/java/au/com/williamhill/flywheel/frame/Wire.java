@@ -5,8 +5,7 @@ import java.nio.charset.*;
 
 import com.google.gson.*;
 import com.google.gson.typeadapters.*;
-
-import au.com.williamhill.flywheel.util.*;
+import com.obsidiandynamics.socketx.util.*;
 
 public final class Wire {
   private static final Charset UTF8 = Charset.forName("UTF-8");
