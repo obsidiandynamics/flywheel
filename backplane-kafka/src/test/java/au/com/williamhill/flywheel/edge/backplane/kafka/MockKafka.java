@@ -40,12 +40,10 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
         final String valueSerializer = props.getProperty("value.serializer");
         producer = new MockProducer<K, V>(true, instantiate(keySerializer), instantiate(valueSerializer)) {
           @Override public Future<RecordMetadata> send(ProducerRecord<K, V> r, Callback callback) {
-            final Future<RecordMetadata> f = super.send(r, new Callback() {
-              @Override public void onCompletion(RecordMetadata metadata, Exception exception) {
-                if (callback != null) callback.onCompletion(metadata, exception);
-                final int partition = r.partition() != null ? r.partition() : metadata.partition();
-                enqueue(r, partition, metadata.offset());
-              }
+            final Future<RecordMetadata> f = super.send(r, (metadata, exception) -> {
+              if (callback != null) callback.onCompletion(metadata, exception);
+              final int partition = r.partition() != null ? r.partition() : metadata.partition();
+              enqueue(r, partition, metadata.offset());
             });
             return f;
           }

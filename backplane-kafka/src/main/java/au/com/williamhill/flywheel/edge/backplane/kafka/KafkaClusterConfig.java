@@ -16,8 +16,9 @@ public class KafkaClusterConfig {
   public PropertiesBuilder consumer = new PropertiesBuilder();
   
   void init() {
-    if (common.build().getProperty("bootstrap.servers") == null) 
+    if (common.build().getProperty("bootstrap.servers") == null) {
       throw new IllegalArgumentException("Must specify a value for 'bootstrap.servers'");
+    }
   }
   
   Properties getCommonProps() {
