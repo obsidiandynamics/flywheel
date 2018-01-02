@@ -29,6 +29,7 @@ public final class MapsTest {
       
       private int calls;
       
+      @Override
       public Object get(Object key) {
         if (calls == 0) {
           calls++;
@@ -53,6 +54,7 @@ public final class MapsTest {
       
       private int calls;
       
+      @Override
       public Object get(Object key) {
         if (calls == 0) {
           calls++;
