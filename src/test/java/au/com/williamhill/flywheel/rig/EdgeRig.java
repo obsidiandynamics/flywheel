@@ -45,6 +45,8 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   
   private final Map<String, AtomicInteger> subscriptionsByNode = new ConcurrentHashMap<>();
   
+  private final Object subscriptionsLock = new Object();
+  
   private volatile State state = State.CONNECT_WAIT;
   
   private volatile long took;
@@ -212,7 +214,7 @@ public final class EdgeRig extends Thread implements TestSupport, AutoCloseable,
   }
   
   private void addSubscriber(String sessionId) {
-    synchronized (subscriptionsByNode) {
+    synchronized (subscriptionsLock) {
       AtomicInteger counter = subscriptionsByNode.get(sessionId);
       if (counter == null) {
         subscriptionsByNode.put(sessionId, counter = new AtomicInteger());

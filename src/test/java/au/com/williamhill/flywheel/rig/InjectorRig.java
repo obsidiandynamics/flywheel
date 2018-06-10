@@ -56,6 +56,8 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   
   private final Map<String, AtomicInteger> subscriptionsByNode = new ConcurrentHashMap<>();
   
+  private final Object subscriptionsLock = new Object();
+  
   private final List<RemoteNexus> nexuses = new CopyOnWriteArrayList<>();
   
   private volatile State state = State.CONNECT_WAIT;
@@ -274,7 +276,7 @@ public final class InjectorRig extends Thread implements TestSupport, AutoClosea
   }
   
   private void addSubscriber(String sessionId) {
-    synchronized (subscriptionsByNode) {
+    synchronized (subscriptionsLock) {
       AtomicInteger counter = subscriptionsByNode.get(sessionId);
       if (counter == null) {
         subscriptionsByNode.put(sessionId, counter = new AtomicInteger());
