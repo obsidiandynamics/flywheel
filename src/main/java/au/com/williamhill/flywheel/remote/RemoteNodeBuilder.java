@@ -27,7 +27,8 @@ public final class RemoteNodeBuilder {
   
   private void init() throws Exception {
     if (clientFactory == null) {
-      clientFactory = (XClientFactory<?>) Class.forName("com.obsidiandynamics.socketx.undertow.UndertowClient$Factory").newInstance();
+      clientFactory = (XClientFactory<?>) 
+          Class.forName("com.obsidiandynamics.socketx.undertow.UndertowClient$Factory").getConstructor().newInstance();
     }
   }
   

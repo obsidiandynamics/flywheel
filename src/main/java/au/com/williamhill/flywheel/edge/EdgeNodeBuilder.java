@@ -20,7 +20,8 @@ public final class EdgeNodeBuilder {
   
   private void init() throws Exception {
     if (serverFactory == null) {
-      serverFactory = (XServerFactory<?>) Class.forName("com.obsidiandynamics.socketx.undertow.UndertowServer$Factory").newInstance();
+      serverFactory = (XServerFactory<?>) 
+          Class.forName("com.obsidiandynamics.socketx.undertow.UndertowServer$Factory").getConstructor().newInstance();
     }
     
     if (interchange == null) {
