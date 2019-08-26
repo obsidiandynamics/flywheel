@@ -2,8 +2,8 @@ def packageName = 'flywheel-backplane-kafka'
 version = project(':').version
 
 dependencies {
-  compile 'com.obsidiandynamics.fulcrum:fulcrum-docker-compose:0.3.0'
-  compile 'org.apache.kafka:kafka-clients:0.11.0.0'
+  compile "com.obsidiandynamics.fulcrum:fulcrum-docker-compose:${fulcrumVersion}"
+  compile "org.apache.kafka:kafka-clients:${kafkaClientsVersion}"
 }
 
 test {

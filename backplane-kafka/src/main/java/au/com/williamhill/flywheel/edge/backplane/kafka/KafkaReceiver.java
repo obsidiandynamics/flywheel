@@ -1,5 +1,7 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
+import java.time.*;
+
 import org.apache.kafka.clients.consumer.*;
 import org.slf4j.*;
 
@@ -43,7 +45,7 @@ public final class KafkaReceiver<K, V> extends Thread implements AutoCloseable {
     while (running) {
       final ConsumerRecords<K, V> records;
       try {
-        records = consumer.poll(pollTimeoutMillis);
+        records = consumer.poll(Duration.ofMillis(pollTimeoutMillis));
       } catch (org.apache.kafka.common.errors.InterruptException e) {
         break;
       } catch (Throwable e) {

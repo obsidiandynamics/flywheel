@@ -1,5 +1,6 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -153,7 +154,7 @@ public final class MockKafka<K, V> implements Kafka<K, V>, TestSupport {
       public ConsumerRecords<K, V> poll(long timeout) {
         final long endTime = System.currentTimeMillis() + timeout;
         for (;;) {
-          final ConsumerRecords<K, V> recs = super.poll(timeout);
+          final ConsumerRecords<K, V> recs = super.poll(Duration.ofMillis(timeout));
           if (! recs.isEmpty()) {
             return recs;
           } else {

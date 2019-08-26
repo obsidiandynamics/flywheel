@@ -2,7 +2,7 @@ package au.com.williamhill.flywheel.topic;
 
 import java.util.*;
 
-import com.obsidiandynamics.indigo.util.*;
+import com.obsidiandynamics.combinations.*;
 import com.obsidiandynamics.yconf.*;
 
 @Y(TopicSpec.Mapper.class)

@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.junit.*;
 
+import com.obsidiandynamics.func.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 import com.obsidiandynamics.shell.*;
@@ -82,12 +83,16 @@ public final class TripleRigBenchmark implements TestSupport {
 
     @Override
     public Summary run() throws Exception {
-      return runner.apply(this);
+      try {
+        return runner.apply(this);
+      } catch (Throwable e) {
+        throw new Exception(e);
+      }
     }
   }
 
   @Test
-  public void testTextSmallSingleton() throws Exception {
+  public void testTextSmallSingleton() throws Throwable {
     new Config() {{
       pulses = 10;
       pulseDurationMillis = 1;
@@ -99,7 +104,7 @@ public final class TripleRigBenchmark implements TestSupport {
   }
 
   @Test
-  public void testBinarySmallSingleton() throws Exception {
+  public void testBinarySmallSingleton() throws Throwable {
     new Config() {{
       pulses = 10;
       pulseDurationMillis = 1;
@@ -111,7 +116,7 @@ public final class TripleRigBenchmark implements TestSupport {
   }
 
   @Test
-  public void testTextSmallLeaves() throws Exception {
+  public void testTextSmallLeaves() throws Throwable {
     new Config() {{
       pulses = 10;
       pulseDurationMillis = 1;
@@ -123,7 +128,7 @@ public final class TripleRigBenchmark implements TestSupport {
   }
 
   @Test
-  public void testBinarySmallLeaves() throws Exception {
+  public void testBinarySmallLeaves() throws Throwable {
     new Config() {{
       pulses = 10;
       pulseDurationMillis = 1;

@@ -105,7 +105,11 @@ public final class TopicRouterBenchmark implements TestSupport {
 
     @Override
     public Summary run() throws Exception {
-      return new TopicRouterBenchmark().test(this);
+      try {
+        return new TopicRouterBenchmark().test(this);
+      } catch (Throwable e) {
+        throw new Exception(e);
+      }
     }
   }
   
@@ -185,7 +189,7 @@ public final class TopicRouterBenchmark implements TestSupport {
     }}.test();
   }
   
-  private Summary test(Config c) throws Exception {
+  private Summary test(Config c) throws Throwable {
     final BenchTopicWatcher watcher = new BenchTopicWatcher();
     final ActorSystem system = new ActorSystemConfig() {{
       parallelism = c.threads;

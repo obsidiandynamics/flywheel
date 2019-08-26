@@ -1,10 +1,36 @@
 plugins {
-  id 'com.jfrog.bintray' version '1.7.3'
+  id "com.jfrog.bintray" version "1.8.4"
+  id "com.github.ben-manes.versions" version "0.22.0"
 }
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
+def baseJvmArgs = [
+  "--illegal-access=warn",
+  "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+]
+project.ext.set("baseJvmArgs", baseJvmArgs)
+
 allprojects {
+  ext {
+    fulcrumVersion = "0.34.0"
+    gsonVersion = "2.8.5"
+    gsonExtrasVersion = "0.2.1"
+    hamcrestVersion = "2.1"
+    httpasyncclientVersion = "4.1.4"
+    httpclientVersion = "4.5.9"
+    indigoVersion = "1.24.0"
+    junitVersion = "4.12"
+    kafkaClientsVersion = "2.3.0"
+    log4jVersion = "1.2.17"
+    log4jextrasVersion = "0.2.0"
+    mockitoVersion = "3.0.0"
+    slf4jVersion = "1.7.25"
+    socketxVersion = "0.8.0"
+    wiremockVersion = "2.24.1"
+    yconfVersion = "0.19.0"
+  }
+  
   apply plugin: 'java'
   apply plugin: 'jacoco'
   apply plugin: 'maven-publish'
@@ -21,13 +47,13 @@ allprojects {
   }
 
   jacoco {
-    toolVersion = '0.8.1'
+    toolVersion = '0.8.4'
   }
 
   jacocoTestReport {
-    additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
-    sourceDirectories = files(sourceSets.main.allSource.srcDirs)
-    classDirectories = files(sourceSets.main.output)
+    additionalSourceDirs.from = files(sourceSets.main.allSource.srcDirs)
+    sourceDirectories.from = files(sourceSets.main.allSource.srcDirs)
+    classDirectories.from = files(sourceSets.main.output)
     reports {
       html.enabled = true
       xml.enabled = true
@@ -41,15 +67,20 @@ allprojects {
   }
   
   dependencies {
-    testCompile 'com.obsidiandynamics.indigo:indigo-assurance:1.1.0'
-    testCompile 'com.obsidiandynamics.fulcrum:fulcrum-assert:0.3.0'
-    testCompile 'com.obsidiandynamics.fulcrum:fulcrum-junit:0.3.0'
-    testCompile 'junit:junit:4.12'
-    testCompile "org.mockito:mockito-core:2.18.0"
-    testCompile 'org.hamcrest:hamcrest-library:1.3'
+    testCompile "com.obsidiandynamics.indigo:indigo-assurance:${indigoVersion}"
+    testCompile "com.obsidiandynamics.fulcrum:fulcrum-assert:${fulcrumVersion}"
+    testCompile "com.obsidiandynamics.fulcrum:fulcrum-junit:${fulcrumVersion}"
+    testCompile "com.obsidiandynamics.fulcrum:fulcrum-threads:${fulcrumVersion}"
+    testCompile "junit:junit:${junitVersion}"
+    testCompile "org.mockito:mockito-core:${mockitoVersion}"
+    testCompile "org.hamcrest:hamcrest-library:${hamcrestVersion}"
     
-    testRuntime 'org.slf4j:slf4j-log4j12:1.7.25'
-    testRuntime 'log4j:log4j:1.2.17'
+    testRuntime "org.slf4j:slf4j-log4j12:${slf4jVersion}"
+    testRuntime "log4j:log4j:${log4jVersion}"
+  }
+  
+  test {
+    jvmArgs += baseJvmArgs
   }
 }
 
@@ -61,12 +92,21 @@ subprojects {
   }
 }
 
-task jacocoRootReport(type: JacocoReport) {
-  dependsOn = allprojects.test
-  additionalSourceDirs = files(allprojects.sourceSets.main.allSource.srcDirs)
-  sourceDirectories = files(allprojects.sourceSets.main.allSource.srcDirs)
-  classDirectories = files(allprojects.sourceSets.main.output)
+task jacocoMerge(type: JacocoMerge) {
+  mustRunAfter = allprojects.test
   executionData = files(allprojects.jacocoTestReport.executionData)
+  doFirst {
+    executionData = files(files(allprojects.jacocoTestReport.executionData).findAll { it.exists() })
+  }
+}
+
+task jacocoRootReport(type: JacocoReport) {
+  dependsOn jacocoMerge
+  mustRunAfter = allprojects.test
+  additionalSourceDirs.from = files(allprojects.sourceSets.main.allSource.srcDirs)
+  sourceDirectories.from = files(allprojects.sourceSets.main.allSource.srcDirs)
+  classDirectories.from = files(allprojects.sourceSets.main.output)
+  executionData jacocoMerge.destinationFile
   reports {
     html.enabled = true
     xml.enabled = false
@@ -74,11 +114,6 @@ task jacocoRootReport(type: JacocoReport) {
   }
   onlyIf = {
     true
-  }
-  doFirst {
-    executionData = files(executionData.findAll {
-      it.exists()
-    })
   }
 }
 
@@ -141,18 +176,19 @@ repositories {
 }
 
 dependencies {
-  compile 'org.slf4j:slf4j-api:1.7.25'
-  compile 'com.obsidiandynamics.indigo:indigo-core:1.1.0'
-  compile 'com.obsidiandynamics.yconf:yconf-core:0.2.1'
-  compile 'com.obsidiandynamics.yconf:yconf-juel:0.2.1'
-  compile 'com.obsidiandynamics.yconf:yconf-snakeyaml:0.2.1'
-  compile 'com.obsidiandynamics.socketx:socketx-core:0.2.0'
-  compile 'com.obsidiandynamics.socketx:socketx-undertow:0.2.0'
-  compile 'com.google.code.gson:gson:2.8.1'
-  compile 'org.danilopianini:gson-extras:0.2.1'
+  compile "org.slf4j:slf4j-api:{slf4jVersion}"
+  compile "com.obsidiandynamics.fulcrum:fulcrum-combinations:${fulcrumVersion}"
+  compile "com.obsidiandynamics.indigo:indigo-core:${indigoVersion}"
+  compile "com.obsidiandynamics.yconf:yconf-core:${yconfVersion}"
+  compile "com.obsidiandynamics.yconf:yconf-juel:${yconfVersion}"
+  compile "com.obsidiandynamics.yconf:yconf-snakeyaml:${yconfVersion}"
+  compile "com.obsidiandynamics.socketx:socketx-core:${socketxVersion}"
+  compile "com.obsidiandynamics.socketx:socketx-undertow:${socketxVersion}"
+  compile "com.google.code.gson:gson:${gsonVersion}"
+  compile "org.danilopianini:gson-extras:${gsonExtrasVersion}"
   
-  testCompile 'com.obsidiandynamics.fulcrum:fulcrum-shell:0.3.0'
-  testCompile 'org.apache.httpcomponents:httpclient:4.5.3'
+  testCompile "com.obsidiandynamics.fulcrum:fulcrum-shell:${fulcrumVersion}"
+  testCompile "org.apache.httpcomponents:httpclient:${httpclientVersion}"
 }
 
 def packageDesc = 'A simple, fast, WebSocket-based IoT message broker'

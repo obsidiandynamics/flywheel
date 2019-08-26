@@ -12,6 +12,7 @@ import org.junit.*;
 import com.obsidiandynamics.indigo.util.*;
 import com.obsidiandynamics.socketx.*;
 import com.obsidiandynamics.socketx.util.*;
+import com.obsidiandynamics.threads.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
@@ -147,7 +148,7 @@ public abstract class ClusterTest implements TestSupport {
     }
     
     final AtomicBoolean error = new AtomicBoolean(false);
-    ParallelJob.blockingSlice(edges, Runtime.getRuntime().availableProcessors(), edgesSlice -> {
+    Parallel.blockingSlice(edges, Runtime.getRuntime().availableProcessors(), edgesSlice -> {
       for (EdgeNode edge : edgesSlice) {
         final int port = edge.getServer().getConfig().port;
         final RemoteNexus nexus;

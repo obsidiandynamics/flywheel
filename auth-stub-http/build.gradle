@@ -2,10 +2,10 @@ def packageName = 'flywheel-auth-stub-http'
 version = project(':').version
 
 dependencies {
-  compile 'org.apache.httpcomponents:httpclient:4.5.3'
-  compile 'org.apache.httpcomponents:httpasyncclient:4.1.3'
+  compile "org.apache.httpcomponents:httpclient:${httpclientVersion}"
+  compile "org.apache.httpcomponents:httpasyncclient:${httpasyncclientVersion}"
   
-  testCompile 'com.github.tomakehurst:wiremock-standalone:2.7.1'
+  testCompile "com.github.tomakehurst:wiremock-standalone:${wiremockVersion}"
 }
 
 jar {

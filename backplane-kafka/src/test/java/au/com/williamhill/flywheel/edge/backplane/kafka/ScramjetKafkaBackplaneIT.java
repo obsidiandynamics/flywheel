@@ -16,7 +16,7 @@ public final class ScramjetKafkaBackplaneIT extends ScramjetKafkaBackplaneTest {
   private static final long START_DELAY_MILLIS = 5_000;
   
   @BeforeClass
-  public static void beforeClass() throws Exception {
+  public static void beforeClass() throws Throwable {
     if (SETUP_TEARDOWN) {
       COMPOSE.checkInstalled();
       TestSupport.logStatic("Starting Kafka stack... ");
@@ -29,7 +29,7 @@ public final class ScramjetKafkaBackplaneIT extends ScramjetKafkaBackplaneTest {
   }
   
   @AfterClass
-  public static void afterClass() throws Exception {
+  public static void afterClass() throws Throwable {
     if (SETUP_TEARDOWN) {
       TestSupport.logStatic("Stopping Kafka stack... ");
       final long took = TestSupport.tookThrowing(() -> {

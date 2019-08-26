@@ -1,5 +1,6 @@
 package au.com.williamhill.flywheel.edge.backplane.kafka;
 
+import java.time.*;
 import java.util.*;
 
 import org.apache.kafka.clients.consumer.*;
@@ -17,7 +18,7 @@ public final class RunKafkaConsumer10 {
     try {
       while (true) {
         System.out.println("polling...");
-        final ConsumerRecords<String, String> records = consumer.poll(1000);
+        final ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
         System.out.println("got " + records + " records");
         for (ConsumerRecord<String, String> record : records) {
           System.out.println(record.offset() + ": " + record.value());

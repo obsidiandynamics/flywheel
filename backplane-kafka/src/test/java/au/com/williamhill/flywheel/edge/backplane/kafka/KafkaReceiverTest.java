@@ -3,6 +3,7 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.*;
@@ -12,6 +13,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.common.*;
 import org.apache.kafka.common.errors.*;
 import org.junit.*;
+import org.mockito.*;
 import org.mockito.stubbing.*;
 import org.slf4j.*;
 
@@ -29,9 +31,9 @@ public final class KafkaReceiverTest {
   @Before
   @SuppressWarnings("unchecked")
   public void before() {
-    consumer = mock(Consumer.class);
-    recordHandler = mock(RecordHandler.class);
-    errorHandler = mock(ErrorHandler.class);
+    consumer = mock(Consumer.class, Answers.CALLS_REAL_METHODS);
+    recordHandler = mock(RecordHandler.class, Answers.CALLS_REAL_METHODS);
+    errorHandler = mock(ErrorHandler.class, Answers.CALLS_REAL_METHODS);
   }
   
   @After
@@ -50,8 +52,8 @@ public final class KafkaReceiverTest {
       if (firstCall.compareAndSet(false, true)) {
         return first.get();
       } else {
-        final long timeout = (Long) invocation.getArguments()[0];
-        Thread.sleep(timeout);
+        final Duration timeout = invocation.getArgument(0);
+        Thread.sleep(timeout.toMillis());
         return others.get();
       }
     };
@@ -63,7 +65,7 @@ public final class KafkaReceiverTest {
         Collections.singletonMap(new TopicPartition("test", 0), Arrays.asList(new ConsumerRecord<>("test", 0, 0, "key", "value")));
     final ConsumerRecords<String, String> records = new ConsumerRecords<>(recordsMap);
     
-    when(consumer.poll(anyLong())).then(split(() -> records, 
+    when(consumer.poll(notNull())).then(split(() -> records, 
                                               () -> new ConsumerRecords<>(Collections.emptyMap())));
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
     SocketUtils.await().until(() -> {
@@ -74,7 +76,7 @@ public final class KafkaReceiverTest {
 
   @Test
   public void testInterrupt() throws InterruptedException {
-    when(consumer.poll(anyLong())).then(split(() -> { throw createInterruptException(); }));
+    when(consumer.poll(notNull())).then(split(() -> { throw createInterruptException(); }));
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
     verify(recordHandler, never()).onReceive(any());
     verify(errorHandler, never()).onError(any());
@@ -83,7 +85,7 @@ public final class KafkaReceiverTest {
   
   @Test
   public void testError() throws InterruptedException {
-    when(consumer.poll(anyLong())).then(split(() -> { throw new RuntimeException("boom"); }));
+    when(consumer.poll(notNull())).then(split(() -> { throw new RuntimeException("boom"); }));
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, errorHandler);
     SocketUtils.await().until(() -> {
       verify(recordHandler, never()).onReceive(any());
@@ -96,7 +98,7 @@ public final class KafkaReceiverTest {
 
   @Test
   public void testGenericErrorLogger() {
-    when(consumer.poll(anyLong())).then(split(() -> { throw new RuntimeException("boom"); }));
+    when(consumer.poll(notNull())).then(split(() -> { throw new RuntimeException("boom"); }));
     final Logger logger = mock(Logger.class);
     receiver = new KafkaReceiver<String, String>(consumer, 1, "TestThread", recordHandler, KafkaReceiver.genericErrorLogger(logger));
     SocketUtils.await().until(() -> {

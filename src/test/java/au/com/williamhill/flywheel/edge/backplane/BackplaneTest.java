@@ -11,6 +11,7 @@ import org.mockito.*;
 import com.obsidiandynamics.indigo.util.*;
 import com.obsidiandynamics.socketx.*;
 import com.obsidiandynamics.socketx.util.*;
+import com.obsidiandynamics.threads.*;
 
 import au.com.williamhill.flywheel.edge.*;
 import au.com.williamhill.flywheel.frame.*;
@@ -100,7 +101,7 @@ public abstract class BackplaneTest implements TestSupport {
     }
 
     final XEndpointPeer peer = new XEndpointPeer(Mockito.mock(XEndpoint.class));
-    ParallelJob.blockingSlice(mockConnectors, Runtime.getRuntime().availableProcessors(), connectorsSlice -> {
+    Parallel.blockingSlice(mockConnectors, Runtime.getRuntime().availableProcessors(), connectorsSlice -> {
       for (MockConnector conn : connectorsSlice) {
         for (int m = 0; m < messagesPerTopic; m++) {
           final TestBackplaneMessage message = new TestBackplaneMessage(conn.brokerId, m);

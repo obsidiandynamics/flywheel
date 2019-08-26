@@ -2,6 +2,7 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import static junit.framework.TestCase.*;
 
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -42,7 +43,7 @@ public final class MockKafkaTest {
       final Consumer<K, V> consumer = kafka.getConsumer(new Properties());
       consumer.subscribe(Arrays.asList(TOPIC));
       while (running) {
-        final ConsumerRecords<K, V> records = consumer.poll(1);
+        final ConsumerRecords<K, V> records = consumer.poll(Duration.ofMillis(1));
         records.forEach(r -> received.forKey(r.partition()).add(r));
       }
       consumer.close();

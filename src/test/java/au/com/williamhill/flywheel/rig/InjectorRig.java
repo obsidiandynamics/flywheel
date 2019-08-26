@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.*;
 import java.util.stream.*;
 
 import com.google.gson.*;
+import com.obsidiandynamics.await.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.util.*;
 import com.obsidiandynamics.socketx.util.*;

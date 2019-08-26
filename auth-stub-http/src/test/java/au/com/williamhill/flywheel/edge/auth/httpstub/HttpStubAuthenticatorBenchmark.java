@@ -16,6 +16,7 @@ import com.github.tomakehurst.wiremock.*;
 import com.github.tomakehurst.wiremock.client.*;
 import com.github.tomakehurst.wiremock.junit.*;
 import com.google.gson.*;
+import com.obsidiandynamics.func.*;
 import com.obsidiandynamics.indigo.benchmark.*;
 import com.obsidiandynamics.indigo.benchmark.Summary.*;
 import com.obsidiandynamics.indigo.util.*;
@@ -70,7 +71,11 @@ public final class HttpStubAuthenticatorBenchmark implements TestSupport {
 
     @Override
     public Summary run() throws Exception {
-      return HttpStubAuthenticatorBenchmark.test(this);
+      try {
+        return HttpStubAuthenticatorBenchmark.test(this);
+      } catch (Throwable e) {
+        throw new Exception(e);
+      }
     }
   }
 
@@ -138,7 +143,7 @@ public final class HttpStubAuthenticatorBenchmark implements TestSupport {
     }
   }
   
-  private static Summary test(Config c) throws Exception {
+  private static Summary test(Config c) throws Throwable {
     c.beforeRun.run();
     final Summary summary = new Summary();
     final long timedStart;
@@ -189,7 +194,7 @@ public final class HttpStubAuthenticatorBenchmark implements TestSupport {
   }
   
   @Test
-  public void testWithWireMock() throws Exception {
+  public void testWithWireMock() throws Throwable {
     final boolean useHttps = false;
     final String path = "/auth";
     stubFor(postEndpoint(path));
@@ -206,7 +211,7 @@ public final class HttpStubAuthenticatorBenchmark implements TestSupport {
   }
   
   @Test
-  public void testWithUndertow() throws Exception {
+  public void testWithUndertow() throws Throwable {
     final boolean useHttps = false;
     final String path = "/auth";
     final UndertowMockServer server = new UndertowMockServer(path, getJsonResponse());

@@ -9,9 +9,9 @@ dependencies {
   runtime project(':flywheel-plugin-beacon')
   runtime project(':flywheel-plugin-toplog')
     
-  runtime 'com.obsidiandynamics.log4jextras:log4jextras-json:0.2.0'
-  runtime 'com.obsidiandynamics.log4jextras:log4jextras-splunk:0.2.0'
-  runtime 'org.slf4j:slf4j-log4j12:1.7.25'
+  runtime "com.obsidiandynamics.log4jextras:log4jextras-json:${log4jextrasVersion}"
+  runtime "com.obsidiandynamics.log4jextras:log4jextras-splunk:${log4jextrasVersion}"
+  runtime "org.slf4j:slf4j-log4j12:${slf4jVersion}"
 }
 
 jar {

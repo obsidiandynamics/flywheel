@@ -2,6 +2,7 @@ package au.com.williamhill.flywheel.edge.backplane.kafka;
 
 import static org.junit.Assert.*;
 
+import java.time.*;
 import java.util.*;
 
 import org.apache.kafka.clients.consumer.*;
@@ -78,7 +79,7 @@ public final class KafkaBackplaneTest {
     backplane.onPublish(new EdgeNexus(null, LocalPeer.instance()), new PublishTextFrame("topic", "hello"));
     final Consumer<String, KafkaData> consumer = getConsumer();
     consumer.subscribe(Arrays.asList(config.topic));
-    final ConsumerRecords<String, KafkaData> records = consumer.poll(1000);
+    final ConsumerRecords<String, KafkaData> records = consumer.poll(Duration.ofMillis(1000));
     assertNotNull(records);
     assertEquals(1, records.count());
     final ConsumerRecord<String, KafkaData> record = records.iterator().next();
@@ -91,7 +92,7 @@ public final class KafkaBackplaneTest {
     backplane.onPublish(new EdgeNexus(null, LocalPeer.instance()), new PublishBinaryFrame("topic", "hello".getBytes()));
     final Consumer<String, KafkaData> consumer = getConsumer();
     consumer.subscribe(Arrays.asList(config.topic));
-    final ConsumerRecords<String, KafkaData> records = consumer.poll(1000);
+    final ConsumerRecords<String, KafkaData> records = consumer.poll(Duration.ofMillis(1000));
     assertNotNull(records);
     assertEquals(1, records.count());
     final ConsumerRecord<String, KafkaData> record = records.iterator().next();
