@@ -226,7 +226,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
       if (! existing.contains(topic)) {
         toSubscribe.add(topic);
       } else {
-        if (loggingEnabled && LOG.isDebugEnabled()) LOG.debug("{}: ignoring duplicate subscription to {} for {}", nexus, topic);    
+        if (loggingEnabled && LOG.isDebugEnabled()) LOG.debug("{}: ignoring duplicate subscription to {}", nexus, topic);    
       }
     }
     if (newSessionId != null) {
@@ -239,7 +239,7 @@ public final class EdgeNode implements AutoCloseable, BackplaneConnector {
       if (existing.contains(topic)) {
         toUnsubscribe.add(topic);
       } else {
-        if (loggingEnabled && LOG.isDebugEnabled()) LOG.debug("{}: ignoring duplicate unsubscription from {} for {}", nexus, topic);
+        if (loggingEnabled && LOG.isDebugEnabled()) LOG.debug("{}: ignoring duplicate unsubscription from {}", nexus, topic);
       }
     }
     
