@@ -1,6 +1,7 @@
 <img src="https://raw.githubusercontent.com/wiki/william-hill-community/flywheel/images/flywheel-logo.png" alt="logo" width="80"/> Flywheel
 ===
 [ ![Download](https://api.bintray.com/packages/william-hill-community/flywheel/flywheel-core/images/download.svg) ](https://bintray.com/william-hill-community/flywheel/flywheel-core/_latestVersion)
+[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/obsidiandynamics/flywheel.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/obsidiandynamics/flywheel/context:java)
 
 Flywheel is a simple broker for secure pub/sub message streaming over WebSockets. It can run as a standalone cluster or embedded into an existing application. It's easy to extend and supports custom auth'n/auth'z plugins for controlling exactly what your subscribers get access to.
 
